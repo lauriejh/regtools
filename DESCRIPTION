@@ -1,12 +1,11 @@
 Package: regtools
 Type: Package
-Title: What the Package Does (Title Case)
+Title: regtools: Trend/prevalence analysis and visualization tool for mental health diagnoses in 
+Norwegian health registers. 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Alejandra Martinez Sanchez
+Maintainer: Alejandra Martinez Sanchez <alejandra.martinez.sanchez@fhi.no>
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/amslala/regtools
