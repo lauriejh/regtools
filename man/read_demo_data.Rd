@@ -9,7 +9,7 @@ read_demo_data(file_path, data_type, id_col = "id", date_col = "date", ...)
 \arguments{
 \item{file_path}{File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.}
 
-\item{data_type}{Demographic data can either be of type "t_unvarying" or "t_varying", necessary to check correct data structure characteristics.}
+\item{data_type}{Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
 
 \item{id_col}{Name of ID column in data set, default is "id"}
 
