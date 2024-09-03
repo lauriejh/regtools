@@ -72,7 +72,8 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
       stop("The 'date' column must be of type date or numeric")
     }
     Sys.sleep(1)
-    message("Date \u2713")}
+  }
+  message("Date \u2713")
   Sys.sleep(1)
 
   ###### Time invariant: check ID duplicates #####
