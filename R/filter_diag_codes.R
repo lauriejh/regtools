@@ -49,8 +49,7 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", min_d
   message("Filtering data by specified minimum diagnostic events...")
   filtered_data_min <- filtered_data |>
     dplyr::group_by_at(c(id_col, code_col)) |> #could include option for time grouping variable, certain amount of cases in the same year or irrelevant of year?
-    dplyr::summarise(count = dplyr::n()) |>
-    dplyr::filter(count >=min_diag)
+    dplyr::filter(dplyr::n() >= min_diag)
 
   message("\u2713")
   return(filtered_data_min)
