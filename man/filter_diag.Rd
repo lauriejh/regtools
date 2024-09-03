@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_diag_codes.R
 \name{filter_diag}
 \alias{filter_diag}
-\title{Validate and filter diagnostic data}
+\title{Validate and filter diagnostic data by selected ICD-10 codes}
 \usage{
 filter_diag(data, codes, id_col = "id", code_col = "icd_code", min_diag)
 }
@@ -10,6 +10,8 @@ filter_diag(data, codes, id_col = "id", code_col = "icd_code", min_diag)
 \item{data}{Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)}
 
 \item{codes}{Character vector including ICD-10 codes to validate and filter diagnostic data}
+
+\item{id_col}{Name of ID column in data set, default is "id"}
 
 \item{code_col}{String containing the name of column containing the diagnostic codes}
 
@@ -19,5 +21,5 @@ filter_diag(data, codes, id_col = "id", code_col = "icd_code", min_diag)
 Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 }
 \description{
-Validate and filter diagnostic data
+Validate and filter diagnostic data by selected ICD-10 codes
 }
