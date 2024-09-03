@@ -3,14 +3,19 @@
 #' @param data Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)
 #' @param codes Character vector including ICD-10 codes to validate and filter diagnostic data
 #' @param code_col String containing the name of column containing the diagnostic codes
+#' @param min_diag Numerical value, minimum amount of diagnostic events
 #'
 #' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 #' @importFrom purrr map_lgl
 #' @importFrom dplyr filter
+#' @importFrom dplyr n
+#' @importFrom dplyr group_by_at
+#' @importFrom dplyr summarise
+#'
 #' @export
 #'
 
-filter_diag <- function(data, codes, code_col = "icd_code"){
+filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", min_diag){
 
   stopifnot("The specified code column does not exist in the dataset" = code_col %in% colnames(data))
 
@@ -37,7 +42,17 @@ filter_diag <- function(data, codes, code_col = "icd_code"){
   } else{
     filtered_data <- data |>
       dplyr::filter(.data[[code_col]] %in% codes)
-    return(filtered_data)
   }
+  message("\u2713")
+
+  ####Keep only observations that comply with minimum diagnostic####
+  message("Filtering data by specified minimum diagnostic events...")
+  filtered_data_min <- filtered_data |>
+    dplyr::group_by_at(c(id_col, code_col)) |> #could include option for time grouping variable, certain amount of cases in the same year or irrelevant of year?
+    dplyr::summarise(count = dplyr::n()) |>
+    dplyr::filter(count >=min_diag)
+
+  message("\u2713")
+  return(filtered_data_min)
   #give some information to the user that can be useful: number of ids (rows), year/date span, what do the codes refer to?
 }

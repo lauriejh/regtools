@@ -4,7 +4,7 @@
 \alias{filter_diag}
 \title{Validate and filter diagnostic data}
 \usage{
-filter_diag(data, codes, code_col = "icd_code")
+filter_diag(data, codes, id_col = "id", code_col = "icd_code", min_diag)
 }
 \arguments{
 \item{data}{Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)}
@@ -12,6 +12,8 @@ filter_diag(data, codes, code_col = "icd_code")
 \item{codes}{Character vector including ICD-10 codes to validate and filter diagnostic data}
 
 \item{code_col}{String containing the name of column containing the diagnostic codes}
+
+\item{min_diag}{Numerical value, minimum amount of diagnostic events}
 }
 \value{
 Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
