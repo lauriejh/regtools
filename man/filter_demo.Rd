@@ -4,12 +4,14 @@
 \alias{filter_demo}
 \title{Filter demographic data by selected filtering parameters}
 \usage{
-filter_demo(data, filter_param)
+filter_demo(data, filter_param, rm_na = TRUE)
 }
 \arguments{
 \item{data}{Data frame containing pre-processed demographic data}
 
 \item{filter_param}{Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
+
+\item{rm_na}{Removes observations that have NA in the filtered columns.}
 }
 \value{
 Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
