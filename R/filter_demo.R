@@ -10,6 +10,9 @@
 #' @importFrom rlang sym
 #' @importFrom tidyr drop_na
 #' @importFrom skimr skim
+#' @importFrom tidyselect everything
+#' @importFrom dplyr across
+#' @importFrom dplyr summarize
 #'
 #' @export
 #'
@@ -25,18 +28,23 @@ filter_demo <- function(data, filter_param, rm_na = TRUE){
   cat("\n")
   message(paste0("\u2022", nrow(filtered_data), " observations fullfilled the selected filtering parameters: "))
   Sys.sleep(2)
-  print(data |> skim())
+  print(data |> skimr::skim())
 
-  ####Remove NAs####
+  ####Check for NAs nad remove if needed####
   if (rm_na == TRUE) {
-    message("Removing observations containing NAs...")
-    n_missing_sum <- data |>
-      summarize(across(everything(), ~ sum(is.na(.))))
-    print(n_missing_sum)
-    Sys.sleep(1)
-    filtered_data <- filtered_data |>
-      tidyr::drop_na()
-    message("\u2022 After removing NAs, the dataset has ", nrow(filtered_data), " observations.")
+    n_missing <- data |>
+      dplyr::summarize(dplyr::across(tidyselect::everything(), ~ sum(is.na(.))))
+    if(sum(n_missing) > 0){
+      message(paste0("Removing ",sum(n_missing)," observations containing NAs: "))
+      print(n_missing)
+      Sys.sleep(1)
+      filtered_data <- filtered_data |>
+        tidyr::drop_na()
+      message("\u2022 After removing NAs, the dataset has ", nrow(filtered_data), " observations.")
+    }
+    else {
+      message("The dataset has no NAs or they are coded in a different format.")
+    }
   }
   return(filtered_data)
 }
