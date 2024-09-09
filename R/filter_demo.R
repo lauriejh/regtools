@@ -6,10 +6,11 @@
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
 #' @importFrom dplyr filter
-#' @importFrom dplyr if_any
-#' @importFrom tidyselect all_of
 #' @importFrom purrr reduce
 #' @importFrom rlang sym
+#' @importFrom tidyr drop_na
+#' @importFrom skimr skim
+#'
 #' @export
 #'
 
@@ -20,17 +21,22 @@ filter_demo <- function(data, filter_param, rm_na = TRUE){
   filtered_data <- purrr::reduce(names(filter_param), function(df, col) {
     df |>  dplyr::filter(!!rlang::sym(col) %in% filter_param[[col]])
   }, .init = data)
+  message(paste0("Original dataset had "), nrow(data), " observations.")
+  cat("\n")
+  message(paste0("\u2022", nrow(filtered_data), " observations fullfilled the selected filtering parameters: "))
+  Sys.sleep(2)
+  print(data |> skim())
 
-  ####Check for NAs####
+  ####Remove NAs####
   if (rm_na == TRUE) {
-    message("Removing observations containing NAs")
-    cols <- names(filter_param)
-    filtered_data_na <- filtered_data |>
-      dplyr::filter(!dplyr::if_any(tidyselect::all_of(cols), ~ is.na(.)))
+    message("Removing observations containing NAs...")
+    n_missing_sum <- data |>
+      summarize(across(everything(), ~ sum(is.na(.))))
+    print(n_missing_sum)
+    Sys.sleep(1)
+    filtered_data <- filtered_data |>
+      tidyr::drop_na()
+    message("\u2022 After removing NAs, the dataset has ", nrow(filtered_data), " observations.")
   }
-  else{
-    message("Not removing NAs")
-    filtered_data_na <- filtered_data
-    }
-  return(filtered_data_na)
+  return(filtered_data)
 }
