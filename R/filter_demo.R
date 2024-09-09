@@ -2,7 +2,7 @@
 #'
 #' @param data Data frame containing pre-processed demographic data
 #' @param filter_param Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
-#' @param rm_na Removes observations that have NA in the filtered columns.
+#' @param rm_na Removes observations that have NA in the non-filtered columns.
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
 #' @importFrom dplyr filter

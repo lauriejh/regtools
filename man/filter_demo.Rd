@@ -11,7 +11,7 @@ filter_demo(data, filter_param, rm_na = TRUE)
 
 \item{filter_param}{Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
 
-\item{rm_na}{Removes observations that have NA in the filtered columns.}
+\item{rm_na}{Removes observations that have NA in the non-filtered columns.}
 }
 \value{
 Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
