@@ -8,7 +8,7 @@ filter_demo(
   data,
   data_type,
   filter_param,
-  id_col = "id",
+  id_col = NULL,
   any = FALSE,
   rm_na = TRUE
 )
@@ -20,7 +20,9 @@ filter_demo(
 
 \item{filter_param}{Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
 
-\item{any}{Filtering option, any year. Default = FALSE}
+\item{id_col}{Optional flag, necessary for "any" filtering option.}
+
+\item{any}{Filtering option, any year. Default = FALSE.}
 
 \item{rm_na}{Removes observations that have NA in the non-filtered columns.}
 }
