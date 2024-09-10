@@ -4,7 +4,7 @@
 #' @param codes Character vector including ICD-10 codes to validate and filter diagnostic data
 #' @param id_col Name of ID column in data set, default is "id"
 #' @param code_col String containing the name of column containing the diagnostic codes
-#' @param min_diag Numerical value, minimum amount of diagnostic events
+#'
 #'
 #' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 #' @importFrom purrr map_lgl
@@ -16,7 +16,7 @@
 #' @export
 #'
 
-filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", min_diag){
+filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code"){
 
   stopifnot("The specified code column does not exist in the dataset" = code_col %in% colnames(data))
   stopifnot("The specified id column does not exist in the dataset" = id_col %in% colnames(data))
