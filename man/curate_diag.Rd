@@ -6,7 +6,7 @@
 \usage{
 curate_diag(
   data,
-  min_diag,
+  min_diag = 1,
   id_col = "id",
   code_col = "icd_code",
   date_col = "date"

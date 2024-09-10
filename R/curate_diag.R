@@ -19,7 +19,7 @@
 #' @export
 #'
 #'
-curate_diag <- function(data, min_diag, id_col = "id", code_col = "icd_code", date_col = "date"){
+curate_diag <- function(data, min_diag = 1, id_col = "id", code_col = "icd_code", date_col = "date"){
   stopifnot("The specified id column does not exist in the dataset" = id_col %in% colnames(data))
   stopifnot("The specified code column does not exist in the dataset" = code_col %in% colnames(data))
   stopifnot("The specified date column does not exist in the dataset" = date_col %in% colnames(data))
