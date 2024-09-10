@@ -4,12 +4,23 @@
 \alias{filter_demo}
 \title{Filter demographic data by selected filtering parameters}
 \usage{
-filter_demo(data, filter_param, rm_na = TRUE)
+filter_demo(
+  data,
+  data_type,
+  filter_param,
+  id_col = "id",
+  any = FALSE,
+  rm_na = TRUE
+)
 }
 \arguments{
 \item{data}{Data frame containing pre-processed demographic data}
 
+\item{data_type}{Type of demographic data: "t_variant" or "t-variant"}
+
 \item{filter_param}{Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
+
+\item{any}{Filtering option, any year. Default = FALSE}
 
 \item{rm_na}{Removes observations that have NA in the non-filtered columns.}
 }
