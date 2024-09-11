@@ -43,7 +43,8 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
         tidyr::drop_na()
       message(paste("\u2022 After removing NAs, the dataset has ", nrow(data_no_na), " observations."))
       } else {
-        message("The dataset has no NAs or they are coded in a different format.")
+        warning("The dataset has no NAs or they are coded in a different format.")
+        data_no_na <- data
       }
     return(data_no_na)
   }
