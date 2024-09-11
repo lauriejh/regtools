@@ -7,6 +7,7 @@
 curate_diag(
   data,
   min_diag = 1,
+  first_diag = TRUE,
   id_col = "id",
   code_col = "icd_code",
   date_col = "date"
@@ -16,6 +17,8 @@ curate_diag(
 \item{data}{Data frame containing pre-processed and validated diagnostic data (check minimum requirements in documentation)}
 
 \item{min_diag}{Numerical value, minimum amount of diagnostic events}
+
+\item{first_diag}{Option to summarize information keeping only the first recorded diagnostic event. Default set to TRUE.}
 
 \item{id_col}{Character string containing the name of the ID column in data set, default is "id"}
 

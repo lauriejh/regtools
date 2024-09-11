@@ -2,6 +2,7 @@
 #'
 #' @param data Data frame containing pre-processed and validated diagnostic data (check minimum requirements in documentation)
 #' @param min_diag Numerical value, minimum amount of diagnostic events
+#' @param first_diag Option to summarize information keeping only the first recorded diagnostic event. Default set to TRUE.
 #' @param id_col Character string containing the name of the ID column in data set, default is "id"
 #' @param code_col Character string containing the name of the code column in data set, default is "icd_code"
 #' @param date_col Character string containing the name of date column in data set, default is "date"
@@ -19,7 +20,7 @@
 #' @export
 #'
 #'
-curate_diag <- function(data, min_diag = 1, id_col = "id", code_col = "icd_code", date_col = "date"){
+curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", code_col = "icd_code", date_col = "date"){
   stopifnot("The specified id column does not exist in the dataset" = id_col %in% colnames(data))
   stopifnot("The specified code column does not exist in the dataset" = code_col %in% colnames(data))
   stopifnot("The specified date column does not exist in the dataset" = date_col %in% colnames(data))
@@ -30,16 +31,19 @@ curate_diag <- function(data, min_diag = 1, id_col = "id", code_col = "icd_code"
     dplyr::filter(dplyr::n() >= min_diag)
 
   ####Summarize first diagnostic information####
-  id_col_sym <- rlang::sym(id_col)
-  code_col_sym <- rlang::sym(code_col)
-  date_col_sym <- rlang::sym(date_col)
-
-  filtered_data_first <- filtered_data_min |>
-    dplyr::arrange(!!id_col_sym, !!date_col_sym) |>
-    dplyr::group_by(!!id_col_sym) |>
-    dplyr::summarise(code = dplyr::first(!!code_col_sym),
+  if (first_diag){
+    message("Summarizing first diagnostic event information...")
+    id_col_sym <- rlang::sym(id_col)
+    code_col_sym <- rlang::sym(code_col)
+    date_col_sym <- rlang::sym(date_col)
+    filtered_data_min <- filtered_data_min |>
+      dplyr::arrange(!!id_col_sym, !!date_col_sym) |>
+      dplyr::group_by(!!id_col_sym) |>
+      dplyr::summarise(code = dplyr::first(!!code_col_sym),
                      y_diagnosis_first = min(!!date_col_sym),
                      diagnosis_count = dplyr::n(),
                      dplyr::across(!c(!!code_col_sym, !!date_col_sym), first),
                      .groups = 'drop')
+  }
+  return(filtered_data_min)
 }
