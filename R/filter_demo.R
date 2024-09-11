@@ -39,12 +39,13 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
       message(paste("Removing ", sum(n_missing), "observations containing NAs: "))
       print(n_missing)
       Sys.sleep(1)
-      data <- data |>
+      data_no_na <- data |>
         tidyr::drop_na()
-      message(paste("\u2022 After removing NAs, the dataset has ", nrow(filtered_data), " observations."))
+      message(paste("\u2022 After removing NAs, the dataset has ", nrow(data_no_na), " observations."))
       } else {
         message("The dataset has no NAs or they are coded in a different format.")
       }
+    return(data_no_na)
   }
 
   do_filter <- function(data, filter_param, id_col = NULL, any = FALSE){
@@ -83,6 +84,5 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
   if(rm_na) {
     filtered_data <- remove_na(filtered_data)
   }
-
   return(filtered_data)
 }
