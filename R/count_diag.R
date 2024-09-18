@@ -23,9 +23,10 @@ count_diag <- function(data, grouping_vars = NULL, id_col = "id"){
     stop("Your data must contain the specified 'id' column.")
   }
 
-  ##Count distinct id cases, grouped if given grouping_vars
+  ##Count distinct id cases, grouped with given grouping_vars
   id_col_sym <- rlang::sym(id_col)
   count_data <- data |>
     dplyr::group_by_at(grouping_vars) |>
-    dplyr::summarise(diag_count = dplyr::n_distinct(!!id_col_sym), .groups = 'drop')
+    dplyr::summarise(unique_id = dplyr::n_distinct(!!id_col_sym),
+                     total_obs = dplyr::n(), .groups = 'drop')
 }
