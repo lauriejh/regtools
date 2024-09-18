@@ -6,10 +6,10 @@
 \usage{
 link_diag_demo(
   data_diag,
-  data_demo_inv,
-  data_demo_var,
+  data_demo_inv = NULL,
+  data_demo_var = NULL,
   id_col = "id",
-  date_col = NULL
+  date_col = "year"
 )
 }
 \arguments{
