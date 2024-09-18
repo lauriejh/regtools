@@ -9,6 +9,7 @@
 #' @importFrom dplyr group_by_at
 #' @importFrom dplyr summarise
 #' @importFrom dplyr n_distinct
+#' @importFrom dplyr n
 #'
 #' @export
 #'
