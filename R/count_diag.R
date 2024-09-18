@@ -30,4 +30,6 @@ count_diag <- function(data, grouping_vars = NULL, id_col = "id"){
     dplyr::group_by_at(grouping_vars) |>
     dplyr::summarise(unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_obs = dplyr::n(), .groups = 'drop')
+
+  ##Need to include suppression already in this step, for now it could be done with simple rule <5 or <10
 }
