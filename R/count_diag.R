@@ -3,7 +3,6 @@
 #' @param data Minimal tidy dataset containing both diagnostic and demographic information.
 #' @param grouping_vars Character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
-#'
 #' @return Dataset containing the diagnostic counts with the specified grouping
 #' @importFrom rlang sym
 #' @importFrom dplyr group_by_at
@@ -29,7 +28,6 @@ count_diag <- function(data, grouping_vars = NULL, id_col = "id"){
   count_data <- data |>
     dplyr::group_by_at(grouping_vars) |>
     dplyr::summarise(unique_id = dplyr::n_distinct(!!id_col_sym),
-                     total_obs = dplyr::n(), .groups = 'drop')
+                     total_events = dplyr::n(), .groups = 'drop')
 
-  ##Need to include suppression already in this step, for now it could be done with simple rule <5 or <10
 }
