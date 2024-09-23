@@ -14,14 +14,6 @@
 #' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
 #' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
 #' @return Prevalence rate table
-#' @importFrom rlang sym
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarise
-#' @importFrom dplyr n_distinct
-#' @importFrom dplyr n
-#' @importFrom dplyr left_join
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
 #'
 #' @export
 #'
@@ -59,7 +51,7 @@ calculate_prev <- function(linked_data,
 
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
-      mutate(across(all_of(columns), ~ ifelse(. <= threshold, NA, .)))
+      dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
   }
 
   ##Group by specified grouping variables ####
@@ -76,19 +68,21 @@ calculate_prev <- function(linked_data,
     dplyr::summarise(unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_events = dplyr::n(), .groups = 'drop')
 
-  ##Intermediate results and suppression ####
+  ## Suppression ####
+  if (suppression){
+    count_data_suppressed <- suppress_values(data = count_data, columns = c("unique_id", "total_events"), threshold = suppression_treshold)
+  } else {
+    warning("No suppression. Confidentiality cannot be assured.")
+    count_data_suppressed <- count_data
+  }
+
+  ## Intermediate results: only diagnostic counts ####
   if (only_counts){
-    if (suppression){
-      count_data_suppressed <- suppress_values(data = count_data, columns = c("unique_id", "total_events"), threshold = suppression_treshold)
-    } else {
-      warning("No suppression. Confidentiality cannot be assured.")
-      count_data_suppressed <- count_data
-    }
     return(count_data_suppressed)
   }
 
   ##Join with population and calculate rates ####
-  prevalence <- count_data |>
+  prevalence <- count_data_suppressed |>
       dplyr::left_join(pop_data, by = grouping_vars) |>
       dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
   return(prevalence)
