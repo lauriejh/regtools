@@ -8,14 +8,6 @@
 #' @param date_col Character string containing the name of date column in data set, default is "date"
 #'
 #' @return Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
-#' @importFrom dplyr group_by_at
-#' @importFrom dplyr group_by
-#' @importFrom dplyr n
-#' @importFrom rlang sym
-#' @importFrom dplyr arrange
-#' @importFrom dplyr summarise
-#' @importFrom dplyr first
-#' @importFrom dplyr across
 #'
 #' @export
 #'
@@ -42,7 +34,7 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
       dplyr::summarise(code = dplyr::first(!!code_col_sym),
                      y_diagnosis_first = min(!!date_col_sym),
                      diagnosis_count = dplyr::n(),
-                     dplyr::across(!c(!!code_col_sym, !!date_col_sym), first),
+                     dplyr::across(!c(!!code_col_sym, !!date_col_sym), dplyr::first),
                      .groups = 'drop')
   }
   return(filtered_data_min)

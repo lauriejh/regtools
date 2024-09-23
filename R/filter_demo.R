@@ -9,15 +9,6 @@
 #' @param any Filtering option, any year. Default = FALSE.
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
-#' @importFrom dplyr filter
-#' @importFrom purrr reduce
-#' @importFrom rlang sym
-#' @importFrom skimr skim
-#' @importFrom tidyselect everything
-#' @importFrom dplyr across
-#' @importFrom dplyr summarize
-#' @importFrom dplyr group_by
-#' @importFrom dplyr ungroup
 #'
 #' @export
 #'

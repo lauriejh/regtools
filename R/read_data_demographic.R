@@ -11,9 +11,6 @@
 #' @param ... Optional extra parameters for specifying correct reading of CSV and .SAV files
 #'
 #' @return A data frame with the validated minimum requirements for demographic data
-#' @importFrom haven read_sav
-#' @importFrom utils read.csv
-#' @importFrom lubridate is.Date
 #' @export
 #'
 

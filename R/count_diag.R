@@ -4,11 +4,6 @@
 #' @param grouping_vars Character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
 #' @return Dataset containing the diagnostic counts with the specified grouping
-#' @importFrom rlang sym
-#' @importFrom dplyr group_by_at
-#' @importFrom dplyr summarise
-#' @importFrom dplyr n_distinct
-#' @importFrom dplyr n
 #'
 #' @export
 #'

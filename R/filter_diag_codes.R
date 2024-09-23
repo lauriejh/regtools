@@ -7,11 +7,6 @@
 #'
 #'
 #' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
-#' @importFrom purrr map_lgl
-#' @importFrom dplyr filter
-#' @importFrom dplyr n
-#' @importFrom dplyr group_by_at
-#' @importFrom dplyr summarise
 #'
 #' @export
 #'
