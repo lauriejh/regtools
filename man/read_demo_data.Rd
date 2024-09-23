@@ -21,6 +21,6 @@ read_demo_data(file_path, data_type, id_col = "id", date_col = "date", ...)
 A data frame with the validated minimum requirements for demographic data
 }
 \description{
-`read_data_demographic()` validates the general structure and minimum column requirements for demographic data.
+`read_demo_data()` validates the general structure and minimum column requirements for demographic data.
 The input data sets must be CSV, RDS, RDA or .SAV files.
 }

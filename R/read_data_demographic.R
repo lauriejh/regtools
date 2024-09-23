@@ -2,7 +2,7 @@
 #' Read and validate the structure of demographic data
 #'
 #' @description
-#'`read_data_demographic()` validates the general structure and minimum column requirements for demographic data.
+#'`read_demo_data()` validates the general structure and minimum column requirements for demographic data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
 #' @param file_path File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.
 #' @param data_type Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
