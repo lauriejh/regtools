@@ -7,11 +7,14 @@
 calculate_prev(
   linked_data,
   id_col = "id",
+  date_col = "date",
   pop_data,
   pop_col = "pop_count",
-  time_period = NULL,
+  time_p = NULL,
   grouping_vars = NULL,
-  only_counts = FALSE
+  only_counts = FALSE,
+  suppression = TRUE,
+  suppression_treshold = 5
 )
 }
 \arguments{
@@ -23,15 +26,20 @@ calculate_prev(
 
 \item{pop_col}{Name (character) of the column containing population counts in the population dataset.}
 
-\item{time_period}{?? Optional}
+\item{time_p}{Optional time period or time point. Useful to calculate either point or period prevalence.}
 
 \item{grouping_vars}{Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).}
 
 \item{only_counts}{Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.}
+
+\item{suppression}{Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.}
+
+\item{suppression_treshold}{Threshold for suppression, default is set to 5 (NPR standard).}
 }
 \value{
 Prevalence rate table
 }
 \description{
-Calculate prevalence rates
+The `calculate_prev()` function calculates prevalence rates based on the given diagnostic and demographic information.
+Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 }
