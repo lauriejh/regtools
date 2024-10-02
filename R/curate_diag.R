@@ -28,6 +28,7 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
     id_col_sym <- rlang::sym(id_col)
     code_col_sym <- rlang::sym(code_col)
     date_col_sym <- rlang::sym(date_col)
+
     filtered_data_min <- filtered_data_min |>
       dplyr::arrange(!!id_col_sym, !!date_col_sym) |>
       dplyr::group_by(!!id_col_sym) |>
