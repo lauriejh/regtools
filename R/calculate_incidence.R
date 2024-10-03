@@ -2,9 +2,10 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
                                 type,
                                 id_col = "id",
                                 date_col = "date",
-                                pop_data,
+                                pop_data = NULL,
                                 pop_col = "pop_count", #population at risk
-                                person_time = "person_time", #number used for denominator
+                                person_time_data = NULL,
+                                person_time_col = NULL, #number used for denominator
                                 time_p = NULL,
                                 grouping_vars = NULL,
                                 only_counts = FALSE,
@@ -13,7 +14,7 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
 
 
   ## Input validation ####
-  stopifnot("Requires linked and population dataset"= !is.null(linked_data), !is.null(pop_data))
+  stopifnot("Requires linked dataset"= !is.null(linked_data))
 
   if(!all(grouping_vars %in% names(linked_data))) {
     stop("Your data must contain the specified 'grouping variables'.")
@@ -37,8 +38,9 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
   }
 
   ##Person-time need to be numeric
-  stopifnot("Person-time value needs to be a numeric value. " = is.numeric(person_time), length(person_time) == 1)
-
+  if(type == "rate"){
+    stopifnot("To compute incidence rates it is necessary to provide person-time value" = !is.null(person_time_data))
+  }
 
   ##### If cumulative type is specified, then require time_p. Otherwise consider that all the dates in the dataset are the period of interest ####
 
@@ -90,9 +92,23 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
   }
 
 
-  #For cumulative incidence:
+  #For cumulative incidence:####
   #new cases in a period/ population at risk at start of the period (only diseased free population)
 
-  #For incidence rate:
+  #For incidence rate:####
   #number of new diagnoses/total person-time at risk (need to account for left-truncation and censoring etc...)
+
+  if(type == "cumulative"){
+    cumulative_incidence <- count_data |>
+      dplyr::left_join(pop_data, by = grouping_vars) |>
+      dplyr::mutate(cum_incidence = incidence_cases/.data[[pop_col]])
+    return(cumulative_incidence)
+  } else if (type == "rate"){
+    incidence_rate <- count_data |>
+      dplyr::left_join(person_time_data, by = grouping_vars) |>
+      dplyr::mutate(incidence_rate = (incidence_cases/.data[[person_time_col]]) * 1000)
+    return(incidence_rate)
+  }
+
+
 }

@@ -1,7 +1,7 @@
 #' Calculate prevalence rates
 #'
 #' @description
-#'The `calculate_prev()` function calculates prevalence rates based on the given diagnostic and demographic information.
+#'The `calculate_prevalence()` function calculates prevalence rates based on the given diagnostic and demographic information.
 #'Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 #'
 #' @param linked_data Dataset containing relevant diagnostic and demographic information
@@ -18,7 +18,7 @@
 #' @export
 #'
 
-calculate_prev <- function(linked_data,
+calculate_prevalence <- function(linked_data,
                            id_col = "id",
                            date_col = "date",
                            pop_data,
