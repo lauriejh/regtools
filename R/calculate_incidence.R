@@ -23,6 +23,10 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     stop("Your data must contain the specified 'id' column.")
   }
 
+  supported_types <- c("cumulative", "rate")
+  stopifnot("Incidence type not supported. Please specify 'cumulative' for computing cumulative incidence, or 'rate' for incidence rate." = type %in% supported_types)
+
+
   ## Dataset should only contain new cases for correct computation of incidence statistics
   message("To correctly calculate incidence rates, the provided dataset should only contain new/first time diagnoses.")
   new_cases <- readline(prompt = "Have you verified that the provided dataset fulfills this requirement? (yes/no): ")
@@ -49,7 +53,6 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
       linked_data <- linked_data
       }
   }
-
   #### Suppression helper function ####
 
   suppress_values <- function(data, columns, threshold) {
