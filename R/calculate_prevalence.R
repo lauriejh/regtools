@@ -8,7 +8,7 @@
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
 #' @param pop_data Dataset containing relevant population information.
 #' @param pop_col Name (character) of the column containing population counts in the population dataset.
-#' @param time_p Optional time period or time point. Useful to calculate either point or period prevalence.
+#' @param time_p  Time period or time point. Useful to calculate either point or period prevalence.
 #' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
 #' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
 #' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
@@ -19,15 +19,15 @@
 #'
 
 calculate_prevalence <- function(linked_data,
-                           id_col = "id",
-                           date_col = "date",
-                           pop_data,
-                           pop_col = "pop_count",
-                           time_p = NULL,
-                           grouping_vars = NULL,
-                           only_counts = FALSE,
-                           suppression = TRUE,
-                           suppression_treshold = 5){
+                                 id_col = "id",
+                                 date_col = "date",
+                                 pop_data,
+                                 pop_col = "pop_count",
+                                 time_p,
+                                 grouping_vars = NULL,
+                                 only_counts = FALSE,
+                                 suppression = TRUE,
+                                 suppression_treshold = 5){
 
   ## Input validation ####
   stopifnot("Requires linked and population dataset"= !is.null(linked_data), !is.null(pop_data))
@@ -40,18 +40,15 @@ calculate_prevalence <- function(linked_data,
     stop("Your data must contain the specified 'id' column.")
   }
 
-  ##### If time_p is specified, filter data ####
-  if (!is.null(time_p)) {
-    linked_data <- linked_data |>
+  ##### Check for time-period and filter ####
+  linked_data <- linked_data |>
       dplyr::filter(.data[[date_col]] >= time_p[1],
-             .data[[date_col]] <= time_p[2])
-  }
+                    .data[[date_col]] <= time_p[2])
 
   #### Suppression helper function ####
-
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
-      dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
+      dplyr::mutate(dplyr::(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
   }
 
   ##Group by specified grouping variables ####
@@ -65,7 +62,8 @@ calculate_prevalence <- function(linked_data,
   ##Calculate counts ####
   id_col_sym <- rlang::sym(id_col)
   count_data <- data_grouped |>
-    dplyr::summarise(unique_id = dplyr::n_distinct(!!id_col_sym),
+    dplyr::summarise(time_p = paste(as.character(time_p), collapse = '-'),
+                     unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_events = dplyr::n(), .groups = 'drop')
 
   ## Suppression ####
