@@ -26,7 +26,7 @@ calculate_prevalence(
 
 \item{pop_col}{Name (character) of the column containing population counts in the population dataset.}
 
-\item{time_p}{Time period or time point. Useful to calculate either point or period prevalence.}
+\item{time_p}{Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.}
 
 \item{grouping_vars}{Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).}
 

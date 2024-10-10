@@ -8,7 +8,7 @@
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
 #' @param pop_data Dataset containing relevant population information.
 #' @param pop_col Name (character) of the column containing population counts in the population dataset.
-#' @param time_p  Time period or time point. Useful to calculate either point or period prevalence.
+#' @param time_p  Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.
 #' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
 #' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
 #' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
@@ -40,26 +40,33 @@ calculate_prevalence <- function(linked_data,
     stop("Your data must contain the specified 'id' column.")
   }
 
-  ##### Check for time-period and filter ####
-  linked_data <- linked_data |>
+  ##### Check for time-point or period and filter ####
+  if (length(time_p) == 1){
+    filtered_data <- linked_data |>
+      dplyr::filter(.data[[date_col]] == time_p)
+  } else if (length(time_p) ==2){
+    filtered_data <- linked_data |>
       dplyr::filter(.data[[date_col]] >= time_p[1],
                     .data[[date_col]] <= time_p[2])
+  } else{
+    stop("Time input should be either a single year or a vector of two years for a range")
+  }
 
   #### Suppression helper function ####
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
-      dplyr::mutate(dplyr::(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
+      dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
   }
 
-  ##Group by specified grouping variables ####
+  ## Group by specified grouping variables ####
   if (!is.null(grouping_vars)) {
-    data_grouped <- linked_data |>
+    data_grouped <- filtered_data |>
       dplyr::group_by(dplyr::across(tidyselect::all_of(grouping_vars)))
   } else {
     data_grouped <- linked_data
   }
 
-  ##Calculate counts ####
+  ## Calculate counts ####
   id_col_sym <- rlang::sym(id_col)
   count_data <- data_grouped |>
     dplyr::summarise(time_p = paste(as.character(time_p), collapse = '-'),
@@ -79,7 +86,7 @@ calculate_prevalence <- function(linked_data,
     return(count_data_suppressed)
   }
 
-  ##Join with population and calculate rates ####
+  ## Join with population and calculate rates ####
   prevalence <- count_data_suppressed |>
       dplyr::left_join(pop_data, by = grouping_vars) |>
       dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
