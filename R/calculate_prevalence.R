@@ -6,6 +6,7 @@
 #'
 #' @param linked_data Dataset containing relevant diagnostic and demographic information
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
+#' @param date_col Name (character) of the date column in the data set. Default is "date".
 #' @param pop_data Dataset containing relevant population information.
 #' @param pop_col Name (character) of the column containing population counts in the population dataset.
 #' @param time_p  Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.
@@ -21,7 +22,7 @@
 calculate_prevalence <- function(linked_data,
                                  id_col = "id",
                                  date_col = "date",
-                                 pop_data,
+                                 pop_data = NULL,
                                  pop_col = "pop_count",
                                  time_p,
                                  grouping_vars = NULL,
@@ -30,7 +31,7 @@ calculate_prevalence <- function(linked_data,
                                  suppression_treshold = 5){
 
   ## Input validation ####
-  stopifnot("Requires linked and population dataset"= !is.null(linked_data), !is.null(pop_data))
+  stopifnot("Requires linked dataset"= !is.null(linked_data))
 
   if(!all(grouping_vars %in% names(linked_data))) {
     stop("Your data must contain the specified 'grouping variables'.")
@@ -48,7 +49,7 @@ calculate_prevalence <- function(linked_data,
     filtered_data <- linked_data |>
       dplyr::filter(.data[[date_col]] >= time_p[1],
                     .data[[date_col]] <= time_p[2])
-  } else{
+  } else {
     stop("Time input should be either a single year or a vector of two years for a range")
   }
 

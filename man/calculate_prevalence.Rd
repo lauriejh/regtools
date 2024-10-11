@@ -8,7 +8,7 @@ calculate_prevalence(
   linked_data,
   id_col = "id",
   date_col = "date",
-  pop_data,
+  pop_data = NULL,
   pop_col = "pop_count",
   time_p,
   grouping_vars = NULL,
@@ -21,6 +21,8 @@ calculate_prevalence(
 \item{linked_data}{Dataset containing relevant diagnostic and demographic information}
 
 \item{id_col}{Name (character) of the ID column in the data set (unique personal identifier). Default is "id".}
+
+\item{date_col}{Name (character) of the date column in the data set. Default is "date".}
 
 \item{pop_data}{Dataset containing relevant population information.}
 
