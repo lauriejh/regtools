@@ -41,6 +41,11 @@ calculate_prevalence <- function(linked_data,
     stop("Your data must contain the specified 'id' column.")
   }
 
+  if(!date_col %in% names(linked_data) & !date_col %in% names(linked_data)){
+    stop("Your population and linked data must both include the specified 'date' column.")
+  }
+
+
   ##### Check for time-point or period and filter ####
   if (length(time_p) == 1){
     filtered_data <- linked_data |>
@@ -70,7 +75,7 @@ calculate_prevalence <- function(linked_data,
   ## Calculate counts ####
   id_col_sym <- rlang::sym(id_col)
   count_data <- data_grouped |>
-    dplyr::summarise(time_p = paste(as.character(time_p), collapse = '-'),
+    dplyr::summarise(year = paste(as.character(time_p), collapse = '-'),
                      unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_events = dplyr::n(), .groups = 'drop')
 
@@ -88,8 +93,14 @@ calculate_prevalence <- function(linked_data,
   }
 
   ## Join with population and calculate rates ####
+
+  # Check data type of date_col for successful joining
+  if(!is.character(pop_data[[date_col]])){
+    pop_data[[date_col]] <- as.character(pop_data[[date_col]])
+  }
+
   prevalence <- count_data_suppressed |>
-      dplyr::left_join(pop_data, by = grouping_vars) |>
+      dplyr::left_join(pop_data, by = c(grouping_vars, date_col)) |>
       dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
   return(prevalence)
 }
