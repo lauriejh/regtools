@@ -1,7 +1,7 @@
 #' Calculate prevalence series rates
 #'
 #' @param linked_data Dataset containing relevant diagnostic and demographic information
-#' @param time_points Time points.
+#' @param time_points Time points as a list.
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
 #' @param date_col Name (character) of the date column in the data set. Default is "date".
 #' @param pop_data  Dataset containing relevant population information.
@@ -36,9 +36,20 @@ prevalence_series <- function(linked_data,
     stop("Your data must contain the specified 'id' column.")
   }
 
+  ## Process time points ####
+  processed_time_points <- purrr::map(time_points, function(tp) {
+    if (length(tp) == 1) {
+      c(tp)
+    } else if (length(tp) == 2) {
+      c(min(tp), max(tp))
+    } else {
+      stop("Each time point should be either a single year or a vector of two years.")
+    }
+  })
 
-### Cycle through specified time points
-  prevalence_series_ls <- purrr::map(time_points, function(time_p) {
+
+  ## Cycle through specified time points
+  prevalence_series_ls <- purrr::map(processed_time_points, function(time_p) {
     regtools::calculate_prevalence(
       linked_data = linked_data,
       id_col = id_col,
