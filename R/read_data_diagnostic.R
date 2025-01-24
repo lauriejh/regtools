@@ -19,7 +19,8 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   file_extension <- tolower(tools::file_ext(file_path))
   supported_types <- c("csv", "rds", "rda", "sav")
 
-  ###### Check file existance and type #####
+
+  ###### Check file existence and type #####
   stopifnot("File does not exist in the specified path." = file.exists(file_path))
 
   stopifnot("File type not supported. Please provide a .csv, .rds, or .sav file." = file_extension %in% supported_types)
@@ -27,7 +28,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
   ###### Read files #####
   cat("\n")
-  message("Reading file...")
+  logger::log_info("Reading file: {file_path}")
   data <- switch(file_extension,
                  csv = utils::read.csv(file_path, ...),
                  rds = readRDS(file_path),
@@ -44,7 +45,8 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   id_column <- which(names(data) == id_col)
 
   if (length(id_column) == 0) {
-    stop(paste0("The dataset must contain a column named: ", id_col))
+    log_error("The dataset must contain a column named {id_col}")
+    return(NULL)
   }
 
   if (!is.character(data[[id_column]])) {
