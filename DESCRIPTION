@@ -13,8 +13,10 @@ BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
 Imports: 
     dplyr,
+    glue,
     haven,
     janitor,
+    logger,
     lubridate,
     purrr,
     rlang,

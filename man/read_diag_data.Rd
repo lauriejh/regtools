@@ -9,6 +9,7 @@ read_diag_data(
   id_col = "id",
   date_col = "date",
   code_col = "code",
+  log_path,
   ...
 )
 }
@@ -20,6 +21,8 @@ read_diag_data(
 \item{date_col}{Name of date column in data set, default is "date"}
 
 \item{code_col}{Name of diagnostic codes column in data set, default is "code"}
+
+\item{log_path}{File path of the log file}
 
 \item{...}{Optional extra parameters for specifying correct reading of CSV and .SAV files}
 }
