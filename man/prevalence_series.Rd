@@ -20,7 +20,7 @@ prevalence_series(
 \arguments{
 \item{linked_data}{Dataset containing relevant diagnostic and demographic information}
 
-\item{time_points}{Time points.}
+\item{time_points}{Time points as a list.}
 
 \item{id_col}{Name (character) of the ID column in the data set (unique personal identifier). Default is "id".}
 
