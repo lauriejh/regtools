@@ -18,9 +18,10 @@
 
 read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date", log_path = NULL, ...) {
 
+  ##### Set up logging #####
   log_threshold(DEBUG)
   log_formatter(formatter_glue)
-  ##### Set up logging #####
+
   if (is.null(log_path) || !file.exists(log_path)){
     if(!dir.exists("log")){
       dir.create("log")
@@ -109,27 +110,36 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
     }
   }
   message("Date \u2713")
+  cat("\n")
   log_info("Date column \u2713")
 
   ###### Time invariant: check ID duplicates #####
   if (data_type == "t_invariant"){
     log_info("Specified data type: t_invariant")
-    message("Data type: time invariant Checking requirements...")
+    message("Data type: time invariant. Checking requirements...")
     if (any(duplicated(data[[id_column]]))) {
       stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
       log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
     }
     log_info("No duplicate IDs \u2713")
     message("No duplicate IDs \u2713")
+    cat("\n")
   }
 
   ###### Summary data #####
 
-  log_with_separator("Diagnostic dataset succesfully read and columns validated")
+  log_with_separator(glue::glue("Demographic dataset '{file_path}' succesfully read and columns validated"))
+  cat(crayon::green$bold("Demographic dataset succesfully read and columns validated\n"))
+  cat("\n")
+  cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
+  cat("\n")
+  cat("\n")
+  cat(str(data))
   log_info("Data Summary: ")
-  log_info("Number of rows: {nrow(data)}. Numer of columns: {ncol(data)}")
-  log_info("Numer of columns: {ncol(data)}")
+  log_info("Number of rows: {nrow(data)}")
+  log_info("Numner of columns: {ncol(data)}")
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
+
   return(data)
 }

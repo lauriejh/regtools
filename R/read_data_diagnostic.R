@@ -22,6 +22,9 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   supported_types <- c("csv", "rds", "rda", "sav")
 
   ##### Set up logging #####
+  log_threshold(DEBUG)
+  log_formatter(formatter_glue)
+
   if (is.null(log_path) || !file.exists(log_path)){
     if(!dir.exists("log")){
       dir.create("log")
@@ -107,7 +110,9 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   }
 
   message("Date \u2713")
+  cat("\n")
   log_info("Date column \u2713")
+
 
   ###### Extra columns #####
   required_columns <- c(date_col, id_col, code_col)
@@ -127,7 +132,22 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
       log_warning("The dataset contains extra columns that were not removed by the user.")
     }
   }
-  log_with_separator("Diagnostic dataset succesfully read and columns validated")
+
+  ###### Summary data #####
+
+  log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
+  cat(crayon::green$bold("Diagnostic dataset succesfully read and columns validated\n"))
+  cat("\n")
+  cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
+  cat("\n")
+  cat("\n")
+  cat(str(data))
+  log_info("Data Summary: ")
+  log_info("Number of rows: {nrow(data)}")
+  log_info("Numner of columns: {ncol(data)}")
+  log_formatter(formatter_pander)
+  log_info(sapply(data, class))
+
   return(data)
 }
 
