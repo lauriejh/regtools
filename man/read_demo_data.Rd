@@ -4,7 +4,14 @@
 \alias{read_demo_data}
 \title{Read and validate the structure of demographic data}
 \usage{
-read_demo_data(file_path, data_type, id_col = "id", date_col = "date", ...)
+read_demo_data(
+  file_path,
+  data_type,
+  id_col = "id",
+  date_col = "date",
+  log_path = NULL,
+  ...
+)
 }
 \arguments{
 \item{file_path}{File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.}
@@ -14,6 +21,8 @@ read_demo_data(file_path, data_type, id_col = "id", date_col = "date", ...)
 \item{id_col}{Name of ID column in data set, default is "id"}
 
 \item{date_col}{Name of date column in data set, default is "date"}
+
+\item{log_path}{File path of the log file to be used .}
 
 \item{...}{Optional extra parameters for specifying correct reading of CSV and .SAV files}
 }

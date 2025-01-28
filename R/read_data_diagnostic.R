@@ -33,6 +33,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     log_appender(appender_file(glue::glue("log/read_diag_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in new log directory")
     message("Log file does not exist in specified path. Creating .log file in new log directory")
+    cat("\n")
   } else {
     log_appender(appender_file(log_path))
   }
@@ -120,7 +121,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
   if (length(extra_columns) > 0) {
     cat("The dataset contains additional columns: ", paste(extra_columns, collapse = ", "), "\n")
-    log_warnings("The dataset contains additional columns")
+    log_warn("The dataset contains additional columns")
     remove_extra <- readline(prompt = "Do you want to remove these extra columns? (yes/no): ")
 
     if (tolower(remove_extra) == "yes") {
@@ -129,7 +130,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
       log_info("User decided to remove extra columns.")
     } else {
       warning("The dataset contains extra columns that were not removed.")
-      log_warning("The dataset contains extra columns that were not removed by the user.")
+      log_warn("The dataset contains extra columns that were not removed by the user.")
     }
   }
 
@@ -141,7 +142,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
   cat("\n")
   cat("\n")
-  cat(str(data))
+  cat(utils::str(data))
   log_info("Data Summary: ")
   log_info("Number of rows: {nrow(data)}")
   log_info("Numner of columns: {ncol(data)}")

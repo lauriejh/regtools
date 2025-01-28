@@ -30,6 +30,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
     log_appender(appender_file(glue::glue("log/read_demo_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
     message("Log file does not exist in specified path. Creating .log file in log directory")
+    cat("\n")
   } else {
     log_appender(appender_file(log_path))
   }
@@ -134,7 +135,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
   cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
   cat("\n")
   cat("\n")
-  cat(str(data))
+  cat(utils::str(data))
   log_info("Data Summary: ")
   log_info("Number of rows: {nrow(data)}")
   log_info("Numner of columns: {ncol(data)}")
