@@ -22,7 +22,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   supported_types <- c("csv", "rds", "rda", "sav")
 
   ##### Set up logging #####
-  if (!file.exists(log_path)){
+  if (is.null(log_path) || !file.exists(log_path)){
     if(!dir.exists("log")){
       dir.create("log")
     }
@@ -49,7 +49,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
 
   ###### Read files #####
-  cat("\n")
+  message(glue::glue("Reading {file_path} file..."))
   data <- switch(file_extension,
                  csv = utils::read.csv(file_path, ...),
                  rds = readRDS(file_path),

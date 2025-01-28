@@ -8,80 +8,128 @@
 #' @param data_type Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
 #' @param id_col Name of ID column in data set, default is "id"
 #' @param date_col Name of date column in data set, default is "date"
+#' @param log_path File path of the log file to be used .
 #' @param ... Optional extra parameters for specifying correct reading of CSV and .SAV files
 #'
 #' @return A data frame with the validated minimum requirements for demographic data
 #' @export
+#' @import logger
 #'
 
-read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date", ...) {
+read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date", log_path = NULL, ...) {
+
+  log_threshold(DEBUG)
+  log_formatter(formatter_glue)
+  ##### Set up logging #####
+  if (is.null(log_path) || !file.exists(log_path)){
+    if(!dir.exists("log")){
+      dir.create("log")
+    }
+    formatted_date <- format(Sys.Date(), "%d_%m_%Y")
+    log_appender(appender_file(glue::glue("log/read_demo_data_{formatted_date}.log")))
+    log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
+    message("Log file does not exist in specified path. Creating .log file in log directory")
+  } else {
+    log_appender(appender_file(log_path))
+  }
+
+
+  ##### Data type and extension #####
 
   if(missing(data_type)) {
-    stop("Data type not specified")
+    log_error("Data type not specified.")
+    stop("Data type not specified.")
+  }
+
+  if(!data_type %in% c("t_variant", "t_invariant")){
+    log_error("{data_type} not supported.")
+    stop(glue::glue("{data_type} not supported."))
   }
 
   file_extension <- tolower(tools::file_ext(file_path))
   supported_types <- c("csv", "rds", "rda", "sav")
 
   ###### Check file existence and type #####
-  stopifnot("File does not exist in the specified path." = file.exists(file_path))
+  if(!file.exists(file_path)){
+    log_error("Diagnositc file does not exist in the specified path: {file_path}")
+    stop("File does not exist in the specified path.")
+  }
 
-  stopifnot("File type not supported. Please provide a .csv, .rds, or .sav file." = file_extension %in% supported_types)
 
+  if(!file_extension %in% supported_types){
+    log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, or .sav file.")
+    stop("File type not supported. Please provide a .csv, .rds, or .sav file.")
+  }
 
   ###### Read files #####
   cat("\n")
-  message("Reading file...")
+  message(glue::glue("Reading {file_path} file..."))
   data <- switch(file_extension,
                  csv = utils::read.csv(file_path, ...),
                  rds = readRDS(file_path),
                  rda = load(file_path),
                  sav = haven::read_sav(file_path, ...),
-                 stop("Unsupported file type."))
+                 stop("Unsupported file type"))
 
   message("\u2713")
   cat("\n")
-  message("Checking column requirements:")
-
+  log_info("Succesfully read file: {file_path}")
 
   ###### Check columns id #####
+  message("Checking column requirements:")
+  log_info("Checking column requirements:")
+
   id_column <- which(names(data) == id_col)
 
   if (length(id_column) == 0) {
-    stop(paste0("The dataset must contain a column named: ", id_col))
+    log_error("The dataset must contain a column named {id_col}")
+    stop(glue::glue("The dataset must contain a column named {id_col}"))
   }
 
   if (!is.character(data[[id_column]])) {
+    log_error("The {id_column} column must be of type character.")
     stop("The 'ID' or 'id' column must be of type character.")
   }
-  Sys.sleep(1)
+
   message("ID \u2713")
-  Sys.sleep(1)
+  log_info("ID column \u2713")
 
   ###### Time variant: Check date column #####
   if (data_type == "t_variant"){
+    log_info("Specified data type: t_variant")
     message("Data type: time variant. Checking requirements...")
     date_column <- which(names(data) == date_col)
     if (length(date_column) == 0) {
-      stop(paste0("The dataset must contain a column named: ", date_col))
+      log_error("The dataset must contain a column named: {date_col}")
+      stop(glue::glue("The dataset must contain a column named: {date_col}"))
     }
     if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
+      log_error("The 'date' column must be of type date or numeric")
       stop("The 'date' column must be of type date or numeric")
     }
-    Sys.sleep(1)
   }
   message("Date \u2713")
-  Sys.sleep(1)
+  log_info("Date column \u2713")
 
   ###### Time invariant: check ID duplicates #####
   if (data_type == "t_invariant"){
+    log_info("Specified data type: t_invariant")
     message("Data type: time invariant Checking requirements...")
     if (any(duplicated(data[[id_column]]))) {
       stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+      log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
     }
-    Sys.sleep(1)
+    log_info("No duplicate IDs \u2713")
     message("No duplicate IDs \u2713")
   }
 
+  ###### Summary data #####
+
+  log_with_separator("Diagnostic dataset succesfully read and columns validated")
+  log_info("Data Summary: ")
+  log_info("Number of rows: {nrow(data)}. Numer of columns: {ncol(data)}")
+  log_info("Numer of columns: {ncol(data)}")
+  log_formatter(formatter_pander)
+  log_info(sapply(data, class))
   return(data)
 }
