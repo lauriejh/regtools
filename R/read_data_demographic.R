@@ -29,8 +29,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
     log_appender(appender_file(glue::glue("log/read_demo_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
-    message("Log file does not exist in specified path. Creating .log file in log directory")
-    cat("\n")
+    cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
   } else {
     log_appender(appender_file(log_path))
   }
@@ -73,8 +72,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
                  sav = haven::read_sav(file_path, ...),
                  stop("Unsupported file type"))
 
-  message("\u2713")
-  cat("\n")
+  cli::cli_alert_success("Succesfully read file: {file_path}")
   log_info("Succesfully read file: {file_path}")
 
   ###### Check columns id #####
@@ -93,7 +91,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
     stop("The 'ID' or 'id' column must be of type character.")
   }
 
-  message("ID \u2713")
+  cli::cli_alert_success("ID column")
   log_info("ID column \u2713")
 
   ###### Time variant: Check date column #####
@@ -110,7 +108,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
       stop("The 'date' column must be of type date or numeric")
     }
   }
-  message("Date \u2713")
+  cli::cli_alert_success("Date column")
   cat("\n")
   log_info("Date column \u2713")
 
@@ -123,17 +121,18 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
       log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
     }
     log_info("No duplicate IDs \u2713")
-    message("No duplicate IDs \u2713")
+    cli::cli_alert_success("No duplicate IDs")
     cat("\n")
   }
 
   ###### Summary data #####
-
   log_with_separator(glue::glue("Demographic dataset '{file_path}' succesfully read and columns validated"))
+  cli_h1("")
   cat(crayon::green$bold("Demographic dataset succesfully read and columns validated\n"))
+  cli::cli_h1("Data Summary")
   cat("\n")
-  cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
-  cat("\n")
+  cli::cli_alert_info("Number of rows: {.val {nrow(data)}}. Number of columns: {.val {ncol(data)}}.")
+  cli::cli_alert_info("Unique IDs in dataset: {.val {dplyr::n_distinct(data[[id_col]])}}.")
   cat("\n")
   cat(utils::str(data))
   log_info("Data Summary: ")

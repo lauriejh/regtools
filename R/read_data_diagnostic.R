@@ -32,7 +32,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
     log_appender(appender_file(glue::glue("log/read_diag_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in new log directory")
-    message("Log file does not exist in specified path. Creating .log file in new log directory")
+    cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
     cat("\n")
   } else {
     log_appender(appender_file(log_path))
@@ -61,9 +61,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
                  sav = haven::read_sav(file_path, ...),
                  stop("Unsupported file type"))
 
-  message("\u2713")
-  cat("\n")
-  log_info("Succesfully read file: {file_path}")
+  cli::cli_alert_success("Succesfully read file: {file_path}")
 
   ###### Check columns id #####
   message("Checking column requirements:")
@@ -81,7 +79,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     stop("The 'ID' or 'id' column must be of type character.")
   }
 
-  message("ID \u2713")
+  cli::cli_alert_success("ID column")
   log_info("ID column \u2713")
 
 
@@ -96,7 +94,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     stop("The 'code' column must be of type character.")
   }
 
-  message("Code \u2713")
+  cli::cli_alert_success("Code column")
   log_info("Code column \u2713")
 
   ###### Check date column #####
@@ -110,9 +108,9 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     stop("The 'date' column must be of type date or numeric.")
   }
 
-  message("Date \u2713")
-  cat("\n")
+  cli::cli_alert_success("Date column")
   log_info("Date column \u2713")
+  cat("\n")
 
 
   ###### Extra columns #####
@@ -137,9 +135,11 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   ###### Summary data #####
 
   log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
+  cli_h1("")
   cat(crayon::green$bold("Diagnostic dataset succesfully read and columns validated\n"))
+  cli::cli_h1("Data Summary")
   cat("\n")
-  cat(crayon::green(glue::glue("Data Summary: \n Number of rows: {nrow(data)}. Number of columns: {ncol(data)}\n")))
+  cli::cli_alert_info("Number of rows: {.val {nrow(data)}}. Number of columns: {.val {ncol(data)}}.")
   cat("\n")
   cat("\n")
   cat(utils::str(data))
