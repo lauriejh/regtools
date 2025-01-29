@@ -4,7 +4,7 @@
 \alias{filter_diag}
 \title{Validate and filter diagnostic data by selected ICD-10 codes}
 \usage{
-filter_diag(data, codes, id_col = "id", code_col = "icd_code")
+filter_diag(data, codes, id_col = "id", code_col = "icd_code", log_path = NULL)
 }
 \arguments{
 \item{data}{Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)}
@@ -14,6 +14,8 @@ filter_diag(data, codes, id_col = "id", code_col = "icd_code")
 \item{id_col}{Name of ID column in data set, default is "id"}
 
 \item{code_col}{String containing the name of column containing the diagnostic codes}
+
+\item{log_path}{File path of the log file to be used}
 }
 \value{
 Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.

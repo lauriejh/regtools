@@ -12,9 +12,13 @@ URL: https://github.com/amslala/regtools
 BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
 Imports: 
+    cli,
+    crayon,
     dplyr,
+    glue,
     haven,
     janitor,
+    logger,
     lubridate,
     purrr,
     rlang,
