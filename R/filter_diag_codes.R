@@ -25,13 +25,13 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
     log_appender(appender_file(glue::glue("log/filter_diag_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
-    message("Log file does not exist in specified path. Creating .log file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
     cat("\n")
   } else {
     log_appender(appender_file(log_path))
   }
 
-  ##### Columns exist #####
+  ##### Validate Input #####
 
   if(!code_col %in% colnames(data)){
     log_error("The specified code column does not exist in the dataset")
@@ -58,16 +58,15 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
     log_error("{paste(missing_codes, collapse = ', ')} code(s) not valid")
     stop(paste(paste(missing_codes, collapse = ", "), "code(s) not valid"))
     } else {
-    cat(crayon::green("Selected ICD-10 codes are valid \u2713\n"))
-    log_info("Selected ICD-10 codes ({paste(codes, collapse = ', ')}) are valid")
-    cat("\n")
-  }
+      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(codes, collapse = ', ')}")
+      log_info("Selected ICD-10 codes ({paste(codes, collapse = ', ')}) are valid")
+      cat("\n")
+    }
 
   ####Check if desired code exists in data set and filter####
   message("Filtering data by selected ICD-10 codes...")
-  cat("\n")
   if (!(all(codes %in% data[[code_col]]))){
-    cat(crayon::yellow(glue::glue("Warning: The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")))
+    cli::cli_alert_warning("Warning: The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
     log_warn("The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
 
     filtered_data <- data |>
@@ -76,8 +75,29 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
     filtered_data <- data |>
       dplyr::filter(.data[[code_col]] %in% codes)
   }
+
+  ###### Summary data #####
+  cli::cli_h1("")
+  cat(crayon::green$bold("Diagnostic dataset succesfully filtered\n"))
   cat("\n")
-  cat(crayon::green("Diagnostic dataset succesfully filtered\n"))
+  cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data)}} rows ({.strong {round((nrow(data) - nrow(filtered_data)) / nrow(data) * 100, 1)}%} removed)")
+  cli::cli_h1("Data Summary")
+  cli::cli_h3("After filtering:")
+  cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data)}}")
+  cli::cli_alert_info("Remaining number of columns: {.val {ncol(filtered_data)}}")
+  cli::cli_alert_info("Unique IDs in dataset: {.val {dplyr::n_distinct(filtered_data[[id_col]])}}")
+  cli::cli_alert_info("ICD-10 codes in dataset: {.pkg {unique(filtered_data$code, fromLast = T)}}")
+  cat("\n")
+  cat(utils::str(filtered_data))
+
+  # Logs
+  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
+  log_info("Remaining number of rows: {nrow(filtered_data)}")
+  log_info("Remaining number of columns: {ncol(filtered_data)}")
+  log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data[[id_col]])}")
+  log_info("ICD-10 codes in dataset: {paste(unique(filtered_data$code, fromLast = T), collapse = ', ')}")
+  log_formatter(formatter_pander)
+  log_info(sapply(filtered_data, class))
+
   return(filtered_data)
-  #give some information to the user that can be useful: number of ids (rows), year/date span, what do the codes refer to?
 }

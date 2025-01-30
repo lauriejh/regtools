@@ -7,18 +7,41 @@
 #' @param rm_na Removes observations that have NA in the non-filtered columns.
 #' @param data_type Type of demographic data: "t_variant" or "t-variant"
 #' @param any Filtering option, any year. Default = FALSE.
+#' @param log_path File path of the log file to be used
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
 #'
 #' @export
-#'
+#' @import logger
 
-filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALSE, rm_na = TRUE){
+filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
+
+  ##### Set up logging #####
+  log_threshold(DEBUG)
+  log_formatter(formatter_glue)
+
+  if (is.null(log_path) || !file.exists(log_path)){
+    if(!dir.exists("log")){
+      dir.create("log")
+    }
+    formatted_date <- format(Sys.Date(), "%d_%m_%Y")
+    log_appender(appender_file(glue::glue("log/filter_demo_{formatted_date}.log")))
+    log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
+    cat("\n")
+  } else {
+    log_appender(appender_file(log_path))
+  }
 
   ###Validate input ####
-  stopifnot("Specified variables do not exist in your dataset." = names(filter_param) %in% colnames(data))
+
+  if(!names(filter_param) %in% colnames(data)){
+    log_error("The specified variables do not exist in the dataset")
+    stop(glue::glue("The specified variables does not exist in the dataset"))
+  }
 
   if(missing(data_type)) {
+    log_error("Data type not specified")
     stop("Data type not specified")
   }
 
@@ -27,14 +50,16 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
     n_missing <- data |>
       dplyr::summarize(dplyr::across(tidyselect::everything(), ~ sum(is.na(.))))
     if(sum(n_missing) > 0){
-      message(paste("Removing ", sum(n_missing), "observations containing NAs: "))
-      print(n_missing)
-      Sys.sleep(1)
+      cat("\n")
+      message(glue::glue("Removing {sum(n_missing)} observations containing NAs... "))
       data_no_na <- data |>
         tidyr::drop_na()
-      message(paste("\u2022 After removing NAs, the dataset has ", nrow(data_no_na), " observations."))
+      cli::cli_alert_success("After removing NAs, the dataset has {nrow(data_no_na)} observations.")
+      log_info("After removing NAs, the dataset has {nrow(data_no_na)} observations.")
       } else {
-        warning("The dataset has no NAs or they are coded in a different format.")
+        cat("\n")
+        cli::cli_alert_warning("The dataset has no NAs or they are coded in a different format.")
+        log_warn("The dataset has no NAs or they are coded in a different format.")
         data_no_na <- data
       }
     return(data_no_na)
@@ -56,25 +81,46 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
 
   ####Main filtering####
   if(data_type == "t_invariant"){
-    message("Filtering time-invariant dataset...")
     filtered_data <- do_filter(data, filter_param)
+    message("Filtering time-invariant dataset...")
+    cli::cli_alert_success("Filtered time-invariant dataset by '{names(filter_param)}' column(s)")
+    log_info("Filtering time-invariant by '{names(filter_param)}' column(s)")
   } else if (data_type == "t_variant"){
-    message("Filtering time-variant dataset...")
     filtered_data <- do_filter(data, filter_param, id_col, any)
+    message("Filtering time-variant dataset...")
+    cli::cli_alert_success("Filtered time-variant by '{names(filter_param)}' column(s)")
+    log_info("Filtering time-variant by '{names(filter_param)}' column(s)")
   } else {
-    stop("Invalid data type specified ")
+    log_error("Invalid data type specified")
+    stop("Invalid data type specified")
   }
 
-  message(paste("Original dataset had ", nrow(data), " observations."))
-  cat("\n")
-  message(paste("\u2022", nrow(filtered_data), " observations fulfilled the selected filtering parameters: "))
-  Sys.sleep(2)
-  print(filtered_data |> skimr::skim())
+
 
   ####NA filtering####
-
   if(rm_na) {
     filtered_data <- remove_na(filtered_data)
   }
+
+  #### Data summary ####
+  cli::cli_h1("")
+  cat(crayon::green$bold("Demographic dataset succesfully filtered\n"))
+  cat("\n")
+  cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data)}} rows ({.strong {round((nrow(data) - nrow(filtered_data)) / nrow(data) * 100, 1)}%} removed)")
+  cli::cli_h1("Data Summary")
+  cli::cli_h3("After filtering:")
+  cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data)}}")
+  cli::cli_alert_info("Remaining number of columns: {.val {ncol(filtered_data)}}")
+  cat("\n")
+  cat(utils::str(filtered_data))
+
+  # Logs
+  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
+  log_info("Remaining number of rows: {nrow(filtered_data)}")
+  log_info("Remaining number of columns: {ncol(filtered_data)}")
+  log_info("ICD-10 codes in dataset: {paste(unique(filtered_data$code, fromLast = T), collapse = ', ')}")
+  log_formatter(formatter_pander)
+  log_info(sapply(filtered_data, class))
+
   return(filtered_data)
 }
