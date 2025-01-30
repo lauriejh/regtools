@@ -48,14 +48,16 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
   ###Helper functions####
   remove_na <- function(data){
     n_missing <- data |>
-      dplyr::summarize(dplyr::across(tidyselect::everything(), ~ sum(is.na(.))))
+      dplyr::filter(if_any(everything(), is.na)) |>
+      nrow()
+
     if(sum(n_missing) > 0){
       cat("\n")
-      message(glue::glue("Removing {sum(n_missing)} observations containing NAs... "))
+      message(glue::glue("Removing observations containing NAs in any column... "))
       data_no_na <- data |>
         tidyr::drop_na()
-      cli::cli_alert_success("After removing NAs, the dataset has {nrow(data_no_na)} observations.")
-      log_info("After removing NAs, the dataset has {nrow(data_no_na)} observations.")
+      cli::cli_alert_success("Removed {.val {sum(n_missing)}} rows with NAs.")
+      log_info("Removed {sum(n_missing)} rows with NAs.")
       } else {
         cat("\n")
         cli::cli_alert_warning("The dataset has no NAs or they are coded in a different format.")
@@ -84,11 +86,13 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
     filtered_data <- do_filter(data, filter_param)
     message("Filtering time-invariant dataset...")
     cli::cli_alert_success("Filtered time-invariant dataset by '{names(filter_param)}' column(s)")
+    cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data)}} rows ({.strong {round((nrow(data) - nrow(filtered_data)) / nrow(data) * 100, 1)}%} removed)")
     log_info("Filtering time-invariant by '{names(filter_param)}' column(s)")
   } else if (data_type == "t_variant"){
     filtered_data <- do_filter(data, filter_param, id_col, any)
     message("Filtering time-variant dataset...")
     cli::cli_alert_success("Filtered time-variant by '{names(filter_param)}' column(s)")
+    cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data)}} rows ({.strong {round((nrow(data) - nrow(filtered_data)) / nrow(data) * 100, 1)}%} removed)")
     log_info("Filtering time-variant by '{names(filter_param)}' column(s)")
   } else {
     log_error("Invalid data type specified")
@@ -106,7 +110,6 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
   cli::cli_h1("")
   cat(crayon::green$bold("Demographic dataset succesfully filtered\n"))
   cat("\n")
-  cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data)}} rows ({.strong {round((nrow(data) - nrow(filtered_data)) / nrow(data) * 100, 1)}%} removed)")
   cli::cli_h1("Data Summary")
   cli::cli_h3("After filtering:")
   cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data)}}")
