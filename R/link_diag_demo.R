@@ -5,12 +5,12 @@
 #' @param data_demo_var Data frame containing validated time-variant demographic data (check minimum requirements in documentations)
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier), default is "id"
 #' @param date_col Name (character) of the date column in the data set, in case of using time-variant data.
-#'
+#' @param log_path File path of the log file to be used
 #' @return Linked dataset including relevant diagnostic and demographic characteristics.
 #' @export
 #' @import logger
 #'
-link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL, id_col= "id", date_col = "year"){
+link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL, id_col= "id", date_col = "year", log_path = NULL){
 
   ##### Set up logging #####
   log_threshold(DEBUG)

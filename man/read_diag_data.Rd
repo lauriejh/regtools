@@ -9,7 +9,7 @@ read_diag_data(
   id_col = "id",
   date_col = "date",
   code_col = "code",
-  log_path,
+  log_path = NULL,
   ...
 )
 }
