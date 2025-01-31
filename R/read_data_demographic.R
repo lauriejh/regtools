@@ -29,7 +29,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
     log_appender(appender_file(glue::glue("log/read_demo_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
-    cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
   } else {
     log_appender(appender_file(log_path))
   }
@@ -127,7 +127,7 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
 
   ###### Summary data #####
   log_with_separator(glue::glue("Demographic dataset '{file_path}' succesfully read and columns validated"))
-  cli_h1("")
+  cli::cli_h1("")
   cat(crayon::green$bold("Demographic dataset succesfully read and columns validated\n"))
   cli::cli_h1("Data Summary")
   cat("\n")

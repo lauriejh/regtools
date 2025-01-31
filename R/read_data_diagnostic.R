@@ -17,7 +17,7 @@
 #'
 #'
 
-read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col = "code", log_path, ...) {
+read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col = "code", log_path = NULL, ...) {
   file_extension <- tolower(tools::file_ext(file_path))
   supported_types <- c("csv", "rds", "rda", "sav")
 
@@ -32,7 +32,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
     log_appender(appender_file(glue::glue("log/read_diag_data_{formatted_date}.log")))
     log_info("Log file does not exist in specified path: {log_path}. Created file in new log directory")
-    cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
     cat("\n")
   } else {
     log_appender(appender_file(log_path))
@@ -135,7 +135,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   ###### Summary data #####
 
   log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
-  cli_h1("")
+  cli::cli_h1("")
   cat(crayon::green$bold("Diagnostic dataset succesfully read and columns validated\n"))
   cli::cli_h1("Data Summary")
   cat("\n")

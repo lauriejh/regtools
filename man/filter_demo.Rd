@@ -10,7 +10,8 @@ filter_demo(
   filter_param,
   id_col = NULL,
   any = FALSE,
-  rm_na = TRUE
+  rm_na = TRUE,
+  log_path = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ filter_demo(
 \item{any}{Filtering option, any year. Default = FALSE.}
 
 \item{rm_na}{Removes observations that have NA in the non-filtered columns.}
+
+\item{log_path}{File path of the log file to be used}
 }
 \value{
 Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
