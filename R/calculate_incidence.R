@@ -1,3 +1,27 @@
+#' Calculate incidence rates
+#'
+#' @description
+#'The `calculate_incidence()` function calculates incidence rates based on the given diagnostic and demographic information.
+#'Incidence represents the number of new cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
+#'
+#' @param linked_data Dataset containing relevant diagnostic and demographic information
+#' @param type Can either be cumulative or rate
+#' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
+#' @param date_col Name (character) of the date column in the data set. Default is "date".
+#' @param pop_data Dataset containing relevant population information.
+#' @param pop_col Name (character) of the column containing population counts in the population dataset.
+#' @param person_time_data  Dataset containing relevant person-time information.
+#' @param person_time_col Name (character) of the column containing person-time counts in the person-time dataset.
+#' @param time_p  Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.
+#' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
+#' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
+#' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
+#' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
+#'
+#' @returns Prevalence rate table
+#' @export
+#' @import logger
+#'
 calculate_incidence <- function(linked_data, # needs to be only first occurrence (first time diagnosis)
                                 type,
                                 id_col = "id",

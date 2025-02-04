@@ -78,7 +78,6 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
   }
 
   ###### Summary data #####
-  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully curated and summarized"))
   cli::cli_h1("")
   cat(crayon::green$bold("Diagnostic dataset succesfully curated and summarized\n"))
   cat("\n")
@@ -93,7 +92,7 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
   cat(utils::str(filtered_data_min))
 
   # Logs
-  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
+  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully curated and summarized"))
   log_info("Remaining number of rows: {nrow(filtered_data_min)}")
   log_info("Remaining number of columns: {ncol(filtered_data_min)}")
   log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data_min[[id_col]])}")
