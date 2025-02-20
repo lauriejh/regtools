@@ -77,7 +77,7 @@ calculate_prevalence <- function(linked_data,
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
-    n_removed <- data |> dplyr::filter(dplyr::across(tidyselect::all_of(columns), is.na)) |>
+    n_removed <- data |> dplyr::filter(dplyr::if_any(columns, is.na)) |>
       nrow()
     cli::cli_alert_success("Suppressed counts using {.strong {suppression_treshold}} treshold")
     cli::cli_alert_info("Removed {.val {n_removed}} cells out of {nrow(data)}")
@@ -90,15 +90,9 @@ calculate_prevalence <- function(linked_data,
   message("Computing prevalence rates/counts...")
 
   if (length(time_p) == 1){
-    cli::cli_alert_info("Time point: {time_p}")
-    log_info("Time point: {time_p}")
-
     filtered_data <- linked_data |>
       dplyr::filter(.data[[date_col]] == time_p)
   } else if (length(time_p) ==2){
-    cli::cli_alert_info("Time period: {paste(time_p, collapse = '-')}")
-    log_info("Time period: {paste(time_p, collapse = '-')}")
-
     filtered_data <- linked_data |>
       dplyr::filter(.data[[date_col]] >= time_p[1],
                     .data[[date_col]] <= time_p[2])
@@ -112,9 +106,6 @@ calculate_prevalence <- function(linked_data,
   if (!is.null(grouping_vars)) {
     data_grouped <- filtered_data |>
       dplyr::group_by(dplyr::across(tidyselect::all_of(grouping_vars)))
-    cat("\n")
-    cli::cli_alert_success("Grouped by variables: {grouping_vars}")
-    log_info("Grouped by variables: {paste(grouping_vars, collapse = ', ')}")
   } else {
     data_grouped <- linked_data
   }
@@ -150,16 +141,50 @@ calculate_prevalence <- function(linked_data,
     pop_data[[date_col]] <- as.character(pop_data[[date_col]])
   }
 
-  prevalence <- count_data_suppressed |>
-      dplyr::left_join(pop_data, by = c(grouping_vars, date_col)) |>
+
+  # Check mapping, in case some missing data in pop
+
+  missing_in_pop <- dplyr::anti_join(count_data_suppressed, pop_data, by =  c(grouping_vars, date_col))
+
+  if(nrow(missing_in_pop) > 0) {
+    cat("\n")
+    cli::cli_alert_warning("Warning: there are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}. Join with population dataset doesn't have a 'one-to-one' relationship")
+    log_warn("here are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}")}
+
+
+  prevalence <- tryCatch({
+    count_data_suppressed |>
+      dplyr::left_join(pop_data, by = c(grouping_vars, date_col), relationship = "one-to-one") |>
       dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
+      },
+    error = function(e){
+      cli::cli_alert_danger("Relationship between population dataset and counts is not one-to-one")
+      logger::log_warn("Relationship between population dataset and counts is not one-to-one")
+      count_data_suppressed |>
+        dplyr::left_join(pop_data, by = c(grouping_vars, date_col)) |>
+        dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
+    })
+
+  cat("\n")
   cli::cli_alert_success(crayon::green("Prevalence rates ready!"))
   log_info("Prevalence rates ready")
 
 
-  ###### Summary data #####
-  cli::cli_h1("Data Summary")
+  ###### Summary #####
+  cli::cli_h1("Summary")
+  cli::cli_alert_info("Diagnostic and demographic data: {.pkg {substitute(linked_data)}}")
+  cli::cli_alert_info("Population data: {.pkg {substitute(pop_data)}}")
+  cli::cli_alert_info("Grouped by variables: {.pkg {grouping_vars}}")
+  cli::cli_alert_info("For time point/period:  {.val {time_p}}")
+
+
+  # Logs
+  log_with_separator("Summary")
+  log_info("Diagnostic and demographic data: {substitute(linked_data)}")
+  log_info("Population data: {substitute(pop_data)}")
+  log_info("Grouped by variables: {paste(grouping_vars, collapse = ', ')}")
+  log_info("For time point/period: {time_p}")
 
   return(prevalence)
-
 }
+
