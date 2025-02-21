@@ -54,23 +54,23 @@ calculate_prevalence <- function(linked_data,
 
   ## Input validation ####
   if(is.null(linked_data)){
-    cli::cli_abort("Requires linked dataset")
     log_error("Requires linked dataset")
+    cli::cli_abort("Requires linked dataset")
   }
 
   if(!all(grouping_vars %in% names(linked_data))) {
-    cli::cli_abort("The linked dataset must contain the specified 'grouping variables': {grouping_vars}")
     log_error("The linked dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
+    cli::cli_abort("The linked dataset must contain the specified 'grouping variables': {grouping_vars}")
   }
 
   if(!id_col %in% names(linked_data)) {
-    cli::cli_abort("The linked dataset must contain the specified 'id' column: {id_col}")
     log_error("The linked dataset must contain the specified 'id' column: {id_col}")
+    cli::cli_abort("The linked dataset must contain the specified 'id' column: {id_col}")
   }
 
   if(!date_col %in% names(linked_data) & !date_col %in% names(pop_data)){
-    cli::cli_abort("The population and linked data must include the same specified 'date' column: {date_col}")
     log_error("The population and linked data must include the same specified 'date' column: {date_col}")
+    cli::cli_abort("The population and linked data must include the same specified 'date' column: {date_col}")
   }
 
   #### Suppression helper function ####
@@ -122,15 +122,15 @@ calculate_prevalence <- function(linked_data,
     count_data_suppressed <- suppress_values(data = count_data, columns = c("unique_id", "total_events"), threshold = suppression_treshold)
   } else {
     count_data_suppressed <- count_data
-    cli::cli_alert_warning("No suppression. Confidentiality cannot be assured.")
     log_warn("No suppression. Confidentiality cannot be assured.")
+    cli::cli_alert_warning("No suppression. Confidentiality cannot be assured.")
   }
 
   ## Intermediate results: only diagnostic counts ####
   if (only_counts){
     cat("\n")
-    cli::cli_alert_success(crayon::green("Prevalence counts ready!"))
     log_info("Prevalence counts ready")
+    cli::cli_alert_success(crayon::green("Prevalence counts ready!"))
     return(count_data_suppressed)
   }
 
@@ -148,8 +148,9 @@ calculate_prevalence <- function(linked_data,
 
   if(nrow(missing_in_pop) > 0) {
     cat("\n")
+    log_warn("here are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}")
     cli::cli_alert_warning("Warning: there are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}. Join with population dataset doesn't have a 'one-to-one' relationship")
-    log_warn("here are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}")}
+    }
 
 
   prevalence <- tryCatch({
@@ -158,8 +159,8 @@ calculate_prevalence <- function(linked_data,
       dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
       },
     error = function(e){
-      cli::cli_alert_danger("Relationship between population dataset and counts is not one-to-one")
       logger::log_warn("Relationship between population dataset and counts is not one-to-one")
+      cli::cli_alert_danger("Relationship between population dataset and counts is not one-to-one")
       count_data_suppressed |>
         dplyr::left_join(pop_data, by = c(grouping_vars, date_col)) |>
         dplyr::mutate(prev_rate = unique_id/.data[[pop_col]])
