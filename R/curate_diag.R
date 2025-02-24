@@ -6,25 +6,61 @@
 #' @param id_col Character string containing the name of the ID column in data set, default is "id"
 #' @param code_col Character string containing the name of the code column in data set, default is "icd_code"
 #' @param date_col Character string containing the name of date column in data set, default is "date"
+#' @param log_path File path of the log file to be used
 #'
 #' @return Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
 #'
 #' @export
 #'
 #'
-curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", code_col = "icd_code", date_col = "date"){
-  stopifnot("The specified id column does not exist in the dataset" = id_col %in% colnames(data))
-  stopifnot("The specified code column does not exist in the dataset" = code_col %in% colnames(data))
-  stopifnot("The specified date column does not exist in the dataset" = date_col %in% colnames(data))
+curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", code_col = "icd_code", date_col = "date", log_path = NULL){
 
-  ####Keep only observations that comply with minimum diagnostic events####
+  ##### Set up logging #####
+  log_threshold(DEBUG)
+  log_formatter(formatter_glue)
+
+  if (is.null(log_path) || !file.exists(log_path)){
+    if(!dir.exists("log")){
+      dir.create("log")
+    }
+    formatted_date <- format(Sys.Date(), "%d_%m_%Y")
+    log_appender(appender_file(glue::glue("log/curate_diag_{formatted_date}.log")))
+    log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
+    cat("\n")
+  } else {
+    log_appender(appender_file(log_path))
+  }
+
+  ##### Validate input #####
+
+  if(!code_col %in% colnames(data)){
+    log_error("The specified code column does not exist in the dataset")
+    stop(glue::glue("The specified code column does not exist in the dataset"))
+  }
+
+  if(!id_col %in% colnames(data)){
+    log_error("The specified id column does not exist in the dataset")
+    stop(glue::glue("The specified id column does not exist in the dataset"))
+  }
+
+  if(!date_col %in% colnames(data)){
+    log_error("The specified date column does not exist in the dataset")
+    stop(glue::glue("The specified date column does not exist in the dataset"))
+  }
+
+
+  ####Keep only observations that comply with minimum diagnostic events###
+
   filtered_data_min <- data |>
     dplyr::group_by_at(c(id_col, code_col)) |> #could include option for time grouping variable, certain amount of cases in the same year or irrelevant of year?
     dplyr::filter(dplyr::n() >= min_diag)
 
+  cli::cli_alert_success("Filtered observations that do not have at least {min_diag} diagnostic event")
+  log_info("Filtered observations that do not have at least {min_diag} diagnostic event")
+
   ####Summarize first diagnostic information####
   if (first_diag){
-    message("Summarizing first diagnostic event information...")
     id_col_sym <- rlang::sym(id_col)
     code_col_sym <- rlang::sym(code_col)
     date_col_sym <- rlang::sym(date_col)
@@ -37,6 +73,32 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
                      diagnosis_count = dplyr::n(),
                      dplyr::across(!c(!!code_col_sym, !!date_col_sym), dplyr::first),
                      .groups = 'drop')
+    cli::cli_alert_success("Summarized first diagnostic event information")
+    log_info("Summarized first diagnostic event information")
   }
+
+  ###### Summary data #####
+  cli::cli_h1("")
+  cat(crayon::green$bold("Diagnostic dataset succesfully curated and summarized\n"))
+  cat("\n")
+  cli::cli_alert_info("Filtered {.val {nrow(data) - nrow(filtered_data_min)}} rows ({.strong {round((nrow(data) - nrow(filtered_data_min)) / nrow(data) * 100, 1)}%} removed)")
+  cli::cli_h1("Data Summary")
+  cli::cli_h3("After filtering:")
+  cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data_min)}}")
+  cli::cli_alert_info("Remaining number of columns: {.val {ncol(filtered_data_min)}}")
+  cli::cli_alert_info("Unique IDs in dataset: {.val {dplyr::n_distinct(filtered_data_min[[id_col]])}}")
+  cli::cli_alert_info("ICD-10 codes in dataset: {.pkg {unique(filtered_data_min$code, fromLast = T)}}")
+  cat("\n")
+  cat(utils::str(filtered_data_min))
+
+  # Logs
+  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully curated and summarized"))
+  log_info("Remaining number of rows: {nrow(filtered_data_min)}")
+  log_info("Remaining number of columns: {ncol(filtered_data_min)}")
+  log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data_min[[id_col]])}")
+  log_info("ICD-10 codes in dataset: {paste(unique(filtered_data_min$code, fromLast = T), collapse = ', ')}")
+  log_formatter(formatter_pander)
+  log_info(sapply(filtered_data_min, class))
+
   return(filtered_data_min)
 }

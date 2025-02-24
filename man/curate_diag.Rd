@@ -10,7 +10,8 @@ curate_diag(
   first_diag = TRUE,
   id_col = "id",
   code_col = "icd_code",
-  date_col = "date"
+  date_col = "date",
+  log_path = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ curate_diag(
 \item{code_col}{Character string containing the name of the code column in data set, default is "icd_code"}
 
 \item{date_col}{Character string containing the name of date column in data set, default is "date"}
+
+\item{log_path}{File path of the log file to be used}
 }
 \value{
 Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
