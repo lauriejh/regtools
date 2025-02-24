@@ -91,7 +91,7 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
   cat(utils::str(filtered_data))
 
   # Logs
-  log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
+  log_with_separator("Diagnostic dataset '{substitute(data)}' succesfully filtered")
   log_info("Remaining number of rows: {nrow(filtered_data)}")
   log_info("Remaining number of columns: {ncol(filtered_data)}")
   log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data[[id_col]])}")
