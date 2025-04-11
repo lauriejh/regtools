@@ -23,7 +23,7 @@
 #'
 
 simulate_data <- function(data_type, population_size, prefix_ids, length_ids, family_codes, pattern, prevalence = NULL, dates, incidence = NULL, sex_vector, y_birth, filler_codes, filler_y_birth,
-                          unvarying_query, region_level = "kommune", date_unvarying_codes = NULL, year_expand_varying){
+                          unvarying_query, region_level = "kommune", date_unvarying_codes = NULL, year_expand_varying, log_path = NULL){
 
   ### Helper functions ---------------------------------------------------------
   unique_ids <- function(population_size, prefix = "P000", length_id = 6) {
@@ -43,7 +43,7 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
 
 
   icd10_codes <- function(family){
-    load("simulate/npr.rda")
+    load("data/npr.rda")
     pattern <- paste0("^(", paste(family, collapse = "|"), ")")
 
     matching_codes <- purrr::map(npr[, 1:4], function(x){
@@ -183,19 +183,30 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
       tidyr::unnest(cols = c(data, regions), names_repair = "universal")
   }
 
+  ### Set up logging -----------------------------------------------------------
+  log_threshold(DEBUG)
+  log_formatter(formatter_glue)
 
+  if (is.null(log_path) || !file.exists(log_path)){
+    if(!dir.exists("log")){
+      dir.create("log")
+    }
+    formatted_date <- format(Sys.Date(), "%d_%m_%Y")
+    log_appender(appender_file(glue::glue("log/simulate_data_{formatted_date}.log")))
+    log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
+    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
+    cat("\n")
+  } else {
+    log_appender(appender_file(log_path))
+  }
 
   ### Main function call -------------------------------------------------------
 
-  unique_id_vector <- unique_ids(population_size, prefix = prefix_ids, length_id = length_ids)
-  cli::cli_alert_success("Succesfully generated unique id vector")
-  icd10_vector <- icd10_codes(family = family_codes)
-  cli::cli_alert_success("Succesfully generated ICD-10 code vector")
-  list_cases <- number_cases(population_size = population_size, pattern = pattern, prevalence = prevalence, dates = dates, incidence = incidence)
-  cli::cli_alert_success("Succesfully generated number of incidence and prevalence cases")
-  diagnostic_df <- generate_cases(ids = unique_id_vector, codes = icd10_vector, cases_list = list_cases, sex = sex_vector, y_birth = y_birth)
-  cli::cli_alert_success("Sucessfully generated relevant diagnostic cases!")
 
+  unique_id_vector <- unique_ids(population_size, prefix = prefix_ids, length_id = length_ids)
+  icd10_vector <- icd10_codes(family = family_codes)
+  list_cases <- number_cases(population_size = population_size, pattern = pattern, prevalence = prevalence, dates = dates, incidence = incidence)
+  diagnostic_df <- generate_cases(ids = unique_id_vector, codes = icd10_vector, cases_list = list_cases, sex = sex_vector, y_birth = y_birth)
 
   ## Generate non-relevant cases
   other_codes <- icd10_codes(family = filler_codes)
@@ -212,14 +223,49 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
   full_diag_df <- full_diag_df[rows, ]
 
   if (data_type == "diagnostic"){
+    cli::cli_alert_info("Creating diagnostic dataset with the following characteristics:")
+    cli::cli_ul(c("Population size = {population_size}",
+                  "Prefix IDs = {prefix_ids}",
+                  "Lenght IDs = {length_ids}",
+                  "ICD-10 relevant codes = {family_codes}",
+                  "Pattern of incidence = {pattern}",
+                  "Prevalence = {prevalence}" ,
+                  "Diagnostic years = {dates}",
+                  "Incidence = {incidence}",
+                  "Coding sex = {sex_vector}",
+                  "Relevant years of birth = {y_birth}"))
+    cli::cli_rule("")
+    cat("\n")
     final_simulated_data <- full_diag_df |> dplyr::select(id, code, date)
-    cli::cli_alert_success("Sucessfully generated full diagnostic dataset!")
+    cli::cli_rule(left = "Sucessfully generated full diagnostic dataset!")
   } else if (data_type == "t_unvarying"){
+    cli::cli_alert_info("Creating time-unvarying dataset with the following characteristics:")
+    cli::cli_ul(c("Population size = {population_size}",
+                  "Prefix IDs = {prefix_ids}",
+                  "Lenght IDs = {length_ids}",
+                  "family_codes,
+                  pattern,
+                  prevalence = NULL,
+                  dates,
+                  incidence = NULL,
+                  sex_vector,
+                  y_birth"))
     t_unvarying <- full_diag_df |> dplyr::select(id, sex, y_birth)
     unvarying_codes <- get_classifications(queries = unvarying_query) #can be list or dataframe
     final_simulated_data <- add_var_ssb(t_unvarying, unvarying_codes)
-    cli::cli_alert_success("Sucessfully generated full time-unvarying dataset!")
+    cli::cli_h1("Sucessfully generated full time-unvarying dataset!")
   } else if (data_type == "t_varying"){
+    cli::cli_alert_info("Creating time-varying dataset with the following characteristics:")
+    cli::cli_ul(c("Population size = {population_size}",
+                  "Prefix IDs = {prefix_ids}",
+                  "Lenght IDs = {length_ids}",
+                  "family_codes,
+                  pattern,
+                  prevalence = NULL,
+                  dates,
+                  incidence = NULL,
+                  sex_vector,
+                  y_birth"))
     t_varying <- full_diag_df |> dplyr::select(id) |> construct_yearly(years_expand = year_expand_varying)
     kommune_codes <- get_classifications(queries = region_level, date = date_unvarying_codes) |> select(code)
     t_varying_regions <- assign_regions(t_varying, kommune_codes) |>
@@ -228,7 +274,7 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
     final_simulated_data <- t_varying_regions |>
       dplyr::rename(year = `year...2`) |>
       dplyr::ungroup()
-    cli::cli_alert_success("Sucessfully generated full time-varying dataset!")
+    cli::cli_h1("Sucessfully created full time-varying dataset!")
   }
 
   return(final_simulated_data)
