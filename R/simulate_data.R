@@ -110,7 +110,7 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
   get_classifications <- function(queries, date = NULL) {
 
     if (length(queries) == 1) {
-      search <- klassR::SearchKlass(queries)
+      search <- klassR::search_klass(queries)
       class_code <- search$klass_nr[1]
       codes_ssb <- klassR::GetKlass(klass = class_code,
                                     language = "en",
@@ -121,7 +121,7 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
 
     #Multiple queries
     result_list <- purrr::map(queries, function(query) {
-      search <- klassR::SearchKlass(query)
+      search <- klassR::search_klass(query)
       class_code <- search$klass_nr[1]
       codes_ssb <- klassR::GetKlass(klass = class_code,
                                     language = "en",
@@ -169,19 +169,30 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
 
 
   assign_regions <- function(data, regions) {
-    data  |>
+    codes <- regions$code
+
+    varying_data_codes <- data |>
       dplyr::group_by(id)  |>
-      tidyr::nest() |>
-      dplyr::mutate(regions = purrr::map(data, ~{
+      dplyr::group_modify(~ {
         n_years <- nrow(.x)
         num_moves <- sample(1:3, 1)
-        change_years <- sort(sample(1:n_years, num_moves - 1))
 
-        municipality_assignment <- rep(sample(regions$code, num_moves), times = c(change_years, n_years) - c(0, change_years))
-        .x |> mutate(code = municipality_assignment)
-      })) |>
-      tidyr::unnest(cols = c(data, regions), names_repair = "universal")
+        if (num_moves == 1) {
+          region_assignment <- rep(sample(codes, 1), n_years)
+        } else {
+          moving_year <- sort(sample(1:(n_years - 1), num_moves - 1))
+          spans <- c(moving_year, n_years) - c(0, moving_year)
+          region_assignment <- rep(sample(codes, num_moves), times = spans)
+        }
+
+        .x$code <- region_assignment
+        return(.x)
+      })  |>
+      dplyr::ungroup()
+
+    return(varying_data_codes)
   }
+
 
   ### Set up logging -----------------------------------------------------------
   log_threshold(DEBUG)
@@ -267,13 +278,9 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
                   sex_vector,
                   y_birth"))
     t_varying <- full_diag_df |> dplyr::select(id) |> construct_yearly(years_expand = year_expand_varying)
-    kommune_codes <- get_classifications(queries = region_level, date = date_unvarying_codes) |> select(code)
-    t_varying_regions <- assign_regions(t_varying, kommune_codes) |>
-      dplyr::select(id, 'year...2', code)
+    kommune_codes <- get_classifications(queries = region_level, date = date_unvarying_codes) |> dplyr::select(code)
+    final_simulated_data <- assign_regions(t_varying, kommune_codes)
 
-    final_simulated_data <- t_varying_regions |>
-      dplyr::rename(year = `year...2`) |>
-      dplyr::ungroup()
     cli::cli_h1("Sucessfully created full time-varying dataset!")
   }
 
