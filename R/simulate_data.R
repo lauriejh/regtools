@@ -110,13 +110,31 @@ simulate_data <- function(data_type, population_size, prefix_ids, length_ids, fa
   get_classifications <- function(queries, date = NULL) {
 
     if (length(queries) == 1) {
-      search <- klassR::search_klass(queries)
-      class_code <- search$klass_nr[1]
-      codes_ssb <- klassR::GetKlass(klass = class_code,
-                                    language = "en",
-                                    date = date) |>
-        dplyr::select(code, name)
-      return(codes_ssb)
+      if(queries == "kommune"){
+        search <- klassR::search_klass("kommuneinndeling")
+        class_code <- search$klass_nr[1]
+        codes_ssb <- klassR::GetKlass(klass = class_code,
+                                      language = "en",
+                                      date = date) |>
+          dplyr::select(code, name)
+        return(codes_ssb)
+      } else if (queries == "fylke"){
+        search <- klassR::search_klass("fylkesinndeling")
+        class_code <- search$klass_nr[1]
+        codes_ssb <- klassR::GetKlass(klass = class_code,
+                                      language = "en",
+                                      date = date) |>
+          dplyr::select(code, name)
+        return(codes_ssb)
+      } else {
+        search <- klassR::search_klass(queries)
+        class_code <- search$klass_nr[1]
+        codes_ssb <- klassR::GetKlass(klass = class_code,
+                                      language = "en",
+                                      date = date) |>
+          dplyr::select(code, name)
+        return(codes_ssb)
+      }
     }
 
     #Multiple queries
