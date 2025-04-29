@@ -2,6 +2,7 @@
 #'
 #' @param data Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)
 #' @param codes Character vector including ICD-10 codes to validate and filter diagnostic data
+#' @param pattern_codes Character vector including general pattern of desired codes. For example: F84 will return all codes starting with F84.
 #' @param id_col Name of ID column in data set, default is "id"
 #' @param code_col String containing the name of column containing the diagnostic codes
 #' @param log_path File path of the log file to be used
@@ -12,7 +13,7 @@
 #' @export
 #'
 
-filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_path = NULL){
+filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id", code_col = "icd_code", log_path = NULL){
 
   ##### Set up logging #####
   log_threshold(DEBUG)
@@ -35,23 +36,34 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
 
   if(!code_col %in% colnames(data)){
     log_error("The specified code column does not exist in the dataset")
-    stop(glue::glue("The specified code column does not exist in the dataset"))
+    cli::cli_abort("The specified code column does not exist in the dataset")
   }
 
   if(!id_col %in% colnames(data)){
     log_error("The specified id column does not exist in the dataset")
-    stop(glue::glue("The specified id column does not exist in the dataset"))
+    cli::cli_abort("The specified id column does not exist in the dataset")
   }
 
+
+  if(!is.null(pattern_codes) && !is.null(codes)){
+    log_error("Only on of 'pattern_codes' or 'codes' should be specified.")
+    cli::cli_abort("Only on of 'pattern_codes' or 'codes' should be specified.")
+  }
 
   #### Check if desired code exists in ICD-10 ####
   load("data/npr.rda")
 
   message("Checking that code exists in ICD-10 code list...")
 
-  codes_found <- purrr::map_lgl(codes, function(code) {
-    any(purrr::map_lgl(npr, ~ code %in% .x))
-  })
+  if(!is.null(pattern_codes)){
+    codes_found <- purrr::map_lgl(pattern_codes, function(code) {
+      any(purrr::map_lgl(npr, ~ code %in% .x))
+    })
+  } else if (is.null(pattern_codes)){
+    codes_found <- purrr::map_lgl(codes, function(code){
+      any(purrr::map_lgl(npr, ~ code %in% .x))
+    })
+  }
 
   if (!(all(codes_found))) {
     missing_codes <- codes[!codes_found]
@@ -69,11 +81,24 @@ filter_diag <- function(data, codes, id_col = "id", code_col = "icd_code", log_p
     cli::cli_alert_warning("Warning: The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
     log_warn("The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
 
-    filtered_data <- data |>
-      dplyr::filter(.data[[code_col]] %in% codes)
+    if(!is.null(pattern_codes)){
+      pattern <- paste0("^(", paste(pattern_codes, collapse = "|"), ")")
+      filtered_data <- data |>
+        dplyr::filter(stringr::str_detect(!!rlang::sym(code_col), pattern))
+      } else if (is.null(pattern_codes)){
+      filtered_data <- data |>
+        dplyr::filter(.data[[code_col]] %in% codes)
+      }
+
   } else{
-    filtered_data <- data |>
-      dplyr::filter(.data[[code_col]] %in% codes)
+    if(!is.null(pattern_codes)){
+      pattern <- paste0("^(", paste(pattern_codes, collapse = "|"), ")")
+      filtered_data <- data |>
+        dplyr::filter(stringr::str_detect(!!rlang::sym(code_col), pattern))
+    } else if (is.null(pattern_codes)){
+      filtered_data <- data |>
+        dplyr::filter(.data[[code_col]] %in% codes)
+    }
   }
 
   ###### Summary data #####
