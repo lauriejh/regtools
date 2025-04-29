@@ -14,7 +14,8 @@ calculate_prevalence(
   grouping_vars = NULL,
   only_counts = FALSE,
   suppression = TRUE,
-  suppression_treshold = 5
+  suppression_treshold = 5,
+  log_path = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ calculate_prevalence(
 \item{suppression}{Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.}
 
 \item{suppression_treshold}{Threshold for suppression, default is set to 5 (NPR standard).}
+
+\item{log_path}{File path of the log file to be used}
 }
 \value{
 Prevalence rate table

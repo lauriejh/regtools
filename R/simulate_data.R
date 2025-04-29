@@ -1,6 +1,6 @@
 #' Create simulated diagnostic, time-varying and time-unvarying data
 #'
-#' @param population_size
+#' @param population_size pop
 #' @param prefix_ids
 #' @param length_ids
 #' @param family_codes
