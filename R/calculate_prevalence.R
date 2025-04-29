@@ -148,7 +148,7 @@ calculate_prevalence <- function(linked_data,
 
   if(nrow(missing_in_pop) > 0) {
     cat("\n")
-    log_warn("here are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}")
+    log_warn("There are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}")
     cli::cli_alert_warning("Warning: there are {nrow(missing_in_pop)} cells missing from {substitute(pop_data)}. Join with population dataset doesn't have a 'one-to-one' relationship")
     }
 
