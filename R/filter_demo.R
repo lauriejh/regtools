@@ -35,7 +35,7 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
 
   ###Validate input ####
 
-  if(!names(filter_param) %in% colnames(data)){
+  if(any(!names(filter_param) %in% colnames(data))){
     log_error("The specified variables do not exist in the dataset")
     stop(glue::glue("The specified variables does not exist in the dataset"))
   }
@@ -121,7 +121,6 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
   log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
   log_info("Remaining number of rows: {nrow(filtered_data)}")
   log_info("Remaining number of columns: {ncol(filtered_data)}")
-  log_info("ICD-10 codes in dataset: {paste(unique(filtered_data$code, fromLast = T), collapse = ', ')}")
   log_formatter(formatter_pander)
   log_info(sapply(filtered_data, class))
 
