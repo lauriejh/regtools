@@ -96,6 +96,11 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     cli::cli_abort("To compute incidence rates it is necessary to provide person-time values")
   }
 
+  if(type == "rate"){
+    linked_data <- linked_data |>
+      dplyr::filter(.data[[date_col]] == time_p)
+  }
+
   ##### If cumulative type is specified, then require time_p. Otherwise consider that all the dates in the dataset are the period of interest ####
 
   if(type == "cumulative"){
@@ -185,7 +190,7 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     check_mapping(count_data_suppressed, person_time_data, by_cols = c(grouping_vars, date_col))
     incidence <- count_data_suppressed |>
       dplyr::left_join(person_time_data, by = grouping_vars) |>
-      dplyr::mutate(incidence_rate = (incidence_cases/.data[[person_time_col]]) * 1000)
+      dplyr::mutate(incidence_rate = incidence_cases/.data[[person_time_col]])
     cat("\n")
     cli::cli_alert_success(crayon::green("Incidence rates ready"))
     log_info("Incidence rates ready")
