@@ -17,7 +17,6 @@
 #' @param region_level
 #' @param region_codes
 #' @param filler_region_codes
-#' @param residence_years
 #' @param date_classifications
 #'
 #' @returns
@@ -27,8 +26,8 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
                              pattern, prevalence = NULL, diag_years, incidence = NULL,
                              sex_vector, y_birth,
                              filler_codes, filler_y_birth,
-                             unvarying_query, unvarying_codes = NULL,
-                             region_level = "kommune", region_codes, filler_region_codes, residence_years,
+                             unvarying_query, unvarying_codes = NULL, unvarying_codes_filler,
+                             region_level = "kommune", region_codes, filler_region_codes = NULL,
                              date_classifications = NULL){
 
 
@@ -50,7 +49,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
 
   icd10_codes <- function(family){
-    load("simulate/npr.rda")
+    load("data/npr.rda")
     pattern <- paste0("^(", paste(family, collapse = "|"), ")")
 
     matching_codes <- purrr::map(npr[, 1:4], function(x){
@@ -265,10 +264,14 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
 
   ## Assign regions of residence
-  cases_df_region <- dplyr::tibble(residence_y = sample(residence_years, list_cases[["prevalence_cases"]], replace = TRUE),
-                                   region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE))
 
-  relevant_cases_unvar_region <- cbind(relevant_cases_unvar, cases_df_region)
+  relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE),
+                                                                       residence_y = diag_year)
+
+  # cases_df_region <- dplyr::tibble(residence_y = sample(diag_years, list_cases[["prevalence_cases"]], replace = TRUE),
+  #                                  region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE))
+
+  # relevant_cases_unvar_region <- cbind(relevant_cases_unvar, cases_df_region)
 
   ## Generate non-relevant cases
 
@@ -293,12 +296,12 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
   ## Add filler unvarying codes
 
-  filler_diagnostic_df <- add_unvarying_ssb(filler_diagnostic_df, unvarying_codes, user_codes = F)
+  filler_diagnostic_df <- add_unvarying_ssb(filler_diagnostic_df, unvarying_codes_filler, user_codes = T)
 
 
   all_cases <- relevant_cases_unvar |>
     dplyr::bind_rows(filler_diagnostic_df) |>
-    construct_yearly(years_expand = residence_years)
+    construct_yearly(years_expand = diag_years)
 
   # Add filler varying codes
 
