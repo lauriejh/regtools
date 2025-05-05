@@ -14,7 +14,10 @@
 #' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
 #' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
 #' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
+#' @param CI Optional computation of confidence intervals
+#' @param CI_level Level for confidence intervals, default is set to .99
 #' @param log_path File path of the log file to be used
+#'
 #' @return Prevalence rate table
 #'
 #' @export
@@ -27,6 +30,7 @@ calculate_prevalence <- function(linked_data,
                                  pop_col = "pop_count",
                                  time_p,
                                  grouping_vars = NULL,
+                                 CI = T,
                                  only_counts = FALSE,
                                  suppression = TRUE,
                                  suppression_treshold = 5,
@@ -84,6 +88,26 @@ calculate_prevalence <- function(linked_data,
     log_info("Suppressed counts using {suppression_treshold} treshold. Removed {n_removed} cells out of {nrow(data)}")
     return(data)
   }
+
+  #### Confidence interval helper function ###
+
+  calculate_ci <- function(data, method = "exact", conf_level = .99, n_col){
+    data |>
+      dplyr::mutate(row_num = 1:dplyr::n()) |>
+      dplyr::mutate(
+        ci_results = purrr::pmap(
+          list(x = unique_id, n= .data[[n_col]], row_num = row_num),
+          function(x, n, row_num){
+            binom::binom.confint(x = x, n= n, methods = method, conf.level = conf_level) |>
+              tibble::as_tibble() |>
+              dplyr::mutate(row_num = row_num)
+          }
+        )
+      ) |>
+      tidyr::unnest(ci_results, names_sep = "_") |>
+      dplyr::select(-row_num, -ci_results_row_num, -ci_results_x, -ci_results_n)
+  }
+
 
 
   ##### Check for time-point or period and filter ####
@@ -170,6 +194,11 @@ calculate_prevalence <- function(linked_data,
   cli::cli_alert_success(crayon::green("Prevalence rates ready!"))
   log_info("Prevalence rates ready")
 
+
+  if (CI == T){
+    prevalence <- prevalence |>
+      calculate_ci(method = "exact", conf_level = 0.99, n_col = pop_col)
+  }
 
   ###### Summary #####
   cli::cli_h1("Summary")
