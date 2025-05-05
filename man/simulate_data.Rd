@@ -19,10 +19,10 @@ simulate_data(
   filler_y_birth,
   unvarying_query,
   unvarying_codes = NULL,
+  unvarying_codes_filler,
   region_level = "kommune",
   region_codes,
-  filler_region_codes,
-  residence_years,
+  filler_region_codes = NULL,
   date_classifications = NULL
 )
 }

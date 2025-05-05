@@ -4,12 +4,21 @@
 \alias{filter_diag}
 \title{Validate and filter diagnostic data by selected ICD-10 codes}
 \usage{
-filter_diag(data, codes, id_col = "id", code_col = "icd_code", log_path = NULL)
+filter_diag(
+  data,
+  codes = NULL,
+  pattern_codes = NULL,
+  id_col = "id",
+  code_col = "icd_code",
+  log_path = NULL
+)
 }
 \arguments{
 \item{data}{Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)}
 
 \item{codes}{Character vector including ICD-10 codes to validate and filter diagnostic data}
+
+\item{pattern_codes}{Character vector including general pattern of desired codes. For example: F84 will return all codes starting with F84.}
 
 \item{id_col}{Name of ID column in data set, default is "id"}
 
