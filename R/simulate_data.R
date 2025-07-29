@@ -1,23 +1,23 @@
 #' Create simulated diagnostic, time-varying and time-unvarying data
 #'
-#' @param population_size pop
-#' @param prefix_ids
-#' @param length_ids
-#' @param family_codes
-#' @param pattern
-#' @param prevalence
-#' @param diag_years
-#' @param incidence
-#' @param sex_vector
-#' @param y_birth
-#' @param filler_codes
-#' @param filler_y_birth
-#' @param unvarying_query
-#' @param unvarying_codes
-#' @param region_level
-#' @param region_codes
-#' @param filler_region_codes
-#' @param date_classifications
+#' @param population_size Population size
+#' @param prefix_ids Prefix ID
+#' @param length_ids Length of ID
+#' @param family_codes Relevant diagnostic codes
+#' @param pattern Pattern increase, decrease, random
+#' @param prevalence Prevalence rate
+#' @param diag_years Diagnostic years
+#' @param incidence Incidence rate
+#' @param sex_vector Sex vector
+#' @param y_birth Years of birth
+#' @param filler_codes Diagnostic codes to be used as fillers (probably will remove)
+#' @param filler_y_birth Years of birth to be used as fillers (probably will remove)
+#' @param unvarying_query Query for unvarying variables
+#' @param unvarying_codes Unvarying codes
+#' @param region_level Region level for codes
+#' @param region_codes Region codes
+#' @param filler_region_codes Filler region codes
+#' @param date_classifications Date of classifications
 #'
 #' @returns
 #' @export
@@ -27,12 +27,14 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
                              sex_vector, y_birth,
                              filler_codes, filler_y_birth,
                              unvarying_query, unvarying_codes = NULL, unvarying_codes_filler,
-                             region_level = "kommune", region_codes, filler_region_codes = NULL,
+                             region_level = NULL, region_codes = NULL, filler_region_codes = NULL,
                              date_classifications = NULL){
 
 
   ### Helper functions ---------------------------------------------------------
-  unique_ids <- function(population_size, prefix = "P000", length_id = 6) {
+
+  # Generate unique ids based on the population size, prefix and length id
+  unique_ids <- function(population_size, prefix = "P000", length_id) {
 
     max_length <- 10^length_id
     if (population_size > max_length){
@@ -47,7 +49,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
   }
 
 
-
+  # Extract desired NPR codes, validates that they do exist
   icd10_codes <- function(family){
     load("data/npr.rda")
     pattern <- paste0("^(", paste(family, collapse = "|"), ")")
@@ -65,6 +67,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     return(matching_codes)
   }
 
+  # Calculates number of cases by time period (years) depending on prevalence/incidence and pattern.
   number_cases <- function(population_size, pattern = "random", prevalence = NULL, diag_years, incidence = NULL){
 
     periods <- length(diag_years)
@@ -99,6 +102,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     return(n_cases_list)
   }
 
+  # Generates individual level data
   generate_cases <- function(ids, codes, cases_list, sex, y_birth){
 
     prevalence_cases <- cases_list[["prevalence_cases"]]
@@ -119,7 +123,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     return(cases_df)
   }
 
-
+  # Retrieves classification of variables from SSB
   get_classifications <- function(queries, date = NULL) {
 
     if (length(queries) == 1) {
@@ -166,6 +170,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     return(result_list)
   }
 
+  # Adds unvarying SSB codes/classifications to individual level data
   add_unvarying_ssb <- function(data, new_info, user_codes) {
 
     size <- nrow(data)
@@ -201,7 +206,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
       tidyr::unnest(residence_y)
   }
 
-
+  # Assign place of residence, simulating also some number of moves for each individual
   assign_regions <- function(data, regions) {
     if (is.vector(regions)){
       codes <- regions
@@ -233,7 +238,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
   ### Main function call -------------------------------------------------------
 
-  ##  Add relevant diagnostic codes, and some of the time unvarying information
+  # Generate relevant individual-level diagnostic cases and some of the time unvarying information (sex, years of birth)
   unique_id_vector <- unique_ids(population_size, prefix = prefix_ids, length_id = length_ids)
   icd10_vector <- icd10_codes(family = family_codes)
   list_cases <- number_cases(population_size = population_size, pattern = pattern, prevalence = prevalence, diag_years = diag_years, incidence = incidence)
@@ -253,7 +258,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
   diagnostic_df <- generate_cases(ids = unique_id_vector, codes = icd10_vector,
                                   cases_list = list_cases, sex = sex_vector, y_birth = y_birth) # in here
 
-  ## Include relevant time-unvarying data
+  # Include relevant time-unvarying data. Uses SSB API, unless the user provides their own unvarying_codes
 
   if (is.null(unvarying_codes)){
     unvarying_codes <- get_classifications(queries = unvarying_query) #can be list or dataframe
@@ -263,15 +268,18 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
   }
 
 
-  ## Assign regions of residence
+  # Assign regions of residence.
 
-  relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE),
-                                                                       residence_y = diag_year)
-
-  # cases_df_region <- dplyr::tibble(residence_y = sample(diag_years, list_cases[["prevalence_cases"]], replace = TRUE),
-  #                                  region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE))
-
-  # relevant_cases_unvar_region <- cbind(relevant_cases_unvar, cases_df_region)
+  if(is.null(region_codes) & is.null(region_level)){ # if both are NULL, then we dont need to add any varying codes.
+    relevant_cases_unvar_region <- relevant_cases_unvar
+  } else if (is.null(region_codes) && !is.null(region_level)){ # if region_codes NULL and region_level provided then use region_level as query for unvarying
+    region_codes_api <- get_classifications(queries = region_level, date = date_classifications)
+    relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(region_code = sample(region_codes_api$code, list_cases[["prevalence_cases"]], replace = TRUE),
+                                                                         residence_y = diag_year)
+  } else if (!is.null(region_codes)){ # if user gives region codes, use those to populate varying codes in the individual level dataset
+    relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(region_code = sample(region_codes, list_cases[["prevalence_cases"]], replace = TRUE),
+                                                                         residence_y = diag_year)
+  }
 
   ## Generate non-relevant cases
 
@@ -300,30 +308,44 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
 
   all_cases <- relevant_cases_unvar |>
-    dplyr::bind_rows(filler_diagnostic_df) |>
-    construct_yearly(years_expand = diag_years)
+    dplyr::bind_rows(filler_diagnostic_df)
 
   # Add filler varying codes
 
-  if (is.null(filler_region_codes)){
-    filler_region_codes <- get_classifications(queries = region_level, date = date_classifications) |> dplyr::select(code)
-  }
+  # If filler_region_codes NULL, then region_level need to be given and then use setdiff with region_codes
 
-  all_cases <- assign_regions(all_cases, filler_region_codes)
+  if (is.null(region_codes) && is.null(region_level)){
+    all_cases_updated <- all_cases
+  } else if (is.null(filler_region_codes) && !is.null(region_level)) {
+    all_cases <- all_cases |>
+      construct_yearly(years_expand = diag_years)
+    filler_region_codes <- get_classifications(queries = region_level, date = date_classifications) |> dplyr::select(code)
+    filler_region_codes_unique <- setdiff(all_cases$region_codes, filler_region_codes$code)
+    all_cases <- assign_regions(all_cases, filler_region_codes_unique)
+    all_cases_updated <-dplyr::rows_update(all_cases, relevant_cases_unvar_region, by = c("id", "residence_y"), unmatched = "ignore")
+  } else if (!is.null(filler_region_codes)){
+    all_cases <- all_cases |>
+      construct_yearly(years_expand = diag_years)
+    all_cases <- assign_regions(all_cases, filler_region_codes)
+    all_cases_updated <-dplyr::rows_update(all_cases, relevant_cases_unvar_region, by = c("id", "residence_y"), unmatched = "ignore")
+  }
 
   # Update with relevant codes for diagnostic cases
 
-  all_cases_updated <-dplyr::rows_update(all_cases, relevant_cases_unvar_region, by = c("id", "residence_y"), unmatched = "ignore")
-
-  unvar_df <- all_cases_updated |> dplyr::select(-residence_y, -region_code, -code, -diag_year) |> dplyr::distinct()
-
-  var_df <- all_cases_updated |> dplyr::select(id, residence_y, region_code)
-
-  diag_df <- all_cases_updated |> dplyr::select(id, code, diag_year) |> dplyr::distinct()
-
-  all_cases_updated_list <- list(unvar_df = unvar_df, var_df = var_df, diag_df = diag_df)
-  cat("\n")
-  cli::cli_alert_success("Succesfully generated diagnostic, time-varying and time-unvarying datasets!")
+  if ("region_code" %in% colnames(all_cases_updated)){
+    unvar_df <- all_cases_updated |> dplyr::select(-residence_y, -region_code, -code, -diag_year) |> dplyr::distinct()
+    var_df <- all_cases_updated |> dplyr::select(id, residence_y, region_code)
+    diag_df <- all_cases_updated |> dplyr::select(id, code, diag_year) |> dplyr::distinct()
+    all_cases_updated_list <- list(unvar_df = unvar_df, var_df = var_df, diag_df = diag_df)
+    cat("\n")
+    cli::cli_alert_success("Succesfully generated diagnostic, time-varying and time-unvarying datasets!")
+  } else {
+    unvar_df <- all_cases_updated |> dplyr::select(-code, -diag_year) |> dplyr::distinct()
+    diag_df <- all_cases_updated |> dplyr::select(id, code, diag_year) |> dplyr::distinct()
+    all_cases_updated_list <- list(unvar_df = unvar_df, diag_df = diag_df)
+    cat("\n")
+    cli::cli_alert_success("Succesfully generated diagnostic and time-unvarying datasets!")
+  }
 
   return(all_cases_updated_list)
 
