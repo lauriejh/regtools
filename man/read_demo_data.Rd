@@ -2,11 +2,11 @@
 % Please edit documentation in R/read_data_demographic.R
 \name{read_demo_data}
 \alias{read_demo_data}
-\title{Read and validate the structure of demographic data}
+\title{Read and validate the structure of demographic individual-level data}
 \usage{
 read_demo_data(
   file_path,
-  data_type,
+  data_type = c("t_variant", "t_invariant"),
   id_col = "id",
   date_col = "date",
   log_path = NULL,
@@ -14,22 +14,22 @@ read_demo_data(
 )
 }
 \arguments{
-\item{file_path}{File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.}
+\item{file_path}{Character string. File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.}
 
-\item{data_type}{Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
+\item{data_type}{Character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
 
-\item{id_col}{Name of ID column in data set, default is "id"}
+\item{id_col}{Character string. Name of ID column in data set. Default is "id".}
 
-\item{date_col}{Name of date column in data set, default is "date"}
+\item{date_col}{Character string. Name of date column in data set, default is "date".}
 
-\item{log_path}{File path of the log file to be used .}
+\item{log_path}{Character string. If you have an existing log file, specify the path to append the logs of this function.}
 
-\item{...}{Optional extra parameters for specifying correct reading of CSV and .SAV files}
+\item{...}{Optional extra parameters for specifying extra arguments for reading .CSV and .SAV files.}
 }
 \value{
-A data frame with the validated minimum requirements for demographic data
+A data frame with the validated minimum requirements for demographic data.
 }
 \description{
-`read_demo_data()` validates the general structure and minimum column requirements for demographic data.
+`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
 The input data sets must be CSV, RDS, RDA or .SAV files.
 }

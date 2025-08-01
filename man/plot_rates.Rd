@@ -10,17 +10,24 @@ plot_rates(
   rate_col,
   grouping_var = NULL,
   facet_var = NULL,
-  plot_type = c("line", "bar_chart", "lollipop", "jitter", "slope"),
+  plot_type = c("line", "bar_chart", "lollipop", "jitter"),
   percent = TRUE,
-  palette = "fhi_colors",
+  palette = c("fhi_colors", "viridis", "okabe_ito"),
+  single_color = "black",
   annotate_line = NULL,
-  labels,
-  start_end_points = NULL,
+  CI_lower = NULL,
+  CI_upper = NULL,
+  plot_title = "",
+  x_name = "",
+  y_name = "",
+  legend_title = "",
+  coord_flip = F,
+  start_end_points = F,
   interactive = FALSE
 )
 }
 \arguments{
-\item{interactive}{}
+\item{coord_flip}{}
 }
 \description{
 Title
