@@ -8,12 +8,11 @@
 #' @export
 #'
 harmonize_municipality_codes <- function(data, municipality_col, fylke = TRUE){
-  corresp_table <- readRDS("data/kommuner-1994-2024-processed.rds")
 
   cli::cli_alert_warning("NAs in municipality code column in {substitute(data)}: {.val {sum(is.na(data[[municipality_col]]))}}")
 
   data_harmonized <- data |>
-    dplyr::left_join(corresp_table, by = setNames("original_code", municipality_col))
+    dplyr::left_join(kommuner, by = setNames("original_code", municipality_col))
 
   data_harmonized <- data_harmonized |> dplyr::select(-harmonized_code_clean, -original_name, -start_year, -end_year)
 
@@ -25,7 +24,7 @@ harmonize_municipality_codes <- function(data, municipality_col, fylke = TRUE){
 
   #Check not matched rows
   no_na <- na.omit(data)
-  not_matched <- no_na |> dplyr::anti_join(corresp_table, by = setNames("original_code", municipality_col))
+  not_matched <- no_na |> dplyr::anti_join(kommuner, by = setNames("original_code", municipality_col))
   cli::cli_alert_info("Total matched rows: {.val {nrow(data)-nrow(not_matched)}}")
   return(data_harmonized)
 }
