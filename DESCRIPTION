@@ -8,7 +8,7 @@ Maintainer: Alejandra Martinez Sanchez <alejandra.martinez.sanchez@fhi.no>
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/amslala/regtools
+URL: https://github.com/amslala/regtools, https://amslala.github.io/regtools/
 BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
 Imports: 

@@ -1,22 +1,22 @@
 
-#' Read and validate the structure of demographic data
+#' Read and validate the structure of demographic individual-level data
 #'
 #' @description
-#'`read_demo_data()` validates the general structure and minimum column requirements for demographic data.
+#'`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
-#' @param file_path File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.
-#' @param data_type Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
-#' @param id_col Name of ID column in data set, default is "id"
-#' @param date_col Name of date column in data set, default is "date"
-#' @param log_path File path of the log file to be used .
-#' @param ... Optional extra parameters for specifying correct reading of CSV and .SAV files
+#' @param file_path Character string. File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.
+#' @param data_type Character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
+#' @param id_col Character string. Name of ID column in data set. Default is "id".
+#' @param date_col Character string. Name of date column in data set, default is "date".
+#' @param log_path Character string. If you have an existing log file, specify the path to append the logs of this function.
+#' @param ... Optional extra parameters for specifying extra arguments for reading .CSV and .SAV files.
 #'
-#' @return A data frame with the validated minimum requirements for demographic data
+#' @return A data frame with the validated minimum requirements for demographic data.
 #' @export
 #' @import logger
 #'
 
-read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date", log_path = NULL, ...) {
+read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"), id_col = "id", date_col = "date", log_path = NULL, ...) {
 
   ##### Set up logging #####
   log_threshold(DEBUG)

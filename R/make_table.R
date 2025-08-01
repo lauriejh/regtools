@@ -3,7 +3,7 @@ make_table <- function(data, tbl_title = NULL, tbl_subtitle = NULL, footnotes = 
   # Basic table with title and subtitle
   if(!is.null(rowname_highlight)){
     gt_tbl <- data |>
-      dplyr::group_by(sex) |>
+      dplyr::group_by(innvandringsgrunn) |>
       gt::gt(rowname_col = rowname_highlight)
   } else {
     gt_tbl <- gt::gt(data)
@@ -28,5 +28,7 @@ make_table <- function(data, tbl_title = NULL, tbl_subtitle = NULL, footnotes = 
                    pattern = "<<[{1} - {2}]>>") |>
     gt::tab_style(style = gt::cell_text(weight = "bold"),
                   locations = gt::cells_body(columns = prev_rate))
+
+  gt_tbl
 
 }
