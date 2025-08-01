@@ -46,32 +46,41 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id",
 
 
   if(!is.null(pattern_codes) && !is.null(codes)){
-    log_error("Only on of 'pattern_codes' or 'codes' should be specified.")
-    cli::cli_abort("Only on of 'pattern_codes' or 'codes' should be specified.")
+    log_error("Only one of 'pattern_codes' or 'codes' should be specified.")
+    cli::cli_abort("Only one of 'pattern_codes' or 'codes' should be specified.")
   }
 
   #### Check if desired code exists in ICD-10 ####
-  load("data/npr.rda")
 
   message("Checking that code exists in ICD-10 code list...")
 
   if(!is.null(pattern_codes)){
+    type_code <- "pattern"
     codes_found <- purrr::map_lgl(pattern_codes, function(code) {
       any(purrr::map_lgl(npr, ~ code %in% .x))
     })
   } else if (is.null(pattern_codes)){
+    type_code <- "exact"
     codes_found <- purrr::map_lgl(codes, function(code){
       any(purrr::map_lgl(npr, ~ code %in% .x))
     })
   }
 
+
   if (!(all(codes_found))) {
-    missing_codes <- codes[!codes_found]
+    missing_codes <- switch(
+      type_code,
+      "pattern" = pattern_codes[!codes_found],
+      "exact"   = codes[!codes_found])
     log_error("{paste(missing_codes, collapse = ', ')} code(s) not valid")
-    stop(paste(paste(missing_codes, collapse = ", "), "code(s) not valid"))
+    stop(paste0(paste0(missing_codes, collapse = ", "), " code(s) not valid"))
     } else {
-      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(codes, collapse = ', ')}")
-      log_info("Selected ICD-10 codes ({paste(codes, collapse = ', ')}) are valid")
+      valid_codes <- switch(
+        type_code,
+        "pattern" = pattern_codes,
+        "exact"   = codes)
+      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(valid_codes, collapse = ', ')}")
+      log_info("Selected ICD-10 codes ({paste(valid_codes, collapse = ', ')}) are valid")
       cat("\n")
     }
 
