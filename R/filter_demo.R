@@ -1,7 +1,7 @@
 #' Filter demographic data by selected filtering parameters
 #'
 #' @param data Data frame containing pre-processed demographic data
-#' @param data_type Type of demographic data: "t_variant" or "t-variant"
+#' @param data_type Type of demographic data: "t_variant" or "t_invariant"
 #' @param filter_param Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
 #' @param id_col Optional flag, necessary for "any" filtering option.
 #' @param rm_na Removes observations that have NA in the non-filtered columns.
@@ -10,11 +10,27 @@
 #' @param log_path File path of the log file to be used
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
+#' @examples
+#' # Filter varying and unvarying datasets
 #'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' filtered_demo_var <- filter_demo(data = var_df,
+#'                                  data_type = "t_variant",
+#'                                  filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
+#'                                  log_path = log_file)
+#'
+#'
+#' filtered_demo_invar <- filter_demo(data = invar_df,
+#'                                    data_type = "t_invariant",
+#'                                    filter_param = list("y_birth" = c(2006:2008), "innvandringsgrunn" = c("FAM", "UTD")),
+#'                                    rm_na = FALSE,
+#'                                    log_path = log_file)
 #' @export
 #' @import logger
 
-filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
+filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
 
   ##### Set up logging #####
   log_threshold(DEBUG)

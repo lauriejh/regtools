@@ -6,7 +6,35 @@
 #' @param id_col Name (character) of the ID column in the data set (unique personal identifier), default is "id"
 #' @param date_col Name (character) of the date column in the data set, in case of using time-variant data.
 #' @param log_path File path of the log file to be used
-#' @return Linked dataset including relevant diagnostic and demographic characteristics.
+#' @returns Linked dataset including relevant diagnostic and demographic characteristics.
+#' @examples
+#' # Link diagnostic and time invariant datasets
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' linked_diag_inv <- link_diag_demo(data_diag = diag_df,
+#'                                   data_demo_inv = invar_df,
+#'                                   id_col = "id",
+#'                                   log_path = log_file)
+#'
+#' # Link diagnostic and time variant datasets
+#' names(var_df)[names(var_df) == 'year_varying'] <- 'year'
+#' names(diag_df)[names(diag_df) == 'diag_year'] <- 'year'
+#'
+#' linked_diag_var <- link_diag_demo(data_diag = diag_df,
+#'                                   data_demo_var = var_df,
+#'                                   id_col = "id",
+#'                                   date_col = "year",
+#'                                   log_path = log_file)
+#'
+#' # Link diagnostic, time invariant and variant datasets
+#' linked_diag_inv_var <- link_diag_demo(data_diag = diag_df,
+#'                                       data_demo_var = var_df,
+#'                                       data_demo_inv = invar_df,
+#'                                       id_col = "id",
+#'                                       date_col = "year",
+#'                                       log_path = log_file)
+#'
 #' @export
 #' @import logger
 #'

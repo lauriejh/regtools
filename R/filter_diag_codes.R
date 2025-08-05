@@ -9,9 +9,22 @@
 #'
 #'
 #' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
+#' @examples
+#' # Validate that F45 and F84 are real codes/family of codes in ICD-10.
+#' # Keep only rows with codes containing F45 and F84.
+#'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' filtered_diag_df <-  filter_diag(data = diag_df,
+#'                                  pattern_codes = c("F45", "F84"),
+#'                                  id_col = "id",
+#'                                  code_col = "code",
+#'                                  log_path = log_file
+#'                                  )
 #'
 #' @export
-#'
+#' @import logger
 
 filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id", code_col = "icd_code", log_path = NULL){
 

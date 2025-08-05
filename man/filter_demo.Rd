@@ -6,7 +6,7 @@
 \usage{
 filter_demo(
   data,
-  data_type,
+  data_type = c("t_variant", "t_invariant"),
   filter_param,
   id_col = NULL,
   any = FALSE,
@@ -34,4 +34,22 @@ Filtered demographic dataframe containing only relevant observations based on th
 }
 \description{
 Filter demographic data by selected filtering parameters
+}
+\examples{
+# Filter varying and unvarying datasets
+
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+filtered_demo_var <- filter_demo(data = var_df,
+                                 data_type = "t_variant",
+                                 filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
+                                 log_path = log_file)
+
+
+filtered_demo_invar <- filter_demo(data = invar_df,
+                                   data_type = "t_invariant",
+                                   filter_param = list("y_birth" = c(2006:2008), "innvandringsgrunn" = c("FAM", "UTD")),
+                                   rm_na = FALSE,
+                                   log_path = log_file)
 }

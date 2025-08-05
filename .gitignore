@@ -6,3 +6,4 @@ regtools.Rproj
 data_test
 log
 docs
+inst/doc

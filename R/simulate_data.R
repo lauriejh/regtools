@@ -18,16 +18,34 @@
 #' @param varying_query Character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: varying_query = c("sivilstand").
 #' @param varying_codes Character vector. Codes to be used as relevant varying codes in dataset. Example: varying_codes = as.character(0:4)
 #' @param filler_varying_codes Character vector. Codes to be used as filler varying codes in dataset. Example: filler_varying_codes = as.character(5:9)
+#' @param date_classifications Date used to retrieve classification system from SSB. Format must be "yyyy-mm-dd"
 #'
-#' @returns Named list containing data frames with individual level diagnostic and sociodemographic data.
+#' @return Named list containing data frames with individual level diagnostic and sociodemographic data.
+#' @examples
+#' simulated_list <- simulate_data(population_size = 30024,
+#'                                 prefix_ids = "P000",
+#'                                 length_ids = 6,
+#'                                 family_codes = c("F45", "F84"),
+#'                                 pattern = "increase",
+#'                                 prevalence = .023,
+#'                                 diag_years  = c(2012:2020),
+#'                                 sex_vector = c(0,1),
+#'                                 y_birth = c(2010:2018),
+#'                                 filler_codes = "F",
+#'                                 filler_y_birth = c(2000:2009),
+#'                                 unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+#'                                 unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+#'                                 varying_query = "fylke"
+#'                                 )
+#'
 #' @export
 #'
 simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
                           pattern = c("increase", "decrease", "random"), prevalence = NULL, diag_years, incidence = NULL,
                           sex_vector, y_birth,
                           filler_codes, filler_y_birth,
-                          unvarying_queries, unvarying_codes = NULL, unvarying_codes_filler,
-                          varying_query = NULL, varying_codes = NULL, filler_varying_codes = NULL){
+                          unvarying_queries = NULL, unvarying_codes = NULL, unvarying_codes_filler,
+                          varying_query = NULL, varying_codes = NULL, filler_varying_codes = NULL, date_classifications = NULL){
 
 
   ### Input validation --------------------------------------------------------
@@ -52,6 +70,12 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     cli::cli_alert_warning("Varying query and varying codes arguments are empty. The varying dataset will not be generated.")
   }
 
+  while(!is.null(incidence)){
+    if(length(incidence) != length(diag_years)){
+      stop("Number of elements in incidence vector do not correspond with number of diagnosis years")
+    }
+  }
+
   ### Helper functions ---------------------------------------------------------
 
   # Generate unique ids based on the population size, prefix and length id
@@ -72,7 +96,6 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
   # Extract desired NPR codes, validates that they do exist
   icd10_codes <- function(family){
-    load("data/npr.rda")
     pattern <- paste0("^(", paste(family, collapse = "|"), ")")
 
     matching_codes <- purrr::map(npr[, 1:4], function(x){
@@ -96,7 +119,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
 
     if (!is.null(prevalence)){
       if (prevalence < 0 | prevalence > 1){
-        stop("Prevalence rate is not expressed as a proportion between 0 and 1")
+        stop("Prevalence rate is not expressed as a proportion between 0 and 1.")
       }
       prevalence_cases <- round(population_size * prevalence)
       if (pattern == "random"){
@@ -116,8 +139,8 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     }
 
     if (!is.null(incidence)){
-      if (incidence < 0 | incidence > 1){
-        stop("Incidence rate is not expressed as a proportion between 0 and 1")
+      if(any(incidence < 0 | incidence > 1)){
+        stop("Not all incidence rates are expressed as a proportion between 0 and 1.")
       }
       incidence_cases <- purrr::map_dbl(incidence, ~round(population_size*.x))
       prevalence <- sum(incidence_cases)
@@ -302,7 +325,8 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     relevant_cases_unvar_region <- relevant_cases_unvar
   } else if (is.null(varying_codes) && !is.null(varying_query)){ # if varying_codes NULL and varying_query provided then use varying_query as query for unvarying
     varying_codes_api <- get_classifications(queries = varying_query, date = date_classifications)
-    relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(varying_code = sample(varying_codes_api$code, list_cases[["prevalence_cases"]], replace = TRUE),
+    varying_codes_api_relevant <- sample(varying_codes_api$code, size = (length(varying_codes_api$code)*.6))
+    relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(varying_code = sample(varying_codes_api_relevant, list_cases[["prevalence_cases"]], replace = TRUE),
                                                                          year_varying = diag_year)
   } else if (!is.null(varying_codes)){ # if user gives region codes, use those to populate varying codes in the individual level dataset
     relevant_cases_unvar_region <- relevant_cases_unvar |> dplyr::mutate(varying_code = sample(varying_codes, list_cases[["prevalence_cases"]], replace = TRUE),
@@ -348,7 +372,10 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     all_cases <- all_cases |>
       construct_yearly(years_expand = diag_years)
     filler_varying_codes <- get_classifications(queries = varying_query, date = date_classifications) |> dplyr::select(code)
-    filler_varying_codes_unique <- setdiff(all_cases$varying_codes, filler_varying_codes$code)
+    filler_varying_codes_unique <- setdiff(unique(filler_varying_codes$code), unique(relevant_cases_unvar_region$varying_code))
+    if (length(filler_varying_codes_unique)==0){
+      stop("Filler varying codes are not unique, try providing your own filler codes in 'filler_varying_codes'")
+    }
     all_cases <- assign_regions(all_cases, filler_varying_codes_unique)
     all_cases_updated <-dplyr::rows_update(all_cases, relevant_cases_unvar_region, by = c("id", "year_varying"), unmatched = "ignore")
   } else if (!is.null(filler_varying_codes)){

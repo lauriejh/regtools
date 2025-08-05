@@ -15,6 +15,7 @@ Imports:
     cli,
     crayon,
     dplyr,
+    ggplot2,
     glue,
     haven,
     janitor,
@@ -27,3 +28,7 @@ Imports:
     tidyselect
 Depends: 
     R (>= 3.5)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

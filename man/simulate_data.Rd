@@ -17,12 +17,13 @@ simulate_data(
   y_birth,
   filler_codes,
   filler_y_birth,
-  unvarying_queries,
+  unvarying_queries = NULL,
   unvarying_codes = NULL,
   unvarying_codes_filler,
   varying_query = NULL,
   varying_codes = NULL,
-  filler_varying_codes = NULL
+  filler_varying_codes = NULL,
+  date_classifications = NULL
 )
 }
 \arguments{
@@ -61,10 +62,30 @@ simulate_data(
 \item{varying_codes}{Character vector. Codes to be used as relevant varying codes in dataset. Example: varying_codes = as.character(0:4)}
 
 \item{filler_varying_codes}{Character vector. Codes to be used as filler varying codes in dataset. Example: filler_varying_codes = as.character(5:9)}
+
+\item{date_classifications}{Date used to retrieve classification system from SSB.}
 }
 \value{
 Named list containing data frames with individual level diagnostic and sociodemographic data.
 }
 \description{
 Create simulated diagnostic, time-varying and time-unvarying individual level data
+}
+\examples{
+simulated_list <- simulate_data(population_size = 30024,
+                                prefix_ids = "P000",
+                                length_ids = 6,
+                                family_codes = c("F45", "F84"),
+                                pattern = "increase",
+                                prevalence = .023,
+                                diag_years  = c(2012:2020),
+                                sex_vector = c(0,1),
+                                y_birth = c(2010:2018),
+                                filler_codes = "F",
+                                filler_y_birth = c(2000:2009),
+                                unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+                                unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+                                varying_query = "fylke"
+                                )
+
 }

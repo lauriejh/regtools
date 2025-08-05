@@ -5,9 +5,13 @@
 #' @param fylke Also want fylke name in 2024?
 #'
 #' @returns Harmonized codes in 2024
+#' @examples
+#' # Harmonize municipality codes from 2016 to 2024
+#'
+#' harmonized_codes <- harmonize_municipality_codes(data = kommuner_2016, municipality_col = "code")
 #' @export
 #'
-harmonize_municipality_codes <- function(data, municipality_col, fylke = TRUE){
+harmonize_municipality_codes <- function(data, municipality_col = "code", fylke = TRUE){
 
   cli::cli_alert_warning("NAs in municipality code column in {substitute(data)}: {.val {sum(is.na(data[[municipality_col]]))}}")
 

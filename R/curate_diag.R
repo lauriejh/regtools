@@ -9,9 +9,21 @@
 #' @param log_path File path of the log file to be used
 #'
 #' @return Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
+#' @examples
+#' # Keep only curated diagnositc data, for example minimum diagnostic events or first recorded diagnosis
 #'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' curated_diag_df <- curate_diag(data = filtered_diag,
+#'                                min_diag = 1,
+#'                                first_diag = TRUE,
+#'                                id_col = "id",
+#'                                code_col = "code",
+#'                                date_col = "diag_year",
+#'                                log_path = log_file)
 #' @export
-#'
+#' @import logger
 #'
 curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", code_col = "icd_code", date_col = "date", log_path = NULL){
 
