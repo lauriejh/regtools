@@ -2,11 +2,11 @@
 % Please edit documentation in R/plot_rates.R
 \name{plot_rates}
 \alias{plot_rates}
-\title{Title}
+\title{Plot prevalence/incidence rates}
 \usage{
 plot_rates(
   data,
-  date_col,
+  date_col = "date",
   rate_col,
   grouping_var = NULL,
   facet_var = NULL,
@@ -14,21 +14,60 @@ plot_rates(
   percent = TRUE,
   palette = c("fhi_colors", "viridis", "okabe_ito"),
   single_color = "black",
-  annotate_line = NULL,
+  annotated_line = NULL,
   CI_lower = NULL,
   CI_upper = NULL,
   plot_title = "",
   x_name = "",
   y_name = "",
   legend_title = "",
-  coord_flip = F,
-  start_end_points = F,
+  coord_flip = FALSE,
+  start_end_points = FALSE,
   interactive = FALSE
 )
 }
 \arguments{
-\item{coord_flip}{}
+\item{data}{Dataframe contining prevalence/incidence rates and auxiliary information.}
+
+\item{date_col}{Name (character) of the date column in the data set. Default is "date".}
+
+\item{rate_col}{Name (character) of the rate column in the data set (prevalence or incidence).}
+
+\item{grouping_var}{Name (character) of the variable/column in the data set used to group rates.}
+
+\item{facet_var}{Name (character) of the variable/column in the data set used to facet plots.}
+
+\item{plot_type}{Character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"}
+
+\item{percent}{Logical. Do you want axis to be in percent? Default set to TRUE.}
+
+\item{palette}{Character string. Palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"}
+
+\item{single_color}{Character string. Single color applied to all the plot. Default is set to "black"}
+
+\item{annotated_line}{Character string. Position of annotated line. Default is NULL.}
+
+\item{CI_lower}{Name (character) of the column containing the lower confidence interval in the dataset.}
+
+\item{CI_upper}{Name (character) of the column containing the upper confidence interval in the dataset.}
+
+\item{plot_title}{Character string. Title for the plot.}
+
+\item{x_name}{Character string. Title of the x axis.}
+
+\item{y_name}{Character string. Title of the y axis.}
+
+\item{legend_title}{Character string. Title for the legend box.}
+
+\item{coord_flip}{Logical. For lollipop, bar charts and jitter plots flips the orientation of the plot. Default is set to FALSE.}
+
+\item{start_end_points}{Logical. Do you want to annotate the start and end points of a line plot. Default is set to FALSE.}
+
+\item{interactive}{Logical. Do you want to make the plot interactive with plotly? Default is set to FALSE.}
+}
+\value{
+A ggplot object
 }
 \description{
-Title
+Plot prevalence/incidence rates
 }

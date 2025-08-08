@@ -15,7 +15,7 @@
 #' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
 #' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
 #' @param CI Optional computation of confidence intervals
-#' @param CI_level Level for confidence intervals, default is set to .99
+#' @param CI_level Level for confidence intervals, default is set to 0.99
 #' @param log_path File path of the log file to be used
 #'
 #' @return Prevalence rate table
@@ -31,6 +31,7 @@ calculate_prevalence <- function(linked_data,
                                  time_p,
                                  grouping_vars = NULL,
                                  CI = T,
+                                 CI_level = 0.99,
                                  only_counts = FALSE,
                                  suppression = TRUE,
                                  suppression_treshold = 5,
@@ -91,7 +92,7 @@ calculate_prevalence <- function(linked_data,
 
   #### Confidence interval helper function ###
 
-  calculate_ci <- function(data, method = "exact", conf_level = .99, n_col){
+  calculate_ci <- function(data, method = "exact", conf_level = CI_level, n_col){
     data |>
       dplyr::mutate(row_num = 1:dplyr::n()) |>
       dplyr::mutate(
@@ -105,7 +106,7 @@ calculate_prevalence <- function(linked_data,
         )
       ) |>
       tidyr::unnest(ci_results, names_sep = "_") |>
-      dplyr::select(-row_num, -ci_results_row_num, -ci_results_x, -ci_results_n)
+      dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
   }
 
 

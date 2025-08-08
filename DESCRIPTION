@@ -12,18 +12,28 @@ URL: https://github.com/amslala/regtools, https://amslala.github.io/regtools/
 BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
 Imports: 
+    binom,
     cli,
     crayon,
     dplyr,
     ggplot2,
+    ggrepel,
+    ggthemes,
     glue,
+    gt,
     haven,
     janitor,
+    klassR,
     logger,
     lubridate,
+    openxlsx,
+    plotly,
     purrr,
+    PxWebApiData,
     rlang,
-    skimr,
+    scales,
+    stringr,
+    tibble,
     tidyr,
     tidyselect
 Depends: 

@@ -14,11 +14,12 @@
 #' @return A data frame with the validated minimum requirements for demographic data.
 #' @examples
 #' # Read and validate CSV file for varying individual level demographic data
-#' demo_csv <- system.file("extdata", "var_data.csv", package = "regtools")
+#' demo_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
 #'
-#' demo_data_validated <- read_demo_data(demo_csv, data_type = "t_variant", id_col = "id", date_col = "year_varying", log_path = log_file)
+#' demo_data_validated <- read_demo_data(demo_csv, data_type = "t_invariant",
+#' id_col = "id", log_path = log_file)
 #'
 #' @export
 #' @import logger

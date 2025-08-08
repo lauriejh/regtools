@@ -39,7 +39,8 @@ Data frame with population data from SSB
 Get population data from SSB
 }
 \examples{
-# Population of Norway in 2020 to 2022, for ages 10 to 15, include total of that age group (10-15) for each year.
+# Population of Norway in 2020 to 2022, for ages 10 to 15,
+# include total of that age group (10-15) for each year.
 log_file <- tempfile()
 cat("Example log file", file = log_file)
 population_norway <- get_population_ssb(regions = "norway",

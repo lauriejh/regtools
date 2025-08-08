@@ -1,37 +1,37 @@
-#' Title
+#' Plot prevalence/incidence rates
 #'
-#' @param data
-#' @param date_col
-#' @param rate_col
-#' @param grouping_var
-#' @param facet_var
-#' @param plot_type
-#' @param percent
-#' @param palette
-#' @param annotate_line
-#' @param CI_lower
-#' @param CI_upper
-#' @param plot_title
-#' @param start_end_points
-#' @param interactive
-#' @param single_color
-#' @param x_name
-#' @param y_name
-#' @param legend_title
-#' @param coord_flip
+#' @param data Dataframe contining prevalence/incidence rates and auxiliary information.
+#' @param date_col Name (character) of the date column in the data set. Default is "date".
+#' @param rate_col Name (character) of the rate column in the data set (prevalence or incidence).
+#' @param grouping_var Name (character) of the variable/column in the data set used to group rates.
+#' @param facet_var Name (character) of the variable/column in the data set used to facet plots.
+#' @param plot_type Character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"
+#' @param percent Logical. Do you want axis to be in percent? Default set to TRUE.
+#' @param palette Character string. Palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"
+#' @param annotated_line Character string. Position of annotated line. Default is NULL.
+#' @param CI_lower Name (character) of the column containing the lower confidence interval in the dataset.
+#' @param CI_upper Name (character) of the column containing the upper confidence interval in the dataset.
+#' @param plot_title Character string. Title for the plot.
+#' @param start_end_points Logical. Do you want to annotate the start and end points of a line plot. Default is set to FALSE.
+#' @param interactive Logical. Do you want to make the plot interactive with plotly? Default is set to FALSE.
+#' @param single_color Character string. Single color applied to all the plot. Default is set to "black"
+#' @param x_name Character string. Title of the x axis.
+#' @param y_name Character string. Title of the y axis.
+#' @param legend_title Character string. Title for the legend box.
+#' @param coord_flip Logical. For lollipop, bar charts and jitter plots flips the orientation of the plot. Default is set to FALSE.
 #'
-#' @returns
+#' @returns A ggplot object
 #' @export
 #' @importFrom ggplot2 theme element_blank element_text unit ggplot aes geom_line geom_point geom_bar geom_segment geom_jitter facet_wrap scale_y_continuous vars
 #'
-#' @examples
 
-plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var = NULL,
+
+plot_rates <- function(data, date_col = "date", rate_col, grouping_var = NULL, facet_var = NULL,
                      plot_type = c("line", "bar_chart", "lollipop", "jitter"),
                      percent = TRUE, palette = c("fhi_colors", "viridis", "okabe_ito"),
                      single_color = "black",
-                     annotate_line = NULL, CI_lower = NULL, CI_upper = NULL,
-                     plot_title = "", x_name = "", y_name = "", legend_title = "", coord_flip = F, start_end_points = F, interactive = FALSE){
+                     annotated_line = NULL, CI_lower = NULL, CI_upper = NULL,
+                     plot_title = "", x_name = "", y_name = "", legend_title = "", coord_flip = FALSE, start_end_points = FALSE, interactive = FALSE){
 
 
   # Input validation   ---------------------------------------------------------
@@ -128,8 +128,8 @@ plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var 
                  viridis = plot + ggplot2::scale_colour_viridis_d() +
                    ggplot2::scale_fill_viridis_d(),
 
-                 okabe_ito = plot + ggplot2::scale_colour_manual(values = c(palette.colors(palette = "Okabe-Ito"))) +
-                   ggplot2::scale_fill_manual(values = c(palette.colors(palette = "Okabe-Ito"))),
+                 okabe_ito = plot + ggplot2::scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")) +
+                   ggplot2::scale_fill_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")),
 
                  stop("Unknown palette type"))
 
@@ -158,8 +158,8 @@ plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var 
     }
   }
 
-  if(!is.null(annotate_line)){
-    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotate_line)), linetype="dashed", size = 0.6)
+  if(!is.null(annotated_line)){
+    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotated_line)), linetype="dashed", size = 0.6)
   }
 
   if(start_end_points){

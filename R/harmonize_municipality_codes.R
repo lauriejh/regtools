@@ -16,19 +16,19 @@ harmonize_municipality_codes <- function(data, municipality_col = "code", fylke 
   cli::cli_alert_warning("NAs in municipality code column in {substitute(data)}: {.val {sum(is.na(data[[municipality_col]]))}}")
 
   data_harmonized <- data |>
-    dplyr::left_join(kommuner, by = setNames("original_code", municipality_col))
+    dplyr::left_join(kommuner, by = stats::setNames("original_code", municipality_col))
 
-  data_harmonized <- data_harmonized |> dplyr::select(-harmonized_code_clean, -original_name, -start_year, -end_year)
+  data_harmonized <- data_harmonized |> dplyr::select(!c("harmonized_code_clean", "original_name", "start_year", "end_year"))
 
   if (fylke == F){
-    data_harmonized <- data_harmonized |> dplyr::select(-fylke_code, -fylke_name)
+    data_harmonized <- data_harmonized |> dplyr::select(!c("fylke_code", "fylke_name"))
   }
   cli::cli_rule("")
   cli::cli_alert_success("Succesfully matched old municipality codes with harmonized municipality codes")
 
   #Check not matched rows
-  no_na <- na.omit(data)
-  not_matched <- no_na |> dplyr::anti_join(kommuner, by = setNames("original_code", municipality_col))
+  no_na <- stats::na.omit(data)
+  not_matched <- no_na |> dplyr::anti_join(kommuner, by = stats::setNames("original_code", municipality_col))
   cli::cli_alert_info("Total matched rows: {.val {nrow(data)-nrow(not_matched)}}")
   return(data_harmonized)
 }

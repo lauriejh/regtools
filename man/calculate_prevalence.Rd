@@ -13,6 +13,7 @@ calculate_prevalence(
   time_p,
   grouping_vars = NULL,
   CI = T,
+  CI_level = 0.99,
   only_counts = FALSE,
   suppression = TRUE,
   suppression_treshold = 5,
@@ -36,6 +37,8 @@ calculate_prevalence(
 
 \item{CI}{Optional computation of confidence intervals}
 
+\item{CI_level}{Level for confidence intervals, default is set to 0.99}
+
 \item{only_counts}{Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.}
 
 \item{suppression}{Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.}
@@ -43,8 +46,6 @@ calculate_prevalence(
 \item{suppression_treshold}{Threshold for suppression, default is set to 5 (NPR standard).}
 
 \item{log_path}{File path of the log file to be used}
-
-\item{CI_level}{Level for confidence intervals, default is set to .99}
 }
 \value{
 Prevalence rate table

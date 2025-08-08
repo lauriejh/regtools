@@ -11,7 +11,8 @@
 #'
 #' @returns Data frame with population data from SSB
 #' @examples
-#' # Population of Norway in 2020 to 2022, for ages 10 to 15, include total of that age group (10-15) for each year.
+#' # Population of Norway in 2020 to 2022, for ages 10 to 15,
+#' # include total of that age group (10-15) for each year.
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
 #' population_norway <- get_population_ssb(regions = "norway",
@@ -22,6 +23,7 @@
 #'                                         save_xslx = FALSE,
 #'                                         log_path = log_file)
 #'
+#' @importFrom rlang .data
 #' @export
 #'
 get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07459/", regions = "norway", years, ages, aggregate_age = TRUE, by_sex = TRUE, save_xslx = FALSE, log_path = NULL){
@@ -120,14 +122,14 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
 
 
     population_api_df <- population_api_df |>
-      dplyr::rename(region_code = Region, region_name = region, sex_value = sex, sex = Kjonn, year = Tid, age= Alder, population = value) |>
-      dplyr::select(-ContentsCode)
+      dplyr::rename("region_code" = "Region", "region_name" = "region", "sex_value" = "sex", "sex" = "Kjonn", "year" = "Tid", "age"= "Alder", "population" = "value") |>
+      dplyr::select(!c("ContentsCode"))
 
     if (aggregate_age == TRUE && length(ages)>1){
       cli::cli_alert_info("Aggregating ages...")
       log_info(glue::glue("Aggregating ages..."))
       population_api_df <- population_api_df  |>
-        dplyr::group_split(region_code, sex, year, region_name)  |>
+        dplyr::group_split(.data$region_code, .data$sex, .data$year, .data$region_name)  |>
         purrr::map_df(~dplyr::add_row(.x,
                                       region_code = dplyr::first(.x$region_code),
                                       sex = dplyr::first(.x$sex),
@@ -145,13 +147,13 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
     population_api_df$Region <- substring(population_api_df$Region, region_substring)
 
     population_api_df <- population_api_df |>
-      dplyr::rename(region_code = Region, region_name = region, year = Tid, age= Alder, population = value) |>
-      dplyr::select(-ContentsCode)
+      dplyr::rename("region_code" = "Region", "region_name" = "region", "year" = "Tid", "age"= "Alder", "population" = "value") |>
+      dplyr::select(!c("ContentsCode"))
     if (aggregate_age == TRUE && length(ages)>1){
       cli::cli_alert_info("Aggregating ages...")
       log_info(glue::glue("Aggregating ages..."))
       population_api_df <- population_api_df  |>
-        dplyr::group_split(region_code, year)  |>
+        dplyr::group_split(.data$region_code, .data$year)  |>
         purrr::map_df(~dplyr::add_row(.x,
                                       region_code = dplyr::first(.x$region_code),
                                       year = dplyr::first(.x$year),

@@ -20,7 +20,10 @@
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
 #'
-#' diag_data_validated <- read_diag_data(diag_csv, id_col = "id", date_col = "diag_year", log_path = log_file)
+#' diag_data_validated <- read_diag_data(diag_csv,
+#'   id_col = "id",
+#'   date_col = "diag_year",
+#'   log_path = log_file)
 #'
 #' @export
 #' @import logger

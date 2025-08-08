@@ -16,17 +16,18 @@
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
 #'
-#' filtered_demo_var <- filter_demo(data = var_df,
-#'                                  data_type = "t_variant",
-#'                                  filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
-#'                                  log_path = log_file)
+#' filtered_var <- filter_demo(data = var_df,
+#' data_type = "t_variant",
+#' filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
+#' log_path = log_file)
 #'
 #'
-#' filtered_demo_invar <- filter_demo(data = invar_df,
-#'                                    data_type = "t_invariant",
-#'                                    filter_param = list("y_birth" = c(2006:2008), "innvandringsgrunn" = c("FAM", "UTD")),
-#'                                    rm_na = FALSE,
-#'                                    log_path = log_file)
+#' filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
+#' filter_param = list("y_birth" = c(2006:2008),
+#' "innvandringsgrunn" = c("FAM", "UTD")),
+#' rm_na = FALSE,
+#' log_path = log_file)
+#'
 #' @export
 #' @import logger
 
@@ -64,7 +65,7 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
   ###Helper functions####
   remove_na <- function(data){
     n_missing <- data |>
-      dplyr::filter(if_any(everything(), is.na)) |>
+      dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na)) |>
       nrow()
 
     if(sum(n_missing) > 0){

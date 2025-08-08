@@ -4,7 +4,7 @@
 \alias{harmonize_municipality_codes}
 \title{Harmonize old municipality codes in Norway to 2024 municipality codes}
 \usage{
-harmonize_municipality_codes(data, municipality_col, fylke = TRUE)
+harmonize_municipality_codes(data, municipality_col = "code", fylke = TRUE)
 }
 \arguments{
 \item{data}{Data containing old municipality codes}
@@ -18,4 +18,9 @@ Harmonized codes in 2024
 }
 \description{
 Harmonize old municipality codes in Norway to 2024 municipality codes
+}
+\examples{
+# Harmonize municipality codes from 2016 to 2024
+
+harmonized_codes <- harmonize_municipality_codes(data = kommuner_2016, municipality_col = "code")
 }
