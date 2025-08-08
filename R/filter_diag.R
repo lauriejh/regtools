@@ -25,6 +25,7 @@
 #'
 #' @export
 #' @import logger
+#' @importFrom rlang .data
 
 filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id", code_col = "icd_code", log_path = NULL){
 
