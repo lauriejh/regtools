@@ -14,20 +14,23 @@ link_diag_demo(
 )
 }
 \arguments{
-\item{data_diag}{Data frame containing pre-processed and pre-validated diagnostic data (check minimum requirements in documentations)}
+\item{data_diag}{A data frame containing pre-processed and pre-validated diagnostic data.}
 
-\item{data_demo_inv}{Data frame containing validated time-invariant demographic data (check minimum requirements in documentations)}
+\item{data_demo_inv}{A data frame containing validated time-invariant demographic data.}
 
-\item{data_demo_var}{Data frame containing validated time-variant demographic data (check minimum requirements in documentations)}
+\item{data_demo_var}{A data frame containing validated time-variant demographic data.}
 
-\item{id_col}{Name (character) of the ID column in the data set (unique personal identifier), default is "id"}
+\item{id_col}{A character string. Name of ID (unique personal identifier) column in all of the provided datasets. Default is "id".}
 
-\item{date_col}{Name (character) of the date column in the data set, in case of using time-variant data.}
+\item{date_col}{A character string. Name  of the date column in time-variant data and diagnostic data.}
 
-\item{log_path}{File path of the log file to be used}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
-Linked dataset including relevant diagnostic and demographic characteristics.
+Linked dataset including relevant diagnostic and demographic variables.
 }
 \description{
 Link diagnostic and demographic datasets using unique personal identifiers

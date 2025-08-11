@@ -54,6 +54,6 @@ calculate_incidence(
 Prevalence rate table
 }
 \description{
-The `calculate_incidence()` function calculates incidence rates based on the given diagnostic and demographic information.
+The \code{calculate_incidence()} function calculates incidence rates based on the given diagnostic and demographic information.
 Incidence represents the number of new cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 }

@@ -1,14 +1,15 @@
 #' Validate and filter diagnostic data by selected ICD-10 codes
 #'
-#' @param data Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)
-#' @param codes Character vector including ICD-10 codes to validate and filter diagnostic data
-#' @param pattern_codes Character vector including general pattern of desired codes. For example: F84 will return all codes starting with F84.
-#' @param id_col Name of ID column in data set, default is "id"
-#' @param code_col String containing the name of column containing the diagnostic codes
-#' @param log_path File path of the log file to be used
+#' @param data A data frame containing pre-processed diagnostic data.
+#' @param codes A character vector. ICD-10 codes to validate and filter in `data`
+#' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.)
+#' @param id_col A character string. Name of ID column in `data`, default is "id"
+#' @param code_col A character string. Name of column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
+#' @return Filtered and validated diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 #'
-#' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 #' @examples
 #' # Validate that F45 and F84 are real codes/family of codes in ICD-10.
 #' # Keep only rows with codes containing F45 and F84.

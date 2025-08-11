@@ -14,23 +14,26 @@ read_diag_data(
 )
 }
 \arguments{
-\item{file_path}{File path of the diagnostic data to be read. Supports CSV, RDS, RDA and .SAV files.}
+\item{file_path}{A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA and .SAV files.}
 
-\item{id_col}{Name of ID column in data set, default is "id"}
+\item{id_col}{A character string. Name of ID column in data set, default is "id".}
 
-\item{date_col}{Name of date column in data set, default is "date"}
+\item{date_col}{A character string. Name of date column in data set, default is "date".}
 
-\item{code_col}{Name of diagnostic codes column in data set, default is "code"}
+\item{code_col}{A character string. Name of diagnostic codes column in data set, default is "code".}
 
-\item{log_path}{File path of the log file}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 
-\item{...}{Optional extra parameters for specifying correct reading of CSV and .SAV files}
+\item{...}{Additional arguments passed to methods or underlying functions.}
 }
 \value{
 A data frame with the validated minimum requirements for diagnostic data
 }
 \description{
-`read_diag_data()` validates the general structure and minimum column requirements for diagnostic data.
+\code{read_diag_data()} validates the general structure and minimum column requirements for diagnostic data.
 The input data sets must be CSV, RDS, RDA or .SAV files.
 }
 \examples{

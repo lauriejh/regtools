@@ -51,6 +51,6 @@ calculate_prevalence(
 Prevalence rate table
 }
 \description{
-The `calculate_prevalence()` function calculates prevalence rates based on the given diagnostic and demographic information.
+The \code{calculate_prevalence()} function calculates prevalence rates based on the given diagnostic and demographic information.
 Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 }

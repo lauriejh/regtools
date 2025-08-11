@@ -5,12 +5,12 @@
 \alias{diag_df}
 \title{Example diagnostic individual-level data}
 \format{
-`diag_df`
+\code{diag_df}
 A data frame with 30,024 rows and 3 columns:
 \describe{
-  \item{id}{Unique personal identifier}
-  \item{code}{ICD-10 codes}
-  \item{diag_year}{Year of diagnosis}
+\item{id}{Unique personal identifier}
+\item{code}{ICD-10 codes}
+\item{diag_year}{Year of diagnosis}
 }
 }
 \source{

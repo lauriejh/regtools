@@ -5,13 +5,13 @@
 \alias{invar_df}
 \title{Example time-invariant individual-level data}
 \format{
-`invar_df`
+\code{invar_df}
 A data frame with 30,024 rows and 4 columns:
 \describe{
-  \item{id}{Unique personal identifier}
-  \item{sex}{Sex (code)}
-  \item{y_birth}{Year of birth}
-  \item{innvandringsgrunn}{Reason for immigration (https://www.ssb.no/klass/klassifikasjoner/355)}
+\item{id}{Unique personal identifier}
+\item{sex}{Sex (code)}
+\item{y_birth}{Year of birth}
+\item{innvandringsgrunn}{Reason for immigration (https://www.ssb.no/klass/klassifikasjoner/355)}
 }
 }
 \source{

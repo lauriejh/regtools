@@ -1,12 +1,13 @@
 #' Link diagnostic and demographic datasets using unique personal identifiers
 #'
-#' @param data_diag Data frame containing pre-processed and pre-validated diagnostic data (check minimum requirements in documentations)
-#' @param data_demo_inv Data frame containing validated time-invariant demographic data (check minimum requirements in documentations)
-#' @param data_demo_var Data frame containing validated time-variant demographic data (check minimum requirements in documentations)
-#' @param id_col Name (character) of the ID column in the data set (unique personal identifier), default is "id"
-#' @param date_col Name (character) of the date column in the data set, in case of using time-variant data.
-#' @param log_path File path of the log file to be used
-#' @returns Linked dataset including relevant diagnostic and demographic characteristics.
+#' @param data_diag A data frame containing pre-processed and pre-validated diagnostic data.
+#' @param data_demo_inv A data frame containing validated time-invariant demographic data.
+#' @param data_demo_var A data frame containing validated time-variant demographic data.
+#' @param id_col A character string. Name of ID (unique personal identifier) column in all of the provided datasets. Default is "id".
+#' @param date_col A character string. Name  of the date column in time-variant data and diagnostic data.
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#' @returns Linked dataset including relevant diagnostic and demographic variables.
 #' @examples
 #' # Link diagnostic and time invariant datasets
 #' log_file <- tempfile()

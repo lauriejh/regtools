@@ -15,19 +15,28 @@ filter_demo(
 )
 }
 \arguments{
-\item{data}{Data frame containing pre-processed demographic data}
+\item{data}{A data frame containing pre-processed demographic data.}
 
-\item{data_type}{Type of demographic data: "t_variant" or "t-variant"}
+\item{data_type}{A character string. Type of demographic data: "t_variant" or "t_invariant"}
 
-\item{filter_param}{Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
+\item{filter_param}{A named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.}
 
-\item{id_col}{Optional flag, necessary for "any" filtering option.}
+\item{id_col}{A character string. Name of ID column in data set.
+\itemize{
+\item Optional, necessary only when \code{any = TRUE}
+}}
 
-\item{any}{Filtering option, any year. Default = FALSE.}
+\item{any}{Logical. Filtering option, any year. Default is \code{FALSE}}
 
-\item{rm_na}{Removes observations that have NA in the non-filtered columns.}
+\item{rm_na}{Logical. Should rows with NA in the non-filtered columns be removed? Default is \code{FALSE}
+\itemize{
+\item If \code{TRUE}, removes observations that have NA in any of the non-filtered columns.
+}}
 
-\item{log_path}{File path of the log file to be used}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
 Filtered demographic dataframe containing only relevant observations based on the filtering parameters.

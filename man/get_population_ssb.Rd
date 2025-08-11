@@ -2,11 +2,11 @@
 % Please edit documentation in R/get_population_ssb.R
 \name{get_population_ssb}
 \alias{get_population_ssb}
-\title{Get population data from SSB}
+\title{Get yearly population data from SSB, by region, sex and age.}
 \usage{
 get_population_ssb(
   url_api = "https://data.ssb.no/api/v0/en/table/07459/",
-  regions = "norway",
+  regions = c("norway", "fylker", "kommuner"),
   years,
   ages,
   aggregate_age = TRUE,
@@ -16,27 +16,44 @@ get_population_ssb(
 )
 }
 \arguments{
-\item{url_api}{URL used for the SSB API call. Do not modify.}
+\item{url_api}{Character string. URL used for the SSB API call. \emph{Do not modify}.}
 
-\item{regions}{Supported regions: "norway" for the country-wise population counts, "fylker" for county population counts, "kommuner" for municipality population counts. Due to region reforms in Norway, the results are shown using SSB's harmonized county codes.}
+\item{regions}{Character string. Supported regions:
+\itemize{
+\item "norway" for the country-wise population counts
+\item "fylker" for county population counts
+\item "kommuner" for municipality population counts. Due to region reforms in Norway, the results are shown using SSB's harmonized county codes (2024)
+}}
 
-\item{years}{Numerical or character vector containing year or years}
+\item{years}{Numerical vector. Year(s) of population counts.}
 
-\item{ages}{Desired ages in whole years}
+\item{ages}{Numerical vector. Age(s) in whole years.}
 
-\item{aggregate_age}{If TRUE and more than one age given, new row with aggregated population for age group}
+\item{aggregate_age}{Logical. Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE} and more than one age given, include new row with aggregated population for age group.
+}}
 
-\item{by_sex}{Should population results be disaggregated by sex}
+\item{by_sex}{Logical. Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE} population counts are disaggregated by sex (male, female)
+}}
 
-\item{save_xslx}{Want to save the results as a xslx in your current working directory}
+\item{save_xslx}{Logical. Want to save the results as a xslx? Default is \code{FALSE}.
+\itemize{
+\item If \code{TRUE} results are saved as xslx in the current working directory.
+}}
 
-\item{log_path}{Log path}
+\item{log_path}{Character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL} a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
 Data frame with population data from SSB
 }
 \description{
-Get population data from SSB
+Get yearly population data from SSB, by region, sex and age.
 }
 \examples{
 # Population of Norway in 2020 to 2022, for ages 10 to 15,

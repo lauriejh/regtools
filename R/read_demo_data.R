@@ -4,12 +4,13 @@
 #' @description
 #'`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
-#' @param file_path Character string. File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.
-#' @param data_type Character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
-#' @param id_col Character string. Name of ID column in data set. Default is "id".
-#' @param date_col Character string. Name of date column in data set, default is "date".
-#' @param log_path Character string. If you have an existing log file, specify the path to append the logs of this function.
-#' @param ... Optional extra parameters for specifying extra arguments for reading .CSV and .SAV files.
+#' @param file_path A character string. File path to the demographic data to read. Supports CSV, RDS, RDA and .SAV files.
+#' @param data_type A character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
+#' @param id_col A character string. Name of ID column in data set. Default is "id".
+#' @param date_col A character string. Name of date column in data set, default is "date".
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#' @param ... Additional arguments passed to methods or underlying functions.
 #'
 #' @return A data frame with the validated minimum requirements for demographic data.
 #' @examples

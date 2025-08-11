@@ -5,11 +5,11 @@
 \alias{kommuner_2016}
 \title{Norwegian municipalities valid in 2016}
 \format{
-`kommuner_2016`
+\code{kommuner_2016}
 A data frame with 429 rows and 2 columns:
 \describe{
-  \item{code}{Code of municipality (2016)}
-  \item{name}{Name of municipality}
+\item{code}{Code of municipality (2016)}
+\item{name}{Name of municipality}
 }
 }
 \source{

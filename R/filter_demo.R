@@ -1,13 +1,15 @@
 #' Filter demographic data by selected filtering parameters
 #'
-#' @param data Data frame containing pre-processed demographic data
-#' @param data_type Type of demographic data: "t_variant" or "t_invariant"
-#' @param filter_param Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
-#' @param id_col Optional flag, necessary for "any" filtering option.
-#' @param rm_na Removes observations that have NA in the non-filtered columns.
-#' @param data_type Type of demographic data: "t_variant" or "t-variant"
-#' @param any Filtering option, any year. Default = FALSE.
-#' @param log_path File path of the log file to be used
+#' @param data A data frame containing pre-processed demographic data.
+#' @param data_type A character string. Type of demographic data: "t_variant" or "t_invariant"
+#' @param filter_param A named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
+#' @param id_col A character string. Name of ID column in data set.
+#' * Optional, necessary only when `any = TRUE`
+#' @param rm_na Logical. Should rows with NA in the non-filtered columns be removed? Default is `FALSE`
+#' * If `TRUE`, removes observations that have NA in any of the non-filtered columns.
+#' @param any Logical. Filtering option, any year. Default is `FALSE`
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
 #' @examples

@@ -1,24 +1,26 @@
 #' Create simulated diagnostic, time-varying and time-unvarying individual level data
 #'
-#' @param population_size Integer. Total population size.
-#' @param prefix_ids Character string. Prefix used to construct unique IDs. Default is "P000".
-#' @param length_ids Integer. Total character length of each ID. Default is 6.
-#' @param family_codes Character vector. Relevant ICD-10 diagnostic codes or family of codes. Example: family_codes = c("F84", "G")
-#' @param pattern Pattern of incidence or prevalence rates in simulated data. Possible options are "increase", "decrease" or "random".
-#' @param prevalence Numeric value between 0 and 1. Prevalence rate expressed as a proportion.
-#' @param incidence Numeric value between 0 and 1. Incidence rate expressed as a proportion.
-#' @param diag_years Numeric vector. Years to be used as relevant diagnostic years.
-#' @param sex_vector Factor vector. Factors used to represent sex in the simulated data sets.
-#' @param y_birth Numeric vector. Years to be used as relevant years of birth.
-#' @param filler_codes Character vector. ICD-10 diagnostic codes or family of codes used as fillers. Example: filler_codes = c("R", "P20").
-#' @param filler_y_birth Numeric vector. Years to be used as filler years of birth.
-#' @param unvarying_queries Character vector. Uses Statistics Norway API to retrieve desired unvarying variable classification(s). Example: unvarying_queries = c("innvandringsgrunn").
-#' @param unvarying_codes Data frame or named list. Codes to be used as relevant unvarying codes in dataset. If a data frame is provided, column names will be considered as the names of the unvarying variables. If a named list is provided, the name of each element will be consider as the unvarying variable name. Example: unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))
+#' @param population_size An integer. Number of total population size (individual).
+#' @param prefix_ids A character string. Prefix used to construct unique IDs. Default is "P000".
+#' @param length_ids An integer. Total character length of each ID. Default is 6.
+#' @param family_codes A character vector. Relevant ICD-10 diagnostic codes or family of codes. Example: `family_codes = c("F84", "G")`
+#' @param pattern A character string. Pattern of incidence or prevalence rates in simulated data. Possible options are "increase", "decrease" or "random".
+#' @param prevalence A numeric value between 0 and 1. Prevalence rate expressed as a proportion.
+#' @param incidence A numeric value between 0 and 1. Incidence rate expressed as a proportion.
+#' @param diag_years A numeric vector. Years to be used as relevant diagnostic years.
+#' @param sex_vector A factor or character vector. Factors used to represent sex in the simulated data sets.
+#' @param y_birth A numeric vector. Years to be used as relevant years of birth.
+#' @param filler_codes A character vector. ICD-10 diagnostic codes or family of codes used as fillers. Example: `filler_codes = c("R", "P20")`
+#' @param filler_y_birth A numeric vector. Years to be used as filler years of birth.
+#' @param unvarying_queries A character vector. Uses Statistics Norway API to retrieve desired unvarying variable classification(s). Example: `unvarying_queries = c("innvandringsgrunn")`
+#' @param unvarying_codes Data frame or named list. Codes to be used as relevant unvarying codes in dataset.
+#' * If a data frame is provided, column names will be considered as the names of the unvarying variables.
+#' * If a named list is provided, the name of each element will be consider as the unvarying variable name. Example: `unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))`
 #' @param unvarying_codes_filler Data frame or named list. Codes to be used as filler unvarying codes in dataset.
-#' @param varying_query Character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: varying_query = c("sivilstand").
-#' @param varying_codes Character vector. Codes to be used as relevant varying codes in dataset. Example: varying_codes = as.character(0:4)
-#' @param filler_varying_codes Character vector. Codes to be used as filler varying codes in dataset. Example: filler_varying_codes = as.character(5:9)
-#' @param date_classifications Date used to retrieve classification system from SSB. Format must be "yyyy-mm-dd"
+#' @param varying_query A character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: `varying_query = c("sivilstand")`
+#' @param varying_codes A character vector. Codes to be used as relevant varying codes in dataset. Example: `varying_codes = as.character(0:4)`
+#' @param filler_varying_codes A character vector. Codes to be used as filler varying codes in dataset. Example: `filler_varying_codes = as.character(5:9)`
+#' @param date_classifications Date used to retrieve classification system from SSB. Format must be **"yyyy-mm-dd"**
 #'
 #' @return Named list containing data frames with individual level diagnostic and sociodemographic data.
 #' @examples

@@ -5,12 +5,12 @@
 \alias{var_df}
 \title{Example time-variant individual-level data}
 \format{
-`var_df`
+\code{var_df}
 A data frame with 270,216 rows and 3 columns:
 \describe{
-  \item{id}{Unique personal identifier}
-  \item{code}{Code place of residence (time varying)}
-  \item{year}{Year of residence}
+\item{id}{Unique personal identifier}
+\item{code}{Code place of residence (time varying)}
+\item{year}{Year of residence}
 }
 }
 \source{

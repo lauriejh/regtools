@@ -14,23 +14,26 @@ read_demo_data(
 )
 }
 \arguments{
-\item{file_path}{Character string. File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.}
+\item{file_path}{A character string. File path to the demographic data to read. Supports CSV, RDS, RDA and .SAV files.}
 
-\item{data_type}{Character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
+\item{data_type}{A character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
 
-\item{id_col}{Character string. Name of ID column in data set. Default is "id".}
+\item{id_col}{A character string. Name of ID column in data set. Default is "id".}
 
-\item{date_col}{Character string. Name of date column in data set, default is "date".}
+\item{date_col}{A character string. Name of date column in data set, default is "date".}
 
-\item{log_path}{Character string. If you have an existing log file, specify the path to append the logs of this function.}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 
-\item{...}{Optional extra parameters for specifying extra arguments for reading .CSV and .SAV files.}
+\item{...}{Additional arguments passed to methods or underlying functions.}
 }
 \value{
 A data frame with the validated minimum requirements for demographic data.
 }
 \description{
-`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
+\code{read_demo_data()} validates the general structure and minimum column requirements for demographic individual-level data.
 The input data sets must be CSV, RDS, RDA or .SAV files.
 }
 \examples{
