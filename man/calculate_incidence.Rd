@@ -6,7 +6,7 @@
 \usage{
 calculate_incidence(
   linked_data,
-  type,
+  type = c("cumulative", "rate"),
   id_col = "id",
   date_col = "date",
   pop_data = NULL,
@@ -17,41 +17,58 @@ calculate_incidence(
   grouping_vars = NULL,
   only_counts = FALSE,
   suppression = TRUE,
-  suppression_treshold = 5,
+  suppression_threshold = 5,
   log_path = NULL
 )
 }
 \arguments{
-\item{linked_data}{Dataset containing relevant diagnostic and demographic information}
+\item{linked_data}{A data frame containing linked relevant diagnostic and demographic information. Should include only first time diagnosis, see 'curate_diag'}
 
-\item{type}{Can either be cumulative or rate}
+\item{type}{Character string. Valid options are "cumulative" or "rate".
+\itemize{
+\item If "cumulative",
+\item If "rate",
+}}
 
-\item{id_col}{Name (character) of the ID column in the data set (unique personal identifier). Default is "id".}
+\item{id_col}{A character string. Name of ID (unique personal identifier) column in \code{linked_data}. Default is "id".}
 
-\item{date_col}{Name (character) of the date column in the data set. Default is "date".}
+\item{date_col}{A character string. Name  of the date column in \code{linked_data}. Default is "date".}
 
-\item{pop_data}{Dataset containing relevant population information.}
+\item{pop_data}{A data frame containing corresponding population at risk information.}
 
-\item{pop_col}{Name (character) of the column containing population counts in the population dataset.}
+\item{pop_col}{A character string. Name of the column containing population counts in \code{pop_data}.}
 
-\item{person_time_data}{Dataset containing relevant person-time information.}
+\item{person_time_data}{A data frame containing corresponding person-time information.}
 
-\item{person_time_col}{Name (character) of the column containing person-time counts in the person-time dataset.}
+\item{person_time_col}{A character string. Name of the column containing person-time counts in \code{person_time_data}.}
 
-\item{time_p}{Time period or time point. For time period, specify as a range. For time point, single numerical value.}
+\item{time_p}{A numeric value or numeric vector. Time point or time period used to calculate the incidence.
+\itemize{
+\item For time period, specify as a range. The first value of the vector is the period's lower bound, and the second element is the period's upper bound. Example:  \code{time_p = c(2010,2015)}
+\item For time point, single numeric value. Example: \code{time_p = 2010}
+}}
 
-\item{grouping_vars}{Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).}
+\item{grouping_vars}{Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).}
 
-\item{only_counts}{Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.}
+\item{only_counts}{Logical. Only want diagnostic counts? Default is \code{FALSE}.
+\itemize{
+\item If \code{TRUE}, return only counts.
+}}
 
-\item{suppression}{Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.}
+\item{suppression}{Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE}, applies primary suppression (NA) to any value under the threshold defined by \code{suppression_threshold}
+}}
 
-\item{suppression_treshold}{Threshold for suppression, default is set to 5 (NPR standard).}
+\item{suppression_threshold}{Integer. Threshold used for suppression, default is set to 5 (NPR standard).}
 
-\item{log_path}{File path log}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
-Prevalence rate table
+Incidence table
 }
 \description{
 The \code{calculate_incidence()} function calculates incidence rates based on the given diagnostic and demographic information.

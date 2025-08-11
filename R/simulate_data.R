@@ -1,5 +1,9 @@
 #' Create simulated diagnostic, time-varying and time-unvarying individual level data
 #'
+#' #' @description
+#' The `simulate_data()` function creates individual-level data sets.
+#' It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
+#'
 #' @param population_size An integer. Number of total population size (individual).
 #' @param prefix_ids A character string. Prefix used to construct unique IDs. Default is "P000".
 #' @param length_ids An integer. Total character length of each ID. Default is 6.

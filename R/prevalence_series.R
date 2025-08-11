@@ -1,17 +1,31 @@
 #' Calculate prevalence series rates
 #'
-#' @param linked_data Dataset containing relevant diagnostic and demographic information
-#' @param time_points Time points as a list.
-#' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
-#' @param date_col Name (character) of the date column in the data set. Default is "date".
-#' @param pop_data  Dataset containing relevant population information.
-#' @param pop_col Name (character) of the column containing population counts in the population dataset.
-#' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
-#' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
-#' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
-#' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
+#' @description
+#' The `prevalence_series()` function calculates prevalence rates series based on the given diagnostic and demographic information. Use `calculate_prevalence()` function for only one time period or time point.
+#' Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 #'
-#' @return Prevalence rate rates for specified time points
+#'
+#' @param linked_data A data frame containing linked relevant diagnostic and demographic information.
+#' @param time_points A list containing either individual time points or time period (range).
+#' * For time points,
+#' * For time periods,
+#' @param id_col A character string. Name of ID (unique personal identifier) column in `linked_data`. Default is "id".
+#' @param date_col A character string. Name  of the date column in `linked_data`. Default is "date".
+#' @param pop_data A data frame containing corresponding population count information.
+#' @param pop_col A character string. Name of the column containing population counts in `pop_data`.
+#' @param grouping_vars Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).
+#' @param only_counts Logical. Only want diagnostic counts? Default is `FALSE`.
+#' * If `TRUE`, return only counts.
+#' @param suppression Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is `TRUE`.
+#' * If `TRUE`, applies primary suppression (NA) to any value under the threshold defined by `suppression_threshold`
+#' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
+#' @param CI Logical. Want to compute binomial confidence intervals? Default is `TRUE`.
+#' * If `TRUE`, add two new columns with the upper and lower CI bound with significance level defined by `CI_level`. Uses the Pearson-Klopper method.
+#' @param CI_level A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#'
+#' @return Prevalence series for specified time points/periods
 #' @export
 #'
 prevalence_series <- function(linked_data,
@@ -23,7 +37,10 @@ prevalence_series <- function(linked_data,
                               grouping_vars = NULL,
                               only_counts = FALSE,
                               suppression = TRUE,
-                              suppression_treshold = 5){
+                              suppression_threshold = 5,
+                              CI = TRUE,
+                              CI_level =0.99,
+                              log_path = NULL) {
 
   ### Input validation ####
   stopifnot("Requires linked and population dataset"= !is.null(linked_data), !is.null(pop_data))
@@ -60,7 +77,10 @@ prevalence_series <- function(linked_data,
       grouping_vars = grouping_vars,
       only_counts = only_counts,
       suppression = suppression,
-      suppression_treshold = suppression_treshold
+      suppression_threshold = suppression_threshold,
+      CI = CI,
+      CI_level = CI_level,
+      log_path = log_path
     )
   })
 

@@ -1,24 +1,29 @@
 #' Plot prevalence/incidence rates
 #'
-#' @param data Dataframe contining prevalence/incidence rates and auxiliary information.
-#' @param date_col Name (character) of the date column in the data set. Default is "date".
-#' @param rate_col Name (character) of the rate column in the data set (prevalence or incidence).
-#' @param grouping_var Name (character) of the variable/column in the data set used to group rates.
-#' @param facet_var Name (character) of the variable/column in the data set used to facet plots.
-#' @param plot_type Character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"
+#' @description
+#' The `plot_rates()` plots prevalence/incidence rates
+#'
+#' @param data A data frame with the prevalence/incidence rates and auxiliary information.
+#' @param date_col A character string. Name  of the date column in `data`. Default is "date".
+#' @param rate_col A character string. Name  of the rate column in `data`.
+#' @param grouping_var A character string. Name of the variable/column in `data` used to group rates.
+#' @param facet_var A character string. Name  of the variable/column in `data` used to facet plots.
+#' @param plot_type A character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"
 #' @param percent Logical. Do you want axis to be in percent? Default set to TRUE.
-#' @param palette Character string. Palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"
+#' @param palette A character string. Color palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"
 #' @param annotated_line Character string. Position of annotated line. Default is NULL.
-#' @param CI_lower Name (character) of the column containing the lower confidence interval in the dataset.
-#' @param CI_upper Name (character) of the column containing the upper confidence interval in the dataset.
-#' @param plot_title Character string. Title for the plot.
-#' @param start_end_points Logical. Do you want to annotate the start and end points of a line plot. Default is set to FALSE.
+#' @param CI_lower A character string. Name of the column containing the lower confidence interval in `data`.
+#' @param CI_upper A character string. Name of the column containing the upper confidence interval in `data`.
+#' @param plot_title Character string. Title of the plot.
+#' @param start_end_points Logical. Want to annotate the start and end points of a line plot? Default is set to `FALSE`.
+#' * If `TRUE`, the start and end point of a line plot are annotated with their corresponding numerical values.
 #' @param interactive Logical. Do you want to make the plot interactive with plotly? Default is set to FALSE.
-#' @param single_color Character string. Single color applied to all the plot. Default is set to "black"
-#' @param x_name Character string. Title of the x axis.
-#' @param y_name Character string. Title of the y axis.
-#' @param legend_title Character string. Title for the legend box.
-#' @param coord_flip Logical. For lollipop, bar charts and jitter plots flips the orientation of the plot. Default is set to FALSE.
+#' @param single_color A character string. Single color applied to all the plot. Default is set to "black"
+#' @param x_name A character string. Title of the x axis.
+#' @param y_name A character string. Title of the y axis.
+#' @param legend_title A character string. Title for the legend box.
+#' @param coord_flip Logical. Default is set to `FALSE`
+#' * For lollipop, bar charts and jitter `TRUE` it flips the orientation of the plot.
 #'
 #' @returns A ggplot object
 #' @export
@@ -26,12 +31,24 @@
 #'
 
 
-plot_rates <- function(data, date_col = "date", rate_col, grouping_var = NULL, facet_var = NULL,
-                     plot_type = c("line", "bar_chart", "lollipop", "jitter"),
-                     percent = TRUE, palette = c("fhi_colors", "viridis", "okabe_ito"),
-                     single_color = "black",
-                     annotated_line = NULL, CI_lower = NULL, CI_upper = NULL,
-                     plot_title = "", x_name = "", y_name = "", legend_title = "", coord_flip = FALSE, start_end_points = FALSE, interactive = FALSE){
+plot_rates <- function(data,
+                       date_col = "date",
+                       rate_col,
+                       grouping_var = NULL,
+                       facet_var = NULL,
+                       plot_type = c("line", "bar_chart", "lollipop", "jitter"),
+                       percent = TRUE, palette = c("fhi_colors", "viridis", "okabe_ito"),
+                       single_color = "black",
+                       annotated_line = NULL,
+                       CI_lower = NULL,
+                       CI_upper = NULL,
+                       plot_title = "",
+                       x_name = "",
+                       y_name = "",
+                       legend_title = "",
+                       coord_flip = FALSE,
+                       start_end_points = FALSE,
+                       interactive = FALSE){
 
 
   # Input validation   ---------------------------------------------------------

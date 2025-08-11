@@ -27,41 +27,47 @@ plot_rates(
 )
 }
 \arguments{
-\item{data}{Dataframe contining prevalence/incidence rates and auxiliary information.}
+\item{data}{A data frame with the prevalence/incidence rates and auxiliary information.}
 
-\item{date_col}{Name (character) of the date column in the data set. Default is "date".}
+\item{date_col}{A character string. Name  of the date column in \code{data}. Default is "date".}
 
-\item{rate_col}{Name (character) of the rate column in the data set (prevalence or incidence).}
+\item{rate_col}{A character string. Name  of the rate column in \code{data}.}
 
-\item{grouping_var}{Name (character) of the variable/column in the data set used to group rates.}
+\item{grouping_var}{A character string. Name of the variable/column in \code{data} used to group rates.}
 
-\item{facet_var}{Name (character) of the variable/column in the data set used to facet plots.}
+\item{facet_var}{A character string. Name  of the variable/column in \code{data} used to facet plots.}
 
-\item{plot_type}{Character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"}
+\item{plot_type}{A character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"}
 
 \item{percent}{Logical. Do you want axis to be in percent? Default set to TRUE.}
 
-\item{palette}{Character string. Palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"}
+\item{palette}{A character string. Color palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"}
 
-\item{single_color}{Character string. Single color applied to all the plot. Default is set to "black"}
+\item{single_color}{A character string. Single color applied to all the plot. Default is set to "black"}
 
 \item{annotated_line}{Character string. Position of annotated line. Default is NULL.}
 
-\item{CI_lower}{Name (character) of the column containing the lower confidence interval in the dataset.}
+\item{CI_lower}{A character string. Name of the column containing the lower confidence interval in \code{data}.}
 
-\item{CI_upper}{Name (character) of the column containing the upper confidence interval in the dataset.}
+\item{CI_upper}{A character string. Name of the column containing the upper confidence interval in \code{data}.}
 
-\item{plot_title}{Character string. Title for the plot.}
+\item{plot_title}{Character string. Title of the plot.}
 
-\item{x_name}{Character string. Title of the x axis.}
+\item{x_name}{A character string. Title of the x axis.}
 
-\item{y_name}{Character string. Title of the y axis.}
+\item{y_name}{A character string. Title of the y axis.}
 
-\item{legend_title}{Character string. Title for the legend box.}
+\item{legend_title}{A character string. Title for the legend box.}
 
-\item{coord_flip}{Logical. For lollipop, bar charts and jitter plots flips the orientation of the plot. Default is set to FALSE.}
+\item{coord_flip}{Logical. Default is set to \code{FALSE}
+\itemize{
+\item For lollipop, bar charts and jitter \code{TRUE} it flips the orientation of the plot.
+}}
 
-\item{start_end_points}{Logical. Do you want to annotate the start and end points of a line plot. Default is set to FALSE.}
+\item{start_end_points}{Logical. Want to annotate the start and end points of a line plot? Default is set to \code{FALSE}.
+\itemize{
+\item If \code{TRUE}, the start and end point of a line plot are annotated with their corresponding numerical values.
+}}
 
 \item{interactive}{Logical. Do you want to make the plot interactive with plotly? Default is set to FALSE.}
 }
@@ -69,5 +75,5 @@ plot_rates(
 A ggplot object
 }
 \description{
-Plot prevalence/incidence rates
+The \code{plot_rates()} plots prevalence/incidence rates
 }

@@ -73,7 +73,9 @@ simulate_data(
 Named list containing data frames with individual level diagnostic and sociodemographic data.
 }
 \description{
-Create simulated diagnostic, time-varying and time-unvarying individual level data
+#' @description
+The \code{simulate_data()} function creates individual-level data sets.
+It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 }
 \examples{
 simulated_list <- simulate_data(
