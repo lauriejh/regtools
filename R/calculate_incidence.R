@@ -25,7 +25,28 @@
 #' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#'
 #' @returns Incidence table
+#' @examples
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' incidence_df <- calculate_incidence(linked_df,
+#'   type = "cumulative",
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   time_p = c(2012,2013),
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 10,
+#'   log_path = log_file)
+#'
+#'
 #' @export
 #' @import logger
 #'
@@ -90,12 +111,6 @@ calculate_incidence <- function(linked_data,
 
   ## Dataset should only contain new cases for correct computation of incidence statistics
   cli::cli_alert_warning("To correctly calculate incidence rates, the provided dataset should only contain new/first time diagnoses.")
-  new_cases <- readline(prompt = "Have you verified that the provided dataset fulfills this requirement? (yes/no): ")
-  if (tolower(new_cases) == "yes") {
-    cli::cli_alert_info("Computing incidence calculations...")
-  } else {
-    cli::cli_abort("The dataset should only contain first time/new diagnoses.")
-  }
 
   ##Person-time need to be numeric
   if(type == "rate" && is.null(person_time_data)){
@@ -145,11 +160,14 @@ calculate_incidence <- function(linked_data,
   ##Calculate counts ####
   id_col_sym <- rlang::sym(id_col)
 
+  print(dim(data_grouped))
+
   count_data <- data_grouped |>
     dplyr::summarise(year = paste(as.character(time_p), collapse = '-'),
                      incidence_cases = dplyr::n_distinct(!!id_col_sym),
                      .groups = 'drop')
 
+  print(dim(count_data))
 
   ## Suppression ####
   if (suppression){
@@ -179,7 +197,7 @@ calculate_incidence <- function(linked_data,
 
 
   #For cumulative incidence:####
-  #new cases in a period/ population at risk at start of the period (only diseased free population)
+  #new cases in a period/ population at risk at start of the period (only disease free population)
 
   #For incidence rate:####
   #number of new diagnoses/total person-time at risk (need to account for left-truncation and censoring etc...)
@@ -218,4 +236,5 @@ calculate_incidence <- function(linked_data,
   log_info("Population data: {substitute(pop_data)}")
   log_info("Grouped by variables: {paste(grouping_vars, collapse = ', ')}")
   log_info("For time point/period: {time_p}")
+
 }

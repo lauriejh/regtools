@@ -1,7 +1,7 @@
 #' Calculate prevalence series rates
 #'
 #' @description
-#' The `prevalence_series()` function calculates prevalence rates series based on the given diagnostic and demographic information. Use `calculate_prevalence()` function for only one time period or time point.
+#' The `calculate_prevalence_series()` function calculates prevalence rates series based on the given diagnostic and demographic information. Use `calculate_prevalence()` function for only one time period or time point.
 #' Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 #'
 #'
@@ -26,9 +26,30 @@
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
 #' @return Prevalence series for specified time points/periods
+#' @examples
+#'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = c(2012:2020), population = floor(runif(9, min=3000, max=4000)))
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' prevalence_df <- calculate_prevalence_series(linked_df,
+#'   time_points = c(2012:2020),
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 1,
+#'   CI = TRUE,
+#'   CI_level = 0.95,
+#'   log_path = log_file)
+#'
 #' @export
 #'
-prevalence_series <- function(linked_data,
+calculate_prevalence_series <- function(linked_data,
                               time_points,
                               id_col = "id",
                               date_col = "date",
@@ -39,7 +60,7 @@ prevalence_series <- function(linked_data,
                               suppression = TRUE,
                               suppression_threshold = 5,
                               CI = TRUE,
-                              CI_level =0.99,
+                              CI_level = .99,
                               log_path = NULL) {
 
   ### Input validation ####

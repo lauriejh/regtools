@@ -21,6 +21,6 @@ Code used to simulate this dataset can be found in /data-raw directory
 invar_df
 }
 \description{
-A simulated dataset including time-invariant individual information such as year of residence and place of residence (codes)
+A simulated dataset including time-invariant individual information such as year of birth and reason for immigration
 }
 \keyword{datasets}

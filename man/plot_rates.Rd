@@ -77,3 +77,42 @@ A ggplot object
 \description{
 The \code{plot_rates()} plots prevalence/incidence rates
 }
+\examples{
+
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+pop_df <- tidyr::expand_grid(year = 2012:2020,
+  sex = as.factor(c(0, 1)),
+  innvandringsgrunn = c("ARB", "UKJ", "NRD")) |>
+    dplyr::mutate(population = floor(runif(dplyr::n(), min = 3000, max = 4000)))
+
+linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+prev_series <- regtools::calculate_prevalence_series(linked_df,
+  time_points = c(2012:2020),
+  id_col = "id",
+  date_col = "year",
+  pop_data = pop_df,
+  pop_col = "population",
+  grouping_vars = c("sex", "innvandringsgrunn"),
+  only_counts = FALSE,
+  suppression = FALSE,
+  CI = TRUE,
+  CI_level = 0.95,
+  log_path = log_file)
+
+plot_rates(prev_series,
+ date_col = "year",
+ rate_col = "prev_rate",
+ plot_type = "line",
+ grouping_var = "sex",
+ facet_var = "innvandringsgrunn",
+ palette = "fhi_colors",
+ CI_lower = "ci_results_lower",
+ CI_upper = "ci_results_upper",
+ plot_title = "Prevalence by sex and reason of immigration",
+ x_name = "Year",
+ start_end_points = TRUE)
+
+}

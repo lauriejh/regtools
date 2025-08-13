@@ -25,6 +25,25 @@
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
 #' @return Prevalence rate table
+#' @examples
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' prevalence_df <- calculate_prevalence(linked_df,
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   time_p = c(2012,2020),
+#'   CI = TRUE,
+#'   CI_level = 0.95,
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 10,
+#'   log_path = log_file)
 #'
 #' @export
 #' @import logger
@@ -138,7 +157,7 @@ calculate_prevalence <- function(linked_data,
     data_grouped <- filtered_data |>
       dplyr::group_by(dplyr::across(tidyselect::all_of(grouping_vars)))
   } else {
-    data_grouped <- linked_data
+    data_grouped <- filtered_data
   }
 
   ## Calculate counts ####

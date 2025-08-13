@@ -74,3 +74,24 @@ Incidence table
 The \code{calculate_incidence()} function calculates incidence rates based on the given diagnostic and demographic information.
 Incidence represents the number of new cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 }
+\examples{
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
+linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+incidence_df <- calculate_incidence(linked_df,
+  type = "cumulative",
+  id_col = "id",
+  date_col = "year",
+  pop_data = pop_df,
+  pop_col = "population",
+  time_p = c(2012,2013),
+  only_counts = FALSE,
+  suppression = TRUE,
+  suppression_threshold = 10,
+  log_path = log_file)
+
+
+}

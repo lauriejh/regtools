@@ -70,3 +70,24 @@ Prevalence rate table
 The \code{calculate_prevalence()} function calculates prevalence rates based on the given diagnostic and demographic information.
 Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 }
+\examples{
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
+linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+prevalence_df <- calculate_prevalence(linked_df,
+  id_col = "id",
+  date_col = "year",
+  pop_data = pop_df,
+  pop_col = "population",
+  time_p = c(2012,2020),
+  CI = TRUE,
+  CI_level = 0.95,
+  only_counts = FALSE,
+  suppression = TRUE,
+  suppression_threshold = 10,
+  log_path = log_file)
+
+}

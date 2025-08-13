@@ -1,6 +1,6 @@
 #' Example time-invariant individual-level data
 #'
-#' A simulated dataset including time-invariant individual information such as year of residence and place of residence (codes)
+#' A simulated dataset including time-invariant individual information such as year of birth and reason for immigration
 #'
 #' @format `invar_df`
 #' A data frame with 30,024 rows and 4 columns:
