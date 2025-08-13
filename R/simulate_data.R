@@ -272,7 +272,7 @@ simulate_data <- function(population_size, prefix_ids, length_ids, family_codes,
     }
 
     varying_data_codes <- data |>
-      dplyr::group_by("id")  |>
+      dplyr::group_by(id)  |>
       dplyr::group_modify(~ {
         n_years <- nrow(.x)
         num_moves <- sample(1:3, 1)
