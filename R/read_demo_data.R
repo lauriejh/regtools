@@ -151,5 +151,5 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
 
-  return(data)
+  return(dplyr::as_tibble(data))
 }

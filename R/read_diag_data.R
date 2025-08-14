@@ -15,11 +15,10 @@
 #' @return A data frame with the validated minimum requirements for diagnostic data
 #' @examples
 #' # Read and validate CSV file for diagnostic individual level data.
-#'
-#'
-#' diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
+#'
+#' diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
 #'
 #' diag_data_validated <- read_diag_data(diag_csv,
 #'   id_col = "id",
@@ -163,7 +162,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
 
-  return(data)
+  return(dplyr::as_tibble(data))
 }
 
 

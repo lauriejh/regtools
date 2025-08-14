@@ -78,7 +78,6 @@ A ggplot object
 The \code{plot_rates()} plots prevalence/incidence rates
 }
 \examples{
-
 log_file <- tempfile()
 cat("Example log file", file = log_file)
 

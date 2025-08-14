@@ -27,7 +27,6 @@
 #'
 #' @returns A ggplot object
 #' @examples
-#'
 #' log_file <- tempfile()
 #' cat("Example log file", file = log_file)
 #'
