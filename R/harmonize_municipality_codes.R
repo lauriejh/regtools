@@ -13,6 +13,13 @@
 #'
 harmonize_municipality_codes <- function(data, municipality_col = "code", fylke = FALSE){
 
+
+  check_municipality <- which(names(data) == municipality_col)
+
+  if (length(check_municipality) == 0) {
+    stop(glue::glue("The dataset must contain a column named {municipality_col}"))
+  }
+
   cli::cli_alert_warning("NAs in municipality code column in {substitute(data)}: {.val {sum(is.na(data[[municipality_col]]))}}")
 
   data_harmonized <- data |>

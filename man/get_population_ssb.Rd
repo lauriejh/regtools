@@ -11,8 +11,7 @@ get_population_ssb(
   ages,
   aggregate_age = TRUE,
   by_sex = TRUE,
-  save_xslx = FALSE,
-  log_path = NULL
+  save_xslx = FALSE
 )
 }
 \arguments{
@@ -43,11 +42,6 @@ get_population_ssb(
 \itemize{
 \item If \code{TRUE} results are saved as xslx in the current working directory.
 }}
-
-\item{log_path}{Character string. Path to the log file to append function logs. Default is \code{NULL}.
-\itemize{
-\item If \code{NULL} a new directory \verb{/log} and file is created in the current working directory.
-}}
 }
 \value{
 Data frame with population data from SSB
@@ -58,14 +52,11 @@ Get yearly population data from SSB, by region, sex and age.
 \examples{
 # Population of Norway in 2020 to 2022, for ages 10 to 15,
 # include total of that age group (10-15) for each year.
-log_file <- tempfile()
-cat("Example log file", file = log_file)
 population_norway <- get_population_ssb(regions = "norway",
                                         years = c(2020:2022),
                                         ages = c(10:15),
                                         aggregate_age = TRUE,
                                         by_sex = TRUE,
-                                        save_xslx = FALSE,
-                                        log_path = log_file)
+                                        save_xslx = FALSE)
 
 }

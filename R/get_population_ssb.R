@@ -13,47 +13,25 @@
 #' * If `TRUE` population counts are disaggregated by sex (male, female)
 #' @param save_xslx Logical. Want to save the results as a xslx? Default is `FALSE`.
 #' * If `TRUE` results are saved as xslx in the current working directory.
-#' @param log_path Character string. Path to the log file to append function logs. Default is `NULL`.
-#' * If `NULL` a new directory `/log` and file is created in the current working directory.
 #' @returns Data frame with population data from SSB
 #' @examples
 #' # Population of Norway in 2020 to 2022, for ages 10 to 15,
 #' # include total of that age group (10-15) for each year.
-#' log_file <- tempfile()
-#' cat("Example log file", file = log_file)
 #' population_norway <- get_population_ssb(regions = "norway",
 #'                                         years = c(2020:2022),
 #'                                         ages = c(10:15),
 #'                                         aggregate_age = TRUE,
 #'                                         by_sex = TRUE,
-#'                                         save_xslx = FALSE,
-#'                                         log_path = log_file)
+#'                                         save_xslx = FALSE)
 #'
 #' @importFrom rlang .data
 #' @export
 #'
-get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07459/", regions = c("norway", "fylker", "kommuner"), years, ages, aggregate_age = TRUE, by_sex = TRUE, save_xslx = FALSE, log_path = NULL){
+get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07459/", regions = c("norway", "fylker", "kommuner"), years, ages, aggregate_age = TRUE, by_sex = TRUE, save_xslx = FALSE){
 
-  ##### Set up logging #####
-  log_threshold(DEBUG)
-  log_formatter(formatter_glue)
-
-  if (is.null(log_path) || !file.exists(log_path)){
-    if(!dir.exists("log")){
-      dir.create("log")
-    }
-    formatted_date <- format(Sys.Date(), "%d_%m_%Y")
-    log_appender(appender_file(glue::glue("log/get_population_ssb_{formatted_date}.log")))
-    log_info("Log file does not exist in specified path: {log_path}. Created file in log directory")
-    cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
-    cat("\n")
-  } else {
-    log_appender(appender_file(log_path))
-  }
 
   ## Input validation ####
   if(is.null(url_api)){
-    log_error("Requires SBB population table URL")
     cli::cli_abort("Requires SSB population table URL")
   }
 
@@ -61,7 +39,6 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
   regions <- tolower(regions)
   supported_regions <- c("norway", "fylker", "kommuner")
   if(!regions %in% supported_regions){
-    log_error("{regions} not supported. Please specify 'norway' for country-wise population, 'fylker' for county populations or 'kommuner' for municipality populations.")
     cli::cli_abort("{regions} not supported. Please specify 'norway' for country-wise population, 'fylker' for county populations or 'kommuner' for municipality populations.")
   }
 
@@ -114,7 +91,6 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
   #Main call
 
   cli::cli_alert_info("Retrieving population of {regions} for the years: {glue::glue_collapse(years, sep = ',')}, and ages: {glue::glue_collapse(ages, sep = ',')}")
-  log_info(glue::glue("Retrieving population of {regions} for the years: {glue::glue_collapse(years, sep = ',')}, and ages: {glue::glue_collapse(ages, sep = ',')}"))
 
   population_api_list <- PxWebApiData::ApiData(url_api,
                                                Region = region_api,
@@ -133,7 +109,6 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
 
     if (aggregate_age == TRUE && length(ages)>1){
       cli::cli_alert_info("Aggregating ages...")
-      log_info(glue::glue("Aggregating ages..."))
       population_api_df <- population_api_df  |>
         dplyr::group_split(.data$region_code, .data$sex, .data$year, .data$region_name)  |>
         purrr::map_df(~dplyr::add_row(.x,
@@ -157,7 +132,6 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
       dplyr::select(!c("ContentsCode"))
     if (aggregate_age == TRUE && length(ages)>1){
       cli::cli_alert_info("Aggregating ages...")
-      log_info(glue::glue("Aggregating ages..."))
       population_api_df <- population_api_df  |>
         dplyr::group_split(.data$region_code, .data$year)  |>
         purrr::map_df(~dplyr::add_row(.x,
@@ -174,10 +148,8 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
   if (save_xslx == T){
     openxlsx::write.xlsx(population_api_df, glue::glue("population_ssb_{regions}.xlsx"), overwrite = T)
     cli::cli_alert_success("XLSX file saved as: population_ssb_{regions}.xlsx")
-    log_info(glue::glue("XLSX file saved as: population_ssb_{regions}.xlsx"))
   } else {
     cli::cli_alert_success("Population dataset ready!")
-    log_info("Population dataset ready!")
   }
 
   return(population_api_df)

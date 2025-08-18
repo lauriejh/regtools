@@ -6,8 +6,8 @@
     Output
       
     Message
-      Reading C:/Users/ALMS/Desktop/regtools/inst/extdata/invar_data.csv file...
-      v Succesfully read file: C:/Users/ALMS/Desktop/regtools/inst/extdata/invar_data.csv
+      Reading <PATH> file...
+      v Succesfully read file: <PATH>
       Checking column requirements:
       v ID column
       v Date column

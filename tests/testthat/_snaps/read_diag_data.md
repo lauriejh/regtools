@@ -2,10 +2,10 @@
 
     Code
       invisible(read_diag_data(file_path = test_csv, id_col = "id", date_col = "diag_year",
-        log = log_path))
+        code_col = "code", log_path = l_path))
     Message
-      Reading C:/Users/ALMS/Desktop/regtools/inst/extdata/diag_data.csv file...
-      v Succesfully read file: C:/Users/ALMS/Desktop/regtools/inst/extdata/diag_data.csv
+      Reading <PATH> file...
+      v Succesfully read file: <PATH>
       Checking column requirements:
       v ID column
       v Code column
