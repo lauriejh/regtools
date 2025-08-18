@@ -3,7 +3,6 @@
 export(calculate_incidence)
 export(calculate_prevalence)
 export(calculate_prevalence_series)
-export(count_diag)
 export(curate_diag)
 export(filter_demo)
 export(filter_diag)

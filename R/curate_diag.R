@@ -50,17 +50,17 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
 
   if(!code_col %in% colnames(data)){
     log_error("The specified code column does not exist in the dataset")
-    stop(glue::glue("The specified code column does not exist in the dataset"))
+    stop("The specified code column does not exist in the dataset")
   }
 
   if(!id_col %in% colnames(data)){
     log_error("The specified id column does not exist in the dataset")
-    stop(glue::glue("The specified id column does not exist in the dataset"))
+    stop("The specified id column does not exist in the dataset")
   }
 
   if(!date_col %in% colnames(data)){
     log_error("The specified date column does not exist in the dataset")
-    stop(glue::glue("The specified date column does not exist in the dataset"))
+    stop("The specified date column does not exist in the dataset")
   }
 
 
@@ -72,6 +72,10 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
 
   cli::cli_alert_success("Filtered observations that do not have at least {min_diag} diagnostic event")
   log_info("Filtered observations that do not have at least {min_diag} diagnostic event")
+
+  if(nrow(filtered_data_min)==0){
+    stop(glue::glue("There were zero observations that had at least {min_diag} diagnostic event"))
+    }
 
   ####Summarize first diagnostic information####
   if (first_diag){

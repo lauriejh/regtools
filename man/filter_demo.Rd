@@ -52,13 +52,13 @@ cat("Example log file", file = log_file)
 
 filtered_var <- filter_demo(data = var_df,
 data_type = "t_variant",
-filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
+filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
 log_path = log_file)
 
 
 filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
 filter_param = list("y_birth" = c(2006:2008),
-"innvandringsgrunn" = c("FAM", "UTD")),
+"innvandringsgrunn" = c("FAMM", "UTD")),
 rm_na = FALSE,
 log_path = log_file)
 

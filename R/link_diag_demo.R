@@ -79,7 +79,7 @@ link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL
   if(!is.null(data_demo_inv)){
     if(!id_col %in% names(data_demo_inv)){
       log_error("{data_demo_inv} must contain specified 'id' column")
-      stop(glue::glue("{data_demo_inv} must contain specified 'id' column"))
+      stop(glue::glue("data_demo_inv must contain specified 'id' column"))
     }
     message("Joining diagnostic data with time-invariant demographic data...")
     linked_df <- linked_df |>
@@ -93,10 +93,6 @@ link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL
   ##add check for 'date' column in last linked_df or directly from diag data
 
   if(!is.null(data_demo_var)){
-    if(!id_col %in% names(data_demo_var)){
-      log_error("{data_demo_var} must contain specified 'id' column")
-      stop(glue::glue("{data_demo_var} must contain specified 'id' column"))
-    }
     message("Joining with time-variant demographic data...")
     linked_df <- linked_df |>
       dplyr::inner_join(data_demo_var, by = c(id_col, date_col))

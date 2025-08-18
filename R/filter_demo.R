@@ -20,13 +20,13 @@
 #'
 #' filtered_var <- filter_demo(data = var_df,
 #' data_type = "t_variant",
-#' filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("03")),
+#' filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
 #' log_path = log_file)
 #'
 #'
 #' filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
 #' filter_param = list("y_birth" = c(2006:2008),
-#' "innvandringsgrunn" = c("FAM", "UTD")),
+#' "innvandringsgrunn" = c("FAMM", "UTD")),
 #' rm_na = FALSE,
 #' log_path = log_file)
 #'
@@ -55,13 +55,8 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
   ###Validate input ####
 
   if(any(!names(filter_param) %in% colnames(data))){
-    log_error("The specified variables do not exist in the dataset")
-    stop(glue::glue("The specified variables does not exist in the dataset"))
-  }
-
-  if(missing(data_type)) {
-    log_error("Data type not specified")
-    stop("Data type not specified")
+    log_error("Not all the specified variables exist in the dataset")
+    stop("Not all the specified variables exist in the dataset")
   }
 
   ###Helper functions####

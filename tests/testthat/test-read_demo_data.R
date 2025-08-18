@@ -19,6 +19,24 @@ test_that("reads a supported format into the same reference .rds and log file", 
 
 })
 
+test_that("creates dir and file log", {
+  td <- withr::local_tempdir()
+  withr::local_dir(td)
+  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools") #Read example csv
+
+  # Test CSV reading and validation
+  output_csv <- read_demo_data(file_path = test_csv,
+                               data_type = "t_invariant",
+                               id_col = "id",
+                               date_col = "diag_year",
+                               log_path = NULL)
+
+  expect_true("log" %in% list.files(td))
+  expect_length(list.files(file.path(td, "log")), 1)
+})
+
+
+
 test_that("Error when missing required columns", {
   td <- withr::local_tempdir()
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
