@@ -83,10 +83,6 @@ calculate_prevalence <- function(linked_data,
 
 
   ## Input validation ####
-  if(is.null(linked_data)){
-    log_error("Requires linked dataset")
-    cli::cli_abort("Requires linked dataset")
-  }
 
   if(!all(grouping_vars %in% names(linked_data))) {
     log_error("The linked dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
@@ -107,7 +103,8 @@ calculate_prevalence <- function(linked_data,
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
-    n_removed <- data |> dplyr::filter(dplyr::if_any(columns, is.na)) |>
+    n_removed <- data |>
+      dplyr::filter(dplyr::if_any(tidyselect::all_of(columns), ~ is.na(.))) |>
       nrow()
     cli::cli_alert_success("Suppressed counts using {.strong {suppression_threshold}} threshold")
     cli::cli_alert_info("Removed {.val {n_removed}} cells out of {nrow(data)}")
@@ -118,21 +115,35 @@ calculate_prevalence <- function(linked_data,
   #### Confidence interval helper function ###
 
   calculate_ci <- function(data, method = "exact", conf_level = CI_level, n_col){
-    data |>
-      dplyr::mutate(row_num = 1:dplyr::n()) |>
-      dplyr::mutate(
-        ci_results = purrr::pmap(
-          list(x = unique_id, n= .data[[n_col]], row_num = row_num),
-          function(x, n, row_num){
-            binom::binom.confint(x = x, n= n, methods = method, conf.level = conf_level) |>
-              tibble::as_tibble() |>
-              dplyr::mutate(row_num = row_num)
-          }
-        )
-      ) |>
-      tidyr::unnest(ci_results, names_sep = "_") |>
-      dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
+    ci_row <- function(x, n, row_num){
+      if(is.na(x)){
+        return(tibble::tibble(
+          method = method,
+          x = x,
+          n = n,
+          mean = NA,
+          lower = NA,
+          upper = NA,
+          row_num = row_num
+        ))
+      }
+
+    binom::binom.confint(x = x, n = n, methods = method, conf.level = conf_level) |>
+      tibble::as_tibble() |>
+      dplyr::mutate(row_num = row_num)
   }
+
+  data |>
+    dplyr::mutate(row_num = dplyr::row_number()) |>
+    dplyr::mutate(
+      ci_results = purrr::pmap(
+        list(x = .data$unique_id, n = .data[[n_col]], row_num = .data$row_num),
+        ci_row
+      )
+    ) |>
+    tidyr::unnest(ci_results, names_sep = "_") |>
+    dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
+}
 
 
 
@@ -166,6 +177,10 @@ calculate_prevalence <- function(linked_data,
     dplyr::summarise(year = paste(as.character(time_p), collapse = '-'),
                      unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_events = dplyr::n(), .groups = 'drop')
+
+
+
+
 
   ## Suppression ####
   if (suppression){
@@ -222,9 +237,10 @@ calculate_prevalence <- function(linked_data,
 
 
   if (CI == TRUE){
-    prevalence <- prevalence |>
+    prevalence <- prevalence |> # this requires join pop_col
       calculate_ci(method = "exact", conf_level = 0.99, n_col = pop_col)
   }
+
 
   ###### Summary #####
   cli::cli_h1("Summary")
