@@ -52,7 +52,7 @@ test_that("input validation works", {
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
   linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
 
-  # Test code col
+  # Test id col
   expect_error(calculate_prevalence(linked_data = linked_df,
                                     id_col = "ids",
                                     date_col = "year",
@@ -174,4 +174,31 @@ test_that("only gives out counts", {
   expect_false("prev_rate" %in% colnames(prevalence_df))
   expect_equal(ncol(prevalence_df), 3)
 
+})
+
+
+#Stable cli
+
+# Stable CLI
+test_that("stable CI output for sample incidence", {
+
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
+  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+
+  expect_snapshot({calculate_prevalence(linked_df,
+                                        id_col = "id",
+                                        date_col = "year",
+                                        pop_data = pop_df,
+                                        pop_col = "population",
+                                        time_p = c(2012,2020),
+                                        only_counts = FALSE,
+                                        suppression = TRUE,
+                                        suppression_threshold = 10,
+                                        CI = TRUE,
+                                        CI_level = 0.99,
+                                        log_path = l_path)
+
+  })
 })

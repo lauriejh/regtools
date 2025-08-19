@@ -23,6 +23,9 @@
 #' @param suppression Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is `TRUE`.
 #' * If `TRUE`, applies primary suppression (NA) to any value under the threshold defined by `suppression_threshold`
 #' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
+#' @param CI Logical. Want to compute binomial confidence intervals? Default is `TRUE`.
+#' * If `TRUE`, add two new columns with the upper and lower CI bound with significance level defined by `CI_level`. Uses the Pearson-Klopper method.
+#' @param CI_level A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
@@ -63,6 +66,8 @@ calculate_incidence <- function(linked_data,
                                 only_counts = FALSE,
                                 suppression = TRUE,
                                 suppression_threshold = 5,
+                                CI = TRUE,
+                                CI_level = 0.99,
                                 log_path = NULL){
 
 
@@ -88,10 +93,6 @@ calculate_incidence <- function(linked_data,
   }
 
   ## Input validation ####
-  if(is.null(linked_data)){
-    log_error("Requires linked dataset")
-    cli::cli_abort("Requires linked dataset")
-  }
 
   if(!all(grouping_vars %in% names(linked_data))) {
     log_error("The linked dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
@@ -102,6 +103,12 @@ calculate_incidence <- function(linked_data,
     log_error("The linked dataset must contain the specified 'id' column: {id_col}")
     cli::cli_abort("The linked dataset must contain the specified 'id' column: {id_col}")
   }
+
+  if(!date_col %in% names(linked_data)) {
+    log_error("The linked dataset must contain the specified 'date' column: {date_col}")
+    cli::cli_abort("The linked dataset must contain the specified 'date' column: {date_col}")
+  }
+
 
   supported_types <- c("cumulative", "rate")
   if(!type %in% supported_types){
@@ -131,9 +138,8 @@ calculate_incidence <- function(linked_data,
         dplyr::filter(.data[[date_col]] >= time_p[1],
                       .data[[date_col]] <= time_p[2])
       } else {
-        cli::cli_alert_warning("No time-period has been provided. Computations done in all of the available dates in the dataset.")
-        log_warn("No time-period has been provided. Computations done in all of the available dates in the dataset.")
-        linked_data <- linked_data
+        cli::cli_abort("No time-period has been provided.")
+        log_error("No time-period has been provided.")
       }
   }
 
@@ -141,13 +147,47 @@ calculate_incidence <- function(linked_data,
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
-    n_removed <- data |> dplyr::filter(dplyr::if_any(columns, is.na)) |>
+    n_removed <- data |>
+      dplyr::filter(dplyr::if_any(tidyselect::all_of(columns), ~ is.na(.))) |>
       nrow()
     cli::cli_alert_success("Suppressed counts using {.strong {suppression_threshold}} threshold")
     cli::cli_alert_info("Removed {.val {n_removed}} cells out of {nrow(data)}")
     log_info("Suppressed counts using {suppression_threshold} threshold Removed {n_removed} cells out of {nrow(data)}")
     return(data)
   }
+  #### Confidence interval helper function ###
+
+  calculate_ci <- function(data, method = "exact", conf_level, n_col){
+    ci_row <- function(x, n, row_num){
+      if(is.na(x)){
+        return(tibble::tibble(
+          method = method,
+          x = x,
+          n = n,
+          mean = NA,
+          lower = NA,
+          upper = NA,
+          row_num = row_num
+        ))
+      }
+
+      binom::binom.confint(x = x, n = n, methods = method, conf.level = conf_level) |>
+        tibble::as_tibble() |>
+        dplyr::mutate(row_num = row_num)
+    }
+
+    data |>
+      dplyr::mutate(row_num = dplyr::row_number()) |>
+      dplyr::mutate(
+        ci_results = purrr::pmap(
+          list(x = .data$incidence_cases, n = .data[[n_col]], row_num = .data$row_num),
+          ci_row
+        )
+      ) |>
+      tidyr::unnest(ci_results, names_sep = "_") |>
+      dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
+  }
+
 
   ##Group by specified grouping variables ####
   if (!is.null(grouping_vars)) {
@@ -160,14 +200,10 @@ calculate_incidence <- function(linked_data,
   ##Calculate counts ####
   id_col_sym <- rlang::sym(id_col)
 
-  print(dim(data_grouped))
-
   count_data <- data_grouped |>
     dplyr::summarise(year = paste(as.character(time_p), collapse = '-'),
                      incidence_cases = dplyr::n_distinct(!!id_col_sym),
                      .groups = 'drop')
-
-  print(dim(count_data))
 
   ## Suppression ####
   if (suppression){
@@ -207,6 +243,12 @@ calculate_incidence <- function(linked_data,
     incidence <- count_data_suppressed |>
       dplyr::left_join(pop_data, by = grouping_vars) |>
       dplyr::mutate(cum_incidence = incidence_cases/.data[[pop_col]])
+    if(CI == TRUE){
+      incidence <- incidence |>
+        calculate_ci(method = "exact", conf_level = CI_level, n_col = pop_col)
+    } else {
+      incidence <- incidence
+    }
     cat("\n")
     cli::cli_alert_success(crayon::green("Cumulative incidence ready"))
     log_info("Cumulative incidence ready")
@@ -216,6 +258,12 @@ calculate_incidence <- function(linked_data,
     incidence <- count_data_suppressed |>
       dplyr::left_join(person_time_data, by = grouping_vars) |>
       dplyr::mutate(incidence_rate = incidence_cases/.data[[person_time_col]])
+    if(CI == TRUE){
+      incidence <- incidence |>
+        calculate_ci(method = "exact", conf_level = CI_level, n_col = person_time_col)
+    } else {
+      incidence <- incidence
+    }
     cat("\n")
     cli::cli_alert_success(crayon::green("Incidence rates ready"))
     log_info("Incidence rates ready")
@@ -236,5 +284,7 @@ calculate_incidence <- function(linked_data,
   log_info("Population data: {substitute(pop_data)}")
   log_info("Grouped by variables: {paste(grouping_vars, collapse = ', ')}")
   log_info("For time point/period: {time_p}")
+
+  return(incidence)
 
 }

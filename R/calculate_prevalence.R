@@ -114,7 +114,7 @@ calculate_prevalence <- function(linked_data,
 
   #### Confidence interval helper function ###
 
-  calculate_ci <- function(data, method = "exact", conf_level = CI_level, n_col){
+  calculate_ci <- function(data, method = "exact", conf_level, n_col){
     ci_row <- function(x, n, row_num){
       if(is.na(x)){
         return(tibble::tibble(
@@ -238,7 +238,7 @@ calculate_prevalence <- function(linked_data,
 
   if (CI == TRUE){
     prevalence <- prevalence |> # this requires join pop_col
-      calculate_ci(method = "exact", conf_level = 0.99, n_col = pop_col)
+      calculate_ci(method = "exact", conf_level = CI_level, n_col = pop_col)
   }
 
 
