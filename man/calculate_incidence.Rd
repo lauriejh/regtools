@@ -18,6 +18,8 @@ calculate_incidence(
   only_counts = FALSE,
   suppression = TRUE,
   suppression_threshold = 5,
+  CI = TRUE,
+  CI_level = 0.99,
   log_path = NULL
 )
 }
@@ -61,6 +63,13 @@ calculate_incidence(
 }}
 
 \item{suppression_threshold}{Integer. Threshold used for suppression, default is set to 5 (NPR standard).}
+
+\item{CI}{Logical. Want to compute binomial confidence intervals? Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE}, add two new columns with the upper and lower CI bound with significance level defined by \code{CI_level}. Uses the Pearson-Klopper method.
+}}
+
+\item{CI_level}{A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99}
 
 \item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
 \itemize{
