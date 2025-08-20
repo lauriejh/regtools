@@ -14,21 +14,53 @@ link_diag_demo(
 )
 }
 \arguments{
-\item{data_diag}{Data frame containing pre-processed and pre-validated diagnostic data (check minimum requirements in documentations)}
+\item{data_diag}{A data frame containing pre-processed and pre-validated diagnostic data.}
 
-\item{data_demo_inv}{Data frame containing validated time-invariant demographic data (check minimum requirements in documentations)}
+\item{data_demo_inv}{A data frame containing validated time-invariant demographic data.}
 
-\item{data_demo_var}{Data frame containing validated time-variant demographic data (check minimum requirements in documentations)}
+\item{data_demo_var}{A data frame containing validated time-variant demographic data.}
 
-\item{id_col}{Name (character) of the ID column in the data set (unique personal identifier), default is "id"}
+\item{id_col}{A character string. Name of ID (unique personal identifier) column in all of the provided datasets. Default is "id".}
 
-\item{date_col}{Name (character) of the date column in the data set, in case of using time-variant data.}
+\item{date_col}{A character string. Name  of the date column in time-variant data and diagnostic data.}
 
-\item{log_path}{File path of the log file to be used}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
-Linked dataset including relevant diagnostic and demographic characteristics.
+Linked dataset including relevant diagnostic and demographic variables.
 }
 \description{
 Link diagnostic and demographic datasets using unique personal identifiers
+}
+\examples{
+# Link diagnostic and time invariant datasets
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+linked_diag_inv <- link_diag_demo(data_diag = diag_df,
+                                  data_demo_inv = invar_df,
+                                  id_col = "id",
+                                  log_path = log_file)
+
+# Link diagnostic and time variant datasets
+names(var_df)[names(var_df) == 'year_varying'] <- 'year'
+names(diag_df)[names(diag_df) == 'diag_year'] <- 'year'
+
+linked_diag_var <- link_diag_demo(data_diag = diag_df,
+                                  data_demo_var = var_df,
+                                  id_col = "id",
+                                  date_col = "year",
+                                  log_path = log_file)
+
+# Link diagnostic, time invariant and variant datasets
+linked_diag_inv_var <- link_diag_demo(data_diag = diag_df,
+                                      data_demo_var = var_df,
+                                      data_demo_inv = invar_df,
+                                      id_col = "id",
+                                      date_col = "year",
+                                      log_path = log_file)
+
 }

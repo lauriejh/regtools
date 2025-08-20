@@ -4,21 +4,46 @@
 #'The `calculate_prevalence()` function calculates prevalence rates based on the given diagnostic and demographic information.
 #'Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 #'
-#' @param linked_data Dataset containing relevant diagnostic and demographic information
-#' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
-#' @param date_col Name (character) of the date column in the data set. Default is "date".
-#' @param pop_data Dataset containing relevant population information.
-#' @param pop_col Name (character) of the column containing population counts in the population dataset.
-#' @param time_p  Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.
-#' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
-#' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
-#' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
-#' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
-#' @param CI Optional computation of confidence intervals
-#' @param CI_level Level for confidence intervals, default is set to .99
-#' @param log_path File path of the log file to be used
+#' @param linked_data A data frame containing linked relevant diagnostic and demographic information.
+#' @param id_col A character string. Name of ID (unique personal identifier) column in `linked_data`. Default is "id".
+#' @param date_col A character string. Name  of the date column in `linked_data`. Default is "date".
+#' @param pop_data A data frame containing corresponding population count information.
+#' @param pop_col A character string. Name of the column containing population counts in `pop_data`.
+#' @param time_p  A numeric value or numeric vector. Time point or time period used to calculate the incidence.
+#' * For period prevalence, specify as a range. The first value of the vector is the period's lower bound, and the second element is the period's upper bound. Example:  `time_p = c(2010,2015)`
+#' * For point prevalence, single numeric value. Example: `time_p = 2010`
+#' @param grouping_vars Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).
+#' @param only_counts Logical. Only want diagnostic counts? Default is `FALSE`.
+#' * If `TRUE`, return only counts.
+#' @param suppression Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is `TRUE`.
+#' * If `TRUE`, applies primary suppression (NA) to any value under the threshold defined by `suppression_threshold`
+#' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
+#' @param CI Logical. Want to compute binomial confidence intervals? Default is `TRUE`.
+#' * If `TRUE`, add two new columns with the upper and lower CI bound with significance level defined by `CI_level`. Uses the Pearson-Klopper method.
+#' @param CI_level A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
 #' @return Prevalence rate table
+#' @examples
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' prevalence_df <- calculate_prevalence(linked_df,
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   time_p = c(2012,2020),
+#'   CI = TRUE,
+#'   CI_level = 0.95,
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 10,
+#'   log_path = log_file)
 #'
 #' @export
 #' @import logger
@@ -30,10 +55,11 @@ calculate_prevalence <- function(linked_data,
                                  pop_col = "pop_count",
                                  time_p,
                                  grouping_vars = NULL,
-                                 CI = T,
+                                 CI = TRUE,
+                                 CI_level = 0.99,
                                  only_counts = FALSE,
                                  suppression = TRUE,
-                                 suppression_treshold = 5,
+                                 suppression_threshold = 5,
                                  log_path= NULL){
 
 
@@ -57,10 +83,6 @@ calculate_prevalence <- function(linked_data,
 
 
   ## Input validation ####
-  if(is.null(linked_data)){
-    log_error("Requires linked dataset")
-    cli::cli_abort("Requires linked dataset")
-  }
 
   if(!all(grouping_vars %in% names(linked_data))) {
     log_error("The linked dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
@@ -81,32 +103,47 @@ calculate_prevalence <- function(linked_data,
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
-    n_removed <- data |> dplyr::filter(dplyr::if_any(columns, is.na)) |>
+    n_removed <- data |>
+      dplyr::filter(dplyr::if_any(tidyselect::all_of(columns), ~ is.na(.))) |>
       nrow()
-    cli::cli_alert_success("Suppressed counts using {.strong {suppression_treshold}} treshold")
+    cli::cli_alert_success("Suppressed counts using {.strong {suppression_threshold}} threshold")
     cli::cli_alert_info("Removed {.val {n_removed}} cells out of {nrow(data)}")
-    log_info("Suppressed counts using {suppression_treshold} treshold. Removed {n_removed} cells out of {nrow(data)}")
+    log_info("Suppressed counts using {suppression_threshold} threshold. Removed {n_removed} cells out of {nrow(data)}")
     return(data)
   }
 
   #### Confidence interval helper function ###
 
-  calculate_ci <- function(data, method = "exact", conf_level = .99, n_col){
-    data |>
-      dplyr::mutate(row_num = 1:dplyr::n()) |>
-      dplyr::mutate(
-        ci_results = purrr::pmap(
-          list(x = unique_id, n= .data[[n_col]], row_num = row_num),
-          function(x, n, row_num){
-            binom::binom.confint(x = x, n= n, methods = method, conf.level = conf_level) |>
-              tibble::as_tibble() |>
-              dplyr::mutate(row_num = row_num)
-          }
-        )
-      ) |>
-      tidyr::unnest(ci_results, names_sep = "_") |>
-      dplyr::select(-row_num, -ci_results_row_num, -ci_results_x, -ci_results_n)
+  calculate_ci <- function(data, method = "exact", conf_level, n_col){
+    ci_row <- function(x, n, row_num){
+      if(is.na(x)){
+        return(tibble::tibble(
+          method = method,
+          x = x,
+          n = n,
+          mean = NA,
+          lower = NA,
+          upper = NA,
+          row_num = row_num
+        ))
+      }
+
+    binom::binom.confint(x = x, n = n, methods = method, conf.level = conf_level) |>
+      tibble::as_tibble() |>
+      dplyr::mutate(row_num = row_num)
   }
+
+  data |>
+    dplyr::mutate(row_num = dplyr::row_number()) |>
+    dplyr::mutate(
+      ci_results = purrr::pmap(
+        list(x = .data$unique_id, n = .data[[n_col]], row_num = .data$row_num),
+        ci_row
+      )
+    ) |>
+    tidyr::unnest(ci_results, names_sep = "_") |>
+    dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
+}
 
 
 
@@ -131,7 +168,7 @@ calculate_prevalence <- function(linked_data,
     data_grouped <- filtered_data |>
       dplyr::group_by(dplyr::across(tidyselect::all_of(grouping_vars)))
   } else {
-    data_grouped <- linked_data
+    data_grouped <- filtered_data
   }
 
   ## Calculate counts ####
@@ -141,9 +178,13 @@ calculate_prevalence <- function(linked_data,
                      unique_id = dplyr::n_distinct(!!id_col_sym),
                      total_events = dplyr::n(), .groups = 'drop')
 
+
+
+
+
   ## Suppression ####
   if (suppression){
-    count_data_suppressed <- suppress_values(data = count_data, columns = c("unique_id", "total_events"), threshold = suppression_treshold)
+    count_data_suppressed <- suppress_values(data = count_data, columns = c("unique_id", "total_events"), threshold = suppression_threshold)
   } else {
     count_data_suppressed <- count_data
     log_warn("No suppression. Confidentiality cannot be assured.")
@@ -195,10 +236,11 @@ calculate_prevalence <- function(linked_data,
   log_info("Prevalence rates ready")
 
 
-  if (CI == T){
-    prevalence <- prevalence |>
-      calculate_ci(method = "exact", conf_level = 0.99, n_col = pop_col)
+  if (CI == TRUE){
+    prevalence <- prevalence |> # this requires join pop_col
+      calculate_ci(method = "exact", conf_level = CI_level, n_col = pop_col)
   }
+
 
   ###### Summary #####
   cli::cli_h1("Summary")

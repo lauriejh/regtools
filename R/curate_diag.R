@@ -1,17 +1,31 @@
 #' Curate diagnostic data
 #'
-#' @param data Data frame containing pre-processed and validated diagnostic data (check minimum requirements in documentation)
-#' @param min_diag Numerical value, minimum amount of diagnostic events
-#' @param first_diag Option to summarize information keeping only the first recorded diagnostic event. Default set to TRUE.
-#' @param id_col Character string containing the name of the ID column in data set, default is "id"
-#' @param code_col Character string containing the name of the code column in data set, default is "icd_code"
-#' @param date_col Character string containing the name of date column in data set, default is "date"
-#' @param log_path File path of the log file to be used
+#' @param data A data frame containing pre-processed and validated diagnostic data.
+#' @param min_diag Integer. Number of minimum amount of diagnostic events. Default is 1.
+#' @param first_diag Logical. If `TRUE`, keep only information from the first recorded diagnostic event. Default set to TRUE. Default is `TRUE`.
+#' @param id_col A character string. Name of ID column in `data`, default is "id"
+#' @param code_col A character string. Name of column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param date_col A character string. Name of column containing the diagnostic date in `data`, default is "date"
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
-#' @return Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
+#' @return Curated diagnostic data: minimum diagnostic events, and/or first ever diagnosis information
+#' @examples
+#' # Keep only curated diagnostic data
+#' # for example minimum diagnostic events or first recorded diagnosis
 #'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' curated_diag_df <- curate_diag(data = diag_df,
+#'                                min_diag = 1,
+#'                                first_diag = TRUE,
+#'                                id_col = "id",
+#'                                code_col = "code",
+#'                                date_col = "diag_year",
+#'                                log_path = log_file)
 #' @export
-#'
+#' @import logger
 #'
 curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", code_col = "icd_code", date_col = "date", log_path = NULL){
 
@@ -36,17 +50,17 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
 
   if(!code_col %in% colnames(data)){
     log_error("The specified code column does not exist in the dataset")
-    stop(glue::glue("The specified code column does not exist in the dataset"))
+    stop("The specified code column does not exist in the dataset")
   }
 
   if(!id_col %in% colnames(data)){
     log_error("The specified id column does not exist in the dataset")
-    stop(glue::glue("The specified id column does not exist in the dataset"))
+    stop("The specified id column does not exist in the dataset")
   }
 
   if(!date_col %in% colnames(data)){
     log_error("The specified date column does not exist in the dataset")
-    stop(glue::glue("The specified date column does not exist in the dataset"))
+    stop("The specified date column does not exist in the dataset")
   }
 
 
@@ -58,6 +72,10 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
 
   cli::cli_alert_success("Filtered observations that do not have at least {min_diag} diagnostic event")
   log_info("Filtered observations that do not have at least {min_diag} diagnostic event")
+
+  if(nrow(filtered_data_min)==0){
+    stop(glue::glue("There were zero observations that had at least {min_diag} diagnostic event"))
+    }
 
   ####Summarize first diagnostic information####
   if (first_diag){

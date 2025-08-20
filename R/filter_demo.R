@@ -1,20 +1,39 @@
 #' Filter demographic data by selected filtering parameters
 #'
-#' @param data Data frame containing pre-processed demographic data
-#' @param data_type Type of demographic data: "t_variant" or "t-variant"
-#' @param filter_param Named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
-#' @param id_col Optional flag, necessary for "any" filtering option.
-#' @param rm_na Removes observations that have NA in the non-filtered columns.
-#' @param data_type Type of demographic data: "t_variant" or "t-variant"
-#' @param any Filtering option, any year. Default = FALSE.
-#' @param log_path File path of the log file to be used
+#' @param data A data frame containing pre-processed demographic data.
+#' @param data_type A character string. Type of demographic data: "t_variant" or "t_invariant"
+#' @param filter_param A named list containing filtering parameters. The names in the list are the column names and the values are vectors of values to keep.
+#' @param id_col A character string. Name of ID column in data set.
+#' * Optional, necessary only when `any = TRUE`
+#' @param rm_na Logical. Should rows with NA in the non-filtered columns be removed? Default is `FALSE`
+#' * If `TRUE`, removes observations that have NA in any of the non-filtered columns.
+#' @param any Logical. Filtering option, any year. Default is `FALSE`
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
 #' @return Filtered demographic dataframe containing only relevant observations based on the filtering parameters.
+#' @examples
+#' # Filter varying and unvarying datasets
+#'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' filtered_var <- filter_demo(data = var_df,
+#' data_type = "t_variant",
+#' filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
+#' log_path = log_file)
+#'
+#'
+#' filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
+#' filter_param = list("y_birth" = c(2006:2008),
+#' "innvandringsgrunn" = c("FAMM", "UTD")),
+#' rm_na = FALSE,
+#' log_path = log_file)
 #'
 #' @export
 #' @import logger
 
-filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
+filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
 
   ##### Set up logging #####
   log_threshold(DEBUG)
@@ -36,19 +55,14 @@ filter_demo <- function(data, data_type, filter_param, id_col = NULL, any = FALS
   ###Validate input ####
 
   if(any(!names(filter_param) %in% colnames(data))){
-    log_error("The specified variables do not exist in the dataset")
-    stop(glue::glue("The specified variables does not exist in the dataset"))
-  }
-
-  if(missing(data_type)) {
-    log_error("Data type not specified")
-    stop("Data type not specified")
+    log_error("Not all the specified variables exist in the dataset")
+    stop("Not all the specified variables exist in the dataset")
   }
 
   ###Helper functions####
   remove_na <- function(data){
     n_missing <- data |>
-      dplyr::filter(if_any(everything(), is.na)) |>
+      dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na)) |>
       nrow()
 
     if(sum(n_missing) > 0){

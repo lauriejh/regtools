@@ -1,0 +1,196 @@
+---
+title: "Introduction to regtools"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to regtools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(regtools)
+```
+
+**regtools** aims to facilitate the manipulation, analysis and visualization of health and population registers and capitalize on their characteristics.
+
+Researchers with access to microdata from health and/or administrative registers in Norway can use {regtools} to streamline their initial analytical process. The package includes functions for data preprocessing, linkage, and the computation of relevant statistics and visualizations, such as stratified frequencies, incidence and prevalence rates.
+
+This vignette introduces you to regtool's main functions and shows examples of how to use them with individual-level data.
+
+## Package datasets
+
+To exemplify the main functions of the package, we have included a couple of illustrative simulated datasets. These datasets are also used in the examples specified in the functions' documentation.
+
+*Note: the included datasets are large in size to parallel the size you would normally encounter when working with real microdata.*
+
+The dataset `diag_df` is a tibble with simulated individual-level diagnostic data. It is documented in `?diag_df`
+```{r diagdf, echo=TRUE}
+str(diag_df)
+```
+
+
+The dataset `var_df` is a tibble with simulated individual-level time-varying data. It is documented in `?var_df`
+
+```{r vardf, echo=TRUE}
+str(var_df)
+```
+
+The dataset `invar_df` is a tibble with simulated individual-level time-invariant data. It is documented in `?invar_df`
+
+```{r invardf, echo=TRUE}
+str(invar_df)
+```
+
+All the datasets above have been created using the `simulate_dataset()` function included in this package. The exact code used to create them can be found in the folder `/data-raw` in the package's source code.
+
+Besides the main diagnostic and sociodemographic datasets included in the package, there are also two datasets included to facilitate running examples:
+
+-    `kommuner_2016`: data.frame including all municipality codes in Norway valid in 2016.
+
+-   `linked_df`: tibble including linked diagnostic, time-invariant and time-varying data.
+
+## General features
+
+The majority of functions create log files to encourage reproducibility and consistency across research projects. Additionally, each function provides clear console feedback after it executes important operations (filter, select, join, etc)
+
+For the next examples, we can initialize a temporary log file: 
+
+```{r log-setup, echo=TRUE}
+log_file <- tempfile()
+cat("Vignette log file", file = log_file)
+```
+
+## Data reading and validation
+
+Generally, researchers working with individual level registry data (in Norway) will find their datasets divided (and delivered) in three different categories:
+
+-   **Diagnostic data:** normally containing unique personal identifier (id), date of diagnostic even, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
+
+-   **Time-invariandata:** sociodemographic data such as date of birth, immigration background, etc.
+
+-   **Time-varying data:** sociodemographic data such as place of residence or marital status. This type of information usually is updated quarterly or yearly in administrative registries.
+
+Assuming a researcher would want to compute sex-stratified prevalence rates for a certain diagnosis, at least they would need a diagnostic dataset and a time-invariant dataset (including sex).
+
+The functions `read_demo_data()` and `read_diag_data()` check the dataset's minimum requirements, as well as giving a quick summary of the dataset's structure. You need to specify the column names corresponding to the id and date variables (see the function documentation for more info).
+
+
+```{r read-diag, echo=TRUE}
+diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
+
+diag_data_validated <- read_diag_data(diag_csv,
+                                      id_col = "id",
+                                      date_col = "diag_year",
+                                      log_path = log_file)
+```
+
+```{r read-demo, echo=TRUE}
+demo_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
+
+demo_data_validated <- read_demo_data(demo_csv, 
+                                      data_type = "t_invariant",
+                                      id_col = "id", 
+                                      log_path = log_file)
+```
+
+Note: the read functions only check for minimum requirements, your real datasets can contain additional variables/columns. For example, NPR sometimes includes sex and age information for each individual in the same diagnostic dataset. 
+
+## Data filtering
+
+In most cases, the real microdata you will be working with is very large. Therefore, regtools encourages a filter first approach. The following functions are useful to keep only relevant cases to your analysis. 
+
+### Filter diagnostic data 
+
+To filter the diagnostic dataset, you should use `filter_diag()`. This function validates that the ICD-10 codes you are indeed valid. If they are valid, it filters the given diagnostic dataset to keep only the observations with the relevant ICD-10 codes. 
+
+For example, to keep only the observations that either have the ICD-10 code *F840* or *F841*: 
+
+```{r filter-diag-codes, echo = TRUE}
+filtered_diag_codes <-  filter_diag(data = diag_df,
+                                    codes = c("F840", "F841"),
+                                    id_col = "id",
+                                    code_col = "code",
+                                    log_path = log_file
+                                    )
+
+```
+
+Alternatively, it is also possible to filter by pattern/family of codes. For example, to keep the observations with all codes starting with *F45* or *F84*: 
+
+```{r filter-diag-pattern, echo = TRUE}
+filtered_diag_pattern <-  filter_diag(data = diag_df,
+                                      pattern_codes = c("F45", "F84"),
+                                      id_col = "id",
+                                      code_col = "code",
+                                      log_path = log_file
+                                      )
+
+```
+
+To further refine the filter of a diagnostic dataset, the `curate_diag()` provides additional options. For example, you can keep only individuals (identified by an unique person identifier) with at least a minimum number of diagnostic events or only keep first-time diagnosis (when a date variable is available). Look at the specific function's documentation for more info.
+
+
+
+### Filter time-varying and time-invariant data 
+
+To filter both the time-varying and time-invariant datasets, you should use `filter_demo()`. This function filters the given dataset to keep only the observations with the relevant chracteristics. 
+
+For example, to only keep observations where the individuals have resided in the municiplality "1146" between the years 2012-2015: 
+
+```{r filter-var, echo = TRUE}
+filtered_var <- filter_demo(data = var_df,
+                            data_type = "t_variant",
+                            filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
+                            log_path = log_file)
+
+```
+
+
+In the case of time-invariant data, to keep only individuals with year of birth between 2006-2008 and reason of immigration "FAMM" or "UTD": 
+
+```{r filter-invar, echo = TRUE}
+filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
+                              filter_param = list("y_birth" = c(2010:2018), "innvandringsgrunn" = c("ARB","NRD", "UKJ")),
+                              rm_na = FALSE,
+                              log_path = log_file)
+
+```
+
+## Linkage
+
+After filtering the datasets, we can link them using the individuals unique personal identifier. Depending on the type of analysis and relevant variables, it might not be necessary to link any datasets. 
+
+```{r link-data, echo = TRUE}
+linked_diag_inv <- link_diag_demo(data_diag = filtered_diag_pattern,
+                                  data_demo_inv = filtered_invar,
+                                  id_col = "id",
+                                  log_path = log_file)
+
+```
+
+The resulting dataset from `link_diag_demo()`is a minimal tidy dataset that you can then use to run other analytical functions. 
+
+## Analysis
+
+## Visualize 
+
+## Other useful functions
+
+### Simulate dataset
+
+Simulates a dataset. In some cases uses API, not able to be run inside TSD
+
+### Harmonize municipality codes 
+
+Harmonizes codes. Some of the challenges of working with registries.
+
+### Get population SSB 
+
+API SSB: not able to run inside of TSD

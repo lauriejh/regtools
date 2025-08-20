@@ -1,17 +1,32 @@
 #' Validate and filter diagnostic data by selected ICD-10 codes
 #'
-#' @param data Data frame containing pre-processed diagnostic data (check minimum requirements in documentation)
-#' @param codes Character vector including ICD-10 codes to validate and filter diagnostic data
-#' @param pattern_codes Character vector including general pattern of desired codes. For example: F84 will return all codes starting with F84.
-#' @param id_col Name of ID column in data set, default is "id"
-#' @param code_col String containing the name of column containing the diagnostic codes
-#' @param log_path File path of the log file to be used
+#' @param data A data frame containing pre-processed diagnostic data.
+#' @param codes A character vector. ICD-10 codes to validate and filter in `data`
+#' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.)
+#' @param id_col A character string. Name of ID column in `data`, default is "id"
+#' @param code_col A character string. Name of column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
+#' @return Filtered and validated diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 #'
-#' @return Filtered diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
+#' @examples
+#' # Validate that F45 and F84 are real codes/family of codes in ICD-10.
+#' # Keep only rows with codes containing F45 and F84.
+#'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' filtered_diag_df <-  filter_diag(data = diag_df,
+#'                                  pattern_codes = c("F45", "F84"),
+#'                                  id_col = "id",
+#'                                  code_col = "code",
+#'                                  log_path = log_file
+#'                                  )
 #'
 #' @export
-#'
+#' @import logger
+#' @importFrom rlang .data
 
 filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id", code_col = "icd_code", log_path = NULL){
 
@@ -46,32 +61,41 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id",
 
 
   if(!is.null(pattern_codes) && !is.null(codes)){
-    log_error("Only on of 'pattern_codes' or 'codes' should be specified.")
-    cli::cli_abort("Only on of 'pattern_codes' or 'codes' should be specified.")
+    log_error("Only one of 'pattern_codes' or 'codes' should be specified.")
+    cli::cli_abort("Only one of 'pattern_codes' or 'codes' should be specified.")
   }
 
   #### Check if desired code exists in ICD-10 ####
-  load("data/npr.rda")
 
   message("Checking that code exists in ICD-10 code list...")
 
   if(!is.null(pattern_codes)){
+    type_code <- "pattern"
     codes_found <- purrr::map_lgl(pattern_codes, function(code) {
       any(purrr::map_lgl(npr, ~ code %in% .x))
     })
   } else if (is.null(pattern_codes)){
+    type_code <- "exact"
     codes_found <- purrr::map_lgl(codes, function(code){
       any(purrr::map_lgl(npr, ~ code %in% .x))
     })
   }
 
+
   if (!(all(codes_found))) {
-    missing_codes <- codes[!codes_found]
+    missing_codes <- switch(
+      type_code,
+      "pattern" = pattern_codes[!codes_found],
+      "exact"   = codes[!codes_found])
     log_error("{paste(missing_codes, collapse = ', ')} code(s) not valid")
-    stop(paste(paste(missing_codes, collapse = ", "), "code(s) not valid"))
+    stop(paste0(paste0(missing_codes, collapse = ", "), " code(s) not valid"))
     } else {
-      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(codes, collapse = ', ')}")
-      log_info("Selected ICD-10 codes ({paste(codes, collapse = ', ')}) are valid")
+      valid_codes <- switch(
+        type_code,
+        "pattern" = pattern_codes,
+        "exact"   = codes)
+      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(valid_codes, collapse = ', ')}")
+      log_info("Selected ICD-10 codes ({paste(valid_codes, collapse = ', ')}) are valid")
       cat("\n")
     }
 

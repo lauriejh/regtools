@@ -12,39 +12,82 @@ calculate_prevalence(
   pop_col = "pop_count",
   time_p,
   grouping_vars = NULL,
+  CI = TRUE,
+  CI_level = 0.99,
   only_counts = FALSE,
   suppression = TRUE,
-  suppression_treshold = 5,
+  suppression_threshold = 5,
   log_path = NULL
 )
 }
 \arguments{
-\item{linked_data}{Dataset containing relevant diagnostic and demographic information}
+\item{linked_data}{A data frame containing linked relevant diagnostic and demographic information.}
 
-\item{id_col}{Name (character) of the ID column in the data set (unique personal identifier). Default is "id".}
+\item{id_col}{A character string. Name of ID (unique personal identifier) column in \code{linked_data}. Default is "id".}
 
-\item{date_col}{Name (character) of the date column in the data set. Default is "date".}
+\item{date_col}{A character string. Name  of the date column in \code{linked_data}. Default is "date".}
 
-\item{pop_data}{Dataset containing relevant population information.}
+\item{pop_data}{A data frame containing corresponding population count information.}
 
-\item{pop_col}{Name (character) of the column containing population counts in the population dataset.}
+\item{pop_col}{A character string. Name of the column containing population counts in \code{pop_data}.}
 
-\item{time_p}{Time period or time point. For time period, specify as a range. For time point, single numerical value. Useful to calculate either point or period prevalence.}
+\item{time_p}{A numeric value or numeric vector. Time point or time period used to calculate the incidence.
+\itemize{
+\item For period prevalence, specify as a range. The first value of the vector is the period's lower bound, and the second element is the period's upper bound. Example:  \code{time_p = c(2010,2015)}
+\item For point prevalence, single numeric value. Example: \code{time_p = 2010}
+}}
 
-\item{grouping_vars}{Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).}
+\item{grouping_vars}{Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).}
 
-\item{only_counts}{Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.}
+\item{CI}{Logical. Want to compute binomial confidence intervals? Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE}, add two new columns with the upper and lower CI bound with significance level defined by \code{CI_level}. Uses the Pearson-Klopper method.
+}}
 
-\item{suppression}{Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.}
+\item{CI_level}{A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99}
 
-\item{suppression_treshold}{Threshold for suppression, default is set to 5 (NPR standard).}
+\item{only_counts}{Logical. Only want diagnostic counts? Default is \code{FALSE}.
+\itemize{
+\item If \code{TRUE}, return only counts.
+}}
 
-\item{log_path}{File path of the log file to be used}
+\item{suppression}{Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is \code{TRUE}.
+\itemize{
+\item If \code{TRUE}, applies primary suppression (NA) to any value under the threshold defined by \code{suppression_threshold}
+}}
+
+\item{suppression_threshold}{Integer. Threshold used for suppression, default is set to 5 (NPR standard).}
+
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
 Prevalence rate table
 }
 \description{
-The `calculate_prevalence()` function calculates prevalence rates based on the given diagnostic and demographic information.
+The \code{calculate_prevalence()} function calculates prevalence rates based on the given diagnostic and demographic information.
 Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
+}
+\examples{
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
+linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+prevalence_df <- calculate_prevalence(linked_df,
+  id_col = "id",
+  date_col = "year",
+  pop_data = pop_df,
+  pop_col = "population",
+  time_p = c(2012,2020),
+  CI = TRUE,
+  CI_level = 0.95,
+  only_counts = FALSE,
+  suppression = TRUE,
+  suppression_threshold = 10,
+  log_path = log_file)
+
 }

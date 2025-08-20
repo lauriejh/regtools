@@ -1,0 +1,109 @@
+#' Calculate prevalence series rates
+#'
+#' @description
+#' The `calculate_prevalence_series()` function calculates prevalence rates series based on the given diagnostic and demographic information. Use `calculate_prevalence()` function for only one time period or time point.
+#' Prevalence represents the number of cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
+#'
+#'
+#' @param linked_data A data frame containing linked relevant diagnostic and demographic information.
+#' @param time_points A list containing either individual time points or time period (range).
+#' * For time points,
+#' * For time periods,
+#' @param id_col A character string. Name of ID (unique personal identifier) column in `linked_data`. Default is "id".
+#' @param date_col A character string. Name  of the date column in `linked_data`. Default is "date".
+#' @param pop_data A data frame containing corresponding population count information.
+#' @param pop_col A character string. Name of the column containing population counts in `pop_data`.
+#' @param grouping_vars Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).
+#' @param only_counts Logical. Only want diagnostic counts? Default is `FALSE`.
+#' * If `TRUE`, return only counts.
+#' @param suppression Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is `TRUE`.
+#' * If `TRUE`, applies primary suppression (NA) to any value under the threshold defined by `suppression_threshold`
+#' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
+#' @param CI Logical. Want to compute binomial confidence intervals? Default is `TRUE`.
+#' * If `TRUE`, add two new columns with the upper and lower CI bound with significance level defined by `CI_level`. Uses the Pearson-Klopper method.
+#' @param CI_level A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#'
+#' @return Prevalence series for specified time points/periods
+#' @examples
+#'
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = c(2012:2020), population = floor(runif(9, min=3000, max=4000)))
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' prevalence_df <- calculate_prevalence_series(linked_df,
+#'   time_points = c(2012:2020),
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 1,
+#'   CI = TRUE,
+#'   CI_level = 0.95,
+#'   log_path = log_file)
+#'
+#' @export
+#'
+calculate_prevalence_series <- function(linked_data,
+                              time_points,
+                              id_col = "id",
+                              date_col = "date",
+                              pop_data,
+                              pop_col = "pop_count",
+                              grouping_vars = NULL,
+                              only_counts = FALSE,
+                              suppression = TRUE,
+                              suppression_threshold = 5,
+                              CI = TRUE,
+                              CI_level = .99,
+                              log_path = NULL) {
+
+  ### Input validation ####
+  stopifnot("Requires linked and population dataset"= !is.null(linked_data), !is.null(pop_data))
+
+  if(!all(grouping_vars %in% names(linked_data))) {
+    stop("Your data must contain the specified 'grouping variables'.")
+  }
+
+  if(!id_col %in% names(linked_data)) {
+    stop("Your data must contain the specified 'id' column.")
+  }
+
+  ## Process time points ####
+  processed_time_points <- purrr::map(time_points, function(tp) {
+    if (length(tp) == 1) {
+      c(tp)
+    } else if (length(tp) == 2) {
+      c(min(tp), max(tp))
+    } else {
+      stop("Each time point should be either a single year or a vector of two years.")
+    }
+  })
+
+
+  ## Cycle through specified time points
+  prevalence_series_ls <- purrr::map(processed_time_points, function(time_p) {
+    regtools::calculate_prevalence(
+      linked_data = linked_data,
+      id_col = id_col,
+      date_col = date_col,
+      pop_data = pop_data,
+      pop_col = pop_col,
+      time_p = time_p,
+      grouping_vars = grouping_vars,
+      only_counts = only_counts,
+      suppression = suppression,
+      suppression_threshold = suppression_threshold,
+      CI = CI,
+      CI_level = CI_level,
+      log_path = log_path
+    )
+  })
+
+  prevalence_series_df <- dplyr::bind_rows(prevalence_series_ls)
+}

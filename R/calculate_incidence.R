@@ -4,37 +4,70 @@
 #'The `calculate_incidence()` function calculates incidence rates based on the given diagnostic and demographic information.
 #'Incidence represents the number of new cases of a given diagnosis that exist in a population of interest at a specified point or period in time.
 #'
-#' @param linked_data Dataset containing relevant diagnostic and demographic information
-#' @param type Can either be cumulative or rate
-#' @param id_col Name (character) of the ID column in the data set (unique personal identifier). Default is "id".
-#' @param date_col Name (character) of the date column in the data set. Default is "date".
-#' @param pop_data Dataset containing relevant population information.
-#' @param pop_col Name (character) of the column containing population counts in the population dataset.
-#' @param person_time_data  Dataset containing relevant person-time information.
-#' @param person_time_col Name (character) of the column containing person-time counts in the person-time dataset.
-#' @param time_p  Time period or time point. For time period, specify as a range. For time point, single numerical value.
-#' @param grouping_vars Optional character vector including grouping variables for the aggregation of diagnostic counts (eg. sex, education).
-#' @param only_counts Return only diagnostic count, instead of prevalence rates. Default is set to FALSE.
-#' @param suppression Apply suppression to results (intermediate and rates) in order to maintain statistical confidentiality.
-#' @param suppression_treshold Threshold for suppression, default is set to 5 (NPR standard).
-#' @param log_path File path log
-#' @returns Prevalence rate table
+#' @param linked_data A data frame containing linked relevant diagnostic and demographic information. Should include only first time diagnosis, see 'curate_diag'
+#' @param type Character string. Valid options are "cumulative" or "rate".
+#' * If "cumulative",
+#' * If "rate",
+#' @param id_col A character string. Name of ID (unique personal identifier) column in `linked_data`. Default is "id".
+#' @param date_col A character string. Name  of the date column in `linked_data`. Default is "date".
+#' @param pop_data A data frame containing corresponding population at risk information.
+#' @param pop_col A character string. Name of the column containing population counts in `pop_data`.
+#' @param person_time_data  A data frame containing corresponding person-time information.
+#' @param person_time_col A character string. Name of the column containing person-time counts in `person_time_data`.
+#' @param time_p  A numeric value or numeric vector. Time point or time period used to calculate the incidence.
+#' * For time period, specify as a range. The first value of the vector is the period's lower bound, and the second element is the period's upper bound. Example:  `time_p = c(2010,2015)`
+#' * For time point, single numeric value. Example: `time_p = 2010`
+#' @param grouping_vars Character vector (optional). Grouping variables for the aggregation of diagnostic counts (e.g. sex, education).
+#' @param only_counts Logical. Only want diagnostic counts? Default is `FALSE`.
+#' * If `TRUE`, return only counts.
+#' @param suppression Logical. Suppress results (counts and rates) in order to maintain statistical confidentiality? Default is `TRUE`.
+#' * If `TRUE`, applies primary suppression (NA) to any value under the threshold defined by `suppression_threshold`
+#' @param suppression_threshold Integer. Threshold used for suppression, default is set to 5 (NPR standard).
+#' @param CI Logical. Want to compute binomial confidence intervals? Default is `TRUE`.
+#' * If `TRUE`, add two new columns with the upper and lower CI bound with significance level defined by `CI_level`. Uses the Pearson-Klopper method.
+#' @param CI_level A numerical value between 0 and 1. Level for confidence intervals, default is set to 0.99
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#'
+#' @returns Incidence table
+#' @examples
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' incidence_df <- calculate_incidence(linked_df,
+#'   type = "cumulative",
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   time_p = c(2012,2013),
+#'   only_counts = FALSE,
+#'   suppression = TRUE,
+#'   suppression_threshold = 10,
+#'   log_path = log_file)
+#'
+#'
 #' @export
 #' @import logger
 #'
-calculate_incidence <- function(linked_data, # needs to be only first occurrence (first time diagnosis)
-                                type,
+calculate_incidence <- function(linked_data,
+                                type = c("cumulative", "rate"),
                                 id_col = "id",
                                 date_col = "date",
                                 pop_data = NULL,
-                                pop_col = "pop_count", #population at risk
+                                pop_col = "pop_count",
                                 person_time_data = NULL,
-                                person_time_col = NULL, #number used for denominator
+                                person_time_col = NULL,
                                 time_p = NULL,
                                 grouping_vars = NULL,
                                 only_counts = FALSE,
                                 suppression = TRUE,
-                                suppression_treshold = 5,
+                                suppression_threshold = 5,
+                                CI = TRUE,
+                                CI_level = 0.99,
                                 log_path = NULL){
 
 
@@ -60,10 +93,6 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
   }
 
   ## Input validation ####
-  if(is.null(linked_data)){
-    log_error("Requires linked dataset")
-    cli::cli_abort("Requires linked dataset")
-  }
 
   if(!all(grouping_vars %in% names(linked_data))) {
     log_error("The linked dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
@@ -75,6 +104,12 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     cli::cli_abort("The linked dataset must contain the specified 'id' column: {id_col}")
   }
 
+  if(!date_col %in% names(linked_data)) {
+    log_error("The linked dataset must contain the specified 'date' column: {date_col}")
+    cli::cli_abort("The linked dataset must contain the specified 'date' column: {date_col}")
+  }
+
+
   supported_types <- c("cumulative", "rate")
   if(!type %in% supported_types){
     log_error("{type} not supported. Please specify 'cumulative' for computing cumulative incidence, or 'rate' for incidence rate.")
@@ -83,12 +118,6 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
 
   ## Dataset should only contain new cases for correct computation of incidence statistics
   cli::cli_alert_warning("To correctly calculate incidence rates, the provided dataset should only contain new/first time diagnoses.")
-  new_cases <- readline(prompt = "Have you verified that the provided dataset fulfills this requirement? (yes/no): ")
-  if (tolower(new_cases) == "yes") {
-    cli::cli_alert_info("Computing incidence calculations...")
-  } else {
-    cli::cli_abort("The dataset should only contain first time/new diagnoses.")
-  }
 
   ##Person-time need to be numeric
   if(type == "rate" && is.null(person_time_data)){
@@ -109,9 +138,8 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
         dplyr::filter(.data[[date_col]] >= time_p[1],
                       .data[[date_col]] <= time_p[2])
       } else {
-        cli::cli_alert_warning("No time-period has been provided. Computations done in all of the available dates in the dataset.")
-        log_warn("No time-period has been provided. Computations done in all of the available dates in the dataset.")
-        linked_data <- linked_data
+        cli::cli_abort("No time-period has been provided.")
+        log_error("No time-period has been provided.")
       }
   }
 
@@ -119,13 +147,47 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
   suppress_values <- function(data, columns, threshold) {
     data <- data |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(columns), ~ ifelse(. <= threshold, NA, .)))
-    n_removed <- data |> dplyr::filter(dplyr::if_any(columns, is.na)) |>
+    n_removed <- data |>
+      dplyr::filter(dplyr::if_any(tidyselect::all_of(columns), ~ is.na(.))) |>
       nrow()
-    cli::cli_alert_success("Suppressed counts using {.strong {suppression_treshold}} treshold")
+    cli::cli_alert_success("Suppressed counts using {.strong {suppression_threshold}} threshold")
     cli::cli_alert_info("Removed {.val {n_removed}} cells out of {nrow(data)}")
-    log_info("Suppressed counts using {suppression_treshold} treshold. Removed {n_removed} cells out of {nrow(data)}")
+    log_info("Suppressed counts using {suppression_threshold} threshold Removed {n_removed} cells out of {nrow(data)}")
     return(data)
   }
+  #### Confidence interval helper function ###
+
+  calculate_ci <- function(data, method = "exact", conf_level, n_col){
+    ci_row <- function(x, n, row_num){
+      if(is.na(x)){
+        return(tibble::tibble(
+          method = method,
+          x = x,
+          n = n,
+          mean = NA,
+          lower = NA,
+          upper = NA,
+          row_num = row_num
+        ))
+      }
+
+      binom::binom.confint(x = x, n = n, methods = method, conf.level = conf_level) |>
+        tibble::as_tibble() |>
+        dplyr::mutate(row_num = row_num)
+    }
+
+    data |>
+      dplyr::mutate(row_num = dplyr::row_number()) |>
+      dplyr::mutate(
+        ci_results = purrr::pmap(
+          list(x = .data$incidence_cases, n = .data[[n_col]], row_num = .data$row_num),
+          ci_row
+        )
+      ) |>
+      tidyr::unnest(ci_results, names_sep = "_") |>
+      dplyr::select(!c("row_num", "ci_results_row_num", "ci_results_x", "ci_results_n"))
+  }
+
 
   ##Group by specified grouping variables ####
   if (!is.null(grouping_vars)) {
@@ -143,10 +205,9 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
                      incidence_cases = dplyr::n_distinct(!!id_col_sym),
                      .groups = 'drop')
 
-
   ## Suppression ####
   if (suppression){
-    count_data_suppressed <- suppress_values(data = count_data, columns = c("incidence_cases"), threshold = suppression_treshold)
+    count_data_suppressed <- suppress_values(data = count_data, columns = c("incidence_cases"), threshold = suppression_threshold)
   } else {
     count_data_suppressed <- count_data
     cli::cli_alert_warning("No suppression. Confidentiality cannot be assured.")
@@ -172,7 +233,7 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
 
 
   #For cumulative incidence:####
-  #new cases in a period/ population at risk at start of the period (only diseased free population)
+  #new cases in a period/ population at risk at start of the period (only disease free population)
 
   #For incidence rate:####
   #number of new diagnoses/total person-time at risk (need to account for left-truncation and censoring etc...)
@@ -182,6 +243,12 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     incidence <- count_data_suppressed |>
       dplyr::left_join(pop_data, by = grouping_vars) |>
       dplyr::mutate(cum_incidence = incidence_cases/.data[[pop_col]])
+    if(CI == TRUE){
+      incidence <- incidence |>
+        calculate_ci(method = "exact", conf_level = CI_level, n_col = pop_col)
+    } else {
+      incidence <- incidence
+    }
     cat("\n")
     cli::cli_alert_success(crayon::green("Cumulative incidence ready"))
     log_info("Cumulative incidence ready")
@@ -191,6 +258,12 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
     incidence <- count_data_suppressed |>
       dplyr::left_join(person_time_data, by = grouping_vars) |>
       dplyr::mutate(incidence_rate = incidence_cases/.data[[person_time_col]])
+    if(CI == TRUE){
+      incidence <- incidence |>
+        calculate_ci(method = "exact", conf_level = CI_level, n_col = person_time_col)
+    } else {
+      incidence <- incidence
+    }
     cat("\n")
     cli::cli_alert_success(crayon::green("Incidence rates ready"))
     log_info("Incidence rates ready")
@@ -211,4 +284,7 @@ calculate_incidence <- function(linked_data, # needs to be only first occurrence
   log_info("Population data: {substitute(pop_data)}")
   log_info("Grouped by variables: {paste(grouping_vars, collapse = ', ')}")
   log_info("For time point/period: {time_p}")
+
+  return(incidence)
+
 }

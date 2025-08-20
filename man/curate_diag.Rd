@@ -15,23 +15,41 @@ curate_diag(
 )
 }
 \arguments{
-\item{data}{Data frame containing pre-processed and validated diagnostic data (check minimum requirements in documentation)}
+\item{data}{A data frame containing pre-processed and validated diagnostic data.}
 
-\item{min_diag}{Numerical value, minimum amount of diagnostic events}
+\item{min_diag}{Integer. Number of minimum amount of diagnostic events. Default is 1.}
 
-\item{first_diag}{Option to summarize information keeping only the first recorded diagnostic event. Default set to TRUE.}
+\item{first_diag}{Logical. If \code{TRUE}, keep only information from the first recorded diagnostic event. Default set to TRUE. Default is \code{TRUE}.}
 
-\item{id_col}{Character string containing the name of the ID column in data set, default is "id"}
+\item{id_col}{A character string. Name of ID column in \code{data}, default is "id"}
 
-\item{code_col}{Character string containing the name of the code column in data set, default is "icd_code"}
+\item{code_col}{A character string. Name of column containing the ICD-10 codes in \code{data}, default is "icd_code"}
 
-\item{date_col}{Character string containing the name of date column in data set, default is "date"}
+\item{date_col}{A character string. Name of column containing the diagnostic date in \code{data}, default is "date"}
 
-\item{log_path}{File path of the log file to be used}
+\item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
+\itemize{
+\item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
+}}
 }
 \value{
-Curated diagnostic data: minimum diagnostic events, and first ever diagnosis information
+Curated diagnostic data: minimum diagnostic events, and/or first ever diagnosis information
 }
 \description{
 Curate diagnostic data
+}
+\examples{
+# Keep only curated diagnostic data
+# for example minimum diagnostic events or first recorded diagnosis
+
+log_file <- tempfile()
+cat("Example log file", file = log_file)
+
+curated_diag_df <- curate_diag(data = diag_df,
+                               min_diag = 1,
+                               first_diag = TRUE,
+                               id_col = "id",
+                               code_col = "code",
+                               date_col = "diag_year",
+                               log_path = log_file)
 }

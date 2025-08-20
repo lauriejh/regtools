@@ -1,17 +1,30 @@
 #' Read and validate the structure of diagnostic data
 #'
 #' @description
-#'`read_data_diagnostic()` validates the general structure and minimum column requirements for diagnostic data.
+#'`read_diag_data()` validates the general structure and minimum column requirements for diagnostic data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
 #'
-#' @param file_path File path of the diagnostic data to be read. Supports CSV, RDS, RDA and .SAV files.
-#' @param id_col Name of ID column in data set, default is "id"
-#' @param date_col Name of date column in data set, default is "date"
-#' @param code_col Name of diagnostic codes column in data set, default is "code"
-#' @param log_path File path of the log file
-#' @param ... Optional extra parameters for specifying correct reading of CSV and .SAV files
+#' @param file_path A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA and .SAV files.
+#' @param id_col A character string. Name of ID column in data set, default is "id".
+#' @param date_col A character string. Name of date column in data set, default is "date".
+#' @param code_col A character string. Name of diagnostic codes column in data set, default is "code".
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#' @param ... Additional arguments passed to methods or underlying functions.
 #'
 #' @return A data frame with the validated minimum requirements for diagnostic data
+#' @examples
+#' # Read and validate CSV file for diagnostic individual level data.
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
+#'
+#' diag_data_validated <- read_diag_data(diag_csv,
+#'   id_col = "id",
+#'   date_col = "diag_year",
+#'   log_path = log_file)
+#'
 #' @export
 #' @import logger
 #'
@@ -149,7 +162,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
 
-  return(data)
+  return(dplyr::as_tibble(data))
 }
 
 

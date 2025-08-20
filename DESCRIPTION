@@ -8,22 +8,41 @@ Maintainer: Alejandra Martinez Sanchez <alejandra.martinez.sanchez@fhi.no>
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/amslala/regtools
+URL: https://github.com/amslala/regtools, https://amslala.github.io/regtools/
 BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
 Imports: 
+    binom,
     cli,
     crayon,
     dplyr,
+    ggplot2,
+    ggrepel,
+    ggthemes,
     glue,
+    gt,
     haven,
     janitor,
+    klassR,
     logger,
     lubridate,
+    openxlsx,
+    plotly,
     purrr,
+    PxWebApiData,
     rlang,
-    skimr,
+    scales,
+    stringr,
+    tibble,
     tidyr,
-    tidyselect
+    tidyselect,
+    withr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

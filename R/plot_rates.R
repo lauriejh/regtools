@@ -1,37 +1,92 @@
-#' Title
+#' Plot prevalence/incidence rates
 #'
-#' @param data
-#' @param date_col
-#' @param rate_col
-#' @param grouping_var
-#' @param facet_var
-#' @param plot_type
-#' @param percent
-#' @param palette
-#' @param annotate_line
-#' @param CI_lower
-#' @param CI_upper
-#' @param plot_title
-#' @param start_end_points
-#' @param interactive
-#' @param single_color
-#' @param x_name
-#' @param y_name
-#' @param legend_title
-#' @param coord_flip
+#' @description
+#' The `plot_rates()` plots prevalence/incidence rates
 #'
-#' @returns
+#' @param data A data frame with the prevalence/incidence rates and auxiliary information.
+#' @param date_col A character string. Name  of the date column in `data`. Default is "date".
+#' @param rate_col A character string. Name  of the rate column in `data`.
+#' @param grouping_var A character string. Name of the variable/column in `data` used to group rates.
+#' @param facet_var A character string. Name  of the variable/column in `data` used to facet plots.
+#' @param plot_type A character string. Type of plot, options are "line", "bar_chart", "lollipop", "jitter"
+#' @param percent Logical. Do you want axis to be in percent? Default set to TRUE.
+#' @param palette A character string. Color palette to be used in the plots, options are: "fhi_colors", "viridis", "okabe_ito"
+#' @param annotated_line Character string. Position of annotated line. Default is NULL.
+#' @param CI_lower A character string. Name of the column containing the lower confidence interval in `data`.
+#' @param CI_upper A character string. Name of the column containing the upper confidence interval in `data`.
+#' @param plot_title Character string. Title of the plot.
+#' @param start_end_points Logical. Want to annotate the start and end points of a line plot? Default is set to `FALSE`.
+#' * If `TRUE`, the start and end point of a line plot are annotated with their corresponding numerical values.
+#' @param interactive Logical. Do you want to make the plot interactive with plotly? Default is set to FALSE.
+#' @param single_color A character string. Single color applied to all the plot. Default is set to "black"
+#' @param x_name A character string. Title of the x axis.
+#' @param y_name A character string. Title of the y axis.
+#' @param legend_title A character string. Title for the legend box.
+#' @param coord_flip Logical. Default is set to `FALSE`
+#' * For lollipop, bar charts and jitter `TRUE` it flips the orientation of the plot.
+#'
+#' @returns A ggplot object
+#' @examples
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' pop_df <- tidyr::expand_grid(year = 2012:2020,
+#'   sex = as.factor(c(0, 1)),
+#'   innvandringsgrunn = c("ARB", "UKJ", "NRD")) |>
+#'     dplyr::mutate(population = floor(runif(dplyr::n(), min = 3000, max = 4000)))
+#'
+#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#'
+#' prev_series <- regtools::calculate_prevalence_series(linked_df,
+#'   time_points = c(2012:2020),
+#'   id_col = "id",
+#'   date_col = "year",
+#'   pop_data = pop_df,
+#'   pop_col = "population",
+#'   grouping_vars = c("sex", "innvandringsgrunn"),
+#'   only_counts = FALSE,
+#'   suppression = FALSE,
+#'   CI = TRUE,
+#'   CI_level = 0.95,
+#'   log_path = log_file)
+#'
+#' plot_rates(prev_series,
+#'  date_col = "year",
+#'  rate_col = "prev_rate",
+#'  plot_type = "line",
+#'  grouping_var = "sex",
+#'  facet_var = "innvandringsgrunn",
+#'  palette = "fhi_colors",
+#'  CI_lower = "ci_results_lower",
+#'  CI_upper = "ci_results_upper",
+#'  plot_title = "Prevalence by sex and reason of immigration",
+#'  x_name = "Year",
+#'  start_end_points = TRUE)
+#
+#'
 #' @export
 #' @importFrom ggplot2 theme element_blank element_text unit ggplot aes geom_line geom_point geom_bar geom_segment geom_jitter facet_wrap scale_y_continuous vars
 #'
-#' @examples
 
-plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var = NULL,
-                     plot_type = c("line", "bar_chart", "lollipop", "jitter"),
-                     percent = TRUE, palette = c("fhi_colors", "viridis", "okabe_ito"),
-                     single_color = "black",
-                     annotate_line = NULL, CI_lower = NULL, CI_upper = NULL,
-                     plot_title = "", x_name = "", y_name = "", legend_title = "", coord_flip = F, start_end_points = F, interactive = FALSE){
+
+plot_rates <- function(data,
+                       date_col = "date",
+                       rate_col,
+                       grouping_var = NULL,
+                       facet_var = NULL,
+                       plot_type = c("line", "bar_chart", "lollipop", "jitter"),
+                       percent = TRUE, palette = c("fhi_colors", "viridis", "okabe_ito"),
+                       single_color = "black",
+                       annotated_line = NULL,
+                       CI_lower = NULL,
+                       CI_upper = NULL,
+                       plot_title = "",
+                       x_name = "",
+                       y_name = "",
+                       legend_title = "",
+                       coord_flip = FALSE,
+                       start_end_points = FALSE,
+                       interactive = FALSE){
 
 
   # Input validation   ---------------------------------------------------------
@@ -128,8 +183,8 @@ plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var 
                  viridis = plot + ggplot2::scale_colour_viridis_d() +
                    ggplot2::scale_fill_viridis_d(),
 
-                 okabe_ito = plot + ggplot2::scale_colour_manual(values = c(palette.colors(palette = "Okabe-Ito"))) +
-                   ggplot2::scale_fill_manual(values = c(palette.colors(palette = "Okabe-Ito"))),
+                 okabe_ito = plot + ggplot2::scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")) +
+                   ggplot2::scale_fill_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")),
 
                  stop("Unknown palette type"))
 
@@ -158,8 +213,8 @@ plot_rates <- function(data, date_col, rate_col, grouping_var = NULL, facet_var 
     }
   }
 
-  if(!is.null(annotate_line)){
-    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotate_line)), linetype="dashed", size = 0.6)
+  if(!is.null(annotated_line)){
+    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotated_line)), linetype="dashed", size = 0.6)
   }
 
   if(start_end_points){

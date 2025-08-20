@@ -2,14 +2,14 @@
 % Please edit documentation in R/simulate_data.R
 \name{simulate_data}
 \alias{simulate_data}
-\title{Create simulated diagnostic, time-varying and time-unvarying data}
+\title{Create simulated diagnostic, time-varying and time-unvarying individual level data}
 \usage{
 simulate_data(
   population_size,
   prefix_ids,
   length_ids,
   family_codes,
-  pattern,
+  pattern = c("increase", "decrease", "random"),
   prevalence = NULL,
   diag_years,
   incidence = NULL,
@@ -17,20 +17,81 @@ simulate_data(
   y_birth,
   filler_codes,
   filler_y_birth,
-  unvarying_query,
+  unvarying_queries = NULL,
   unvarying_codes = NULL,
   unvarying_codes_filler,
-  region_level = "kommune",
-  region_codes,
-  filler_region_codes = NULL,
+  varying_query = NULL,
+  varying_codes = NULL,
+  filler_varying_codes = NULL,
   date_classifications = NULL
 )
 }
 \arguments{
-\item{population_size}{pop}
+\item{population_size}{An integer. Number of total population size (individual).}
 
-\item{date_classifications}{}
+\item{prefix_ids}{A character string. Prefix used to construct unique IDs. Default is "P000".}
+
+\item{length_ids}{An integer. Total character length of each ID. Default is 6.}
+
+\item{family_codes}{A character vector. Relevant ICD-10 diagnostic codes or family of codes. Example: \code{family_codes = c("F84", "G")}}
+
+\item{pattern}{A character string. Pattern of incidence or prevalence rates in simulated data. Possible options are "increase", "decrease" or "random".}
+
+\item{prevalence}{A numeric value between 0 and 1. Prevalence rate expressed as a proportion.}
+
+\item{diag_years}{A numeric vector. Years to be used as relevant diagnostic years.}
+
+\item{incidence}{A numeric value between 0 and 1. Incidence rate expressed as a proportion.}
+
+\item{sex_vector}{A factor or character vector. Factors used to represent sex in the simulated data sets.}
+
+\item{y_birth}{A numeric vector. Years to be used as relevant years of birth.}
+
+\item{filler_codes}{A character vector. ICD-10 diagnostic codes or family of codes used as fillers. Example: \code{filler_codes = c("R", "P20")}}
+
+\item{filler_y_birth}{A numeric vector. Years to be used as filler years of birth.}
+
+\item{unvarying_queries}{A character vector. Uses Statistics Norway API to retrieve desired unvarying variable classification(s). Example: \code{unvarying_queries = c("innvandringsgrunn")}}
+
+\item{unvarying_codes}{Data frame or named list. Codes to be used as relevant unvarying codes in dataset.
+\itemize{
+\item If a data frame is provided, column names will be considered as the names of the unvarying variables.
+\item If a named list is provided, the name of each element will be consider as the unvarying variable name. Example: \code{unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))}
+}}
+
+\item{unvarying_codes_filler}{Data frame or named list. Codes to be used as filler unvarying codes in dataset.}
+
+\item{varying_query}{A character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: \code{varying_query = c("sivilstand")}}
+
+\item{varying_codes}{A character vector. Codes to be used as relevant varying codes in dataset. Example: \code{varying_codes = as.character(0:4)}}
+
+\item{filler_varying_codes}{A character vector. Codes to be used as filler varying codes in dataset. Example: \code{filler_varying_codes = as.character(5:9)}}
+
+\item{date_classifications}{Date used to retrieve classification system from SSB. Format must be \strong{"yyyy-mm-dd"}}
+}
+\value{
+Named list containing data frames with individual level diagnostic and sociodemographic data.
 }
 \description{
-Create simulated diagnostic, time-varying and time-unvarying data
+#' @description
+The \code{simulate_data()} function creates individual-level data sets.
+It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
+}
+\examples{
+simulated_list <- simulate_data(
+  population_size = 1000,
+  prefix_ids = "P000",
+  length_ids = 6,
+  family_codes = c("F45", "F84"),
+  pattern = "increase",
+  prevalence = .023,
+  diag_years  = c(2012:2020),
+  sex_vector = c(0, 1),
+  y_birth = c(2010:2018),
+  filler_codes = "F",
+  filler_y_birth = c(2000:2009),
+ unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  varying_query = "fylke"
+)
 }

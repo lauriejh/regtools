@@ -1,22 +1,32 @@
 
-#' Read and validate the structure of demographic data
+#' Read and validate the structure of demographic individual-level data
 #'
 #' @description
-#'`read_demo_data()` validates the general structure and minimum column requirements for demographic data.
+#'`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
-#' @param file_path File path of the demographic data to be read. Supports CSV, RDS, RDA and .SAV files.
-#' @param data_type Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
-#' @param id_col Name of ID column in data set, default is "id"
-#' @param date_col Name of date column in data set, default is "date"
-#' @param log_path File path of the log file to be used .
-#' @param ... Optional extra parameters for specifying correct reading of CSV and .SAV files
+#' @param file_path A character string. File path to the demographic data to read. Supports CSV, RDS, RDA and .SAV files.
+#' @param data_type A character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
+#' @param id_col A character string. Name of ID column in data set. Default is "id".
+#' @param date_col A character string. Name of date column in data set, default is "date".
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#' @param ... Additional arguments passed to methods or underlying functions.
 #'
-#' @return A data frame with the validated minimum requirements for demographic data
+#' @return A data frame with the validated minimum requirements for demographic data.
+#' @examples
+#' # Read and validate CSV file for varying individual level demographic data
+#' demo_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' demo_data_validated <- read_demo_data(demo_csv, data_type = "t_invariant",
+#' id_col = "id", log_path = log_file)
+#'
 #' @export
 #' @import logger
 #'
 
-read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date", log_path = NULL, ...) {
+read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"), id_col = "id", date_col = "date", log_path = NULL, ...) {
 
   ##### Set up logging #####
   log_threshold(DEBUG)
@@ -141,5 +151,5 @@ read_demo_data <- function(file_path, data_type, id_col = "id", date_col = "date
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
 
-  return(data)
+  return(dplyr::as_tibble(data))
 }

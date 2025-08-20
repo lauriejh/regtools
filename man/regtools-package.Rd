@@ -12,6 +12,7 @@ R package to support research activities utilizing Norwegian health records for 
 Useful links:
 \itemize{
   \item \url{https://github.com/amslala/regtools}
+  \item \url{https://amslala.github.io/regtools/}
   \item Report bugs at \url{https://github.com/amslala/regtools/issues}
 }
 

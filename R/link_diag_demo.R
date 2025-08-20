@@ -1,12 +1,41 @@
 #' Link diagnostic and demographic datasets using unique personal identifiers
 #'
-#' @param data_diag Data frame containing pre-processed and pre-validated diagnostic data (check minimum requirements in documentations)
-#' @param data_demo_inv Data frame containing validated time-invariant demographic data (check minimum requirements in documentations)
-#' @param data_demo_var Data frame containing validated time-variant demographic data (check minimum requirements in documentations)
-#' @param id_col Name (character) of the ID column in the data set (unique personal identifier), default is "id"
-#' @param date_col Name (character) of the date column in the data set, in case of using time-variant data.
-#' @param log_path File path of the log file to be used
-#' @return Linked dataset including relevant diagnostic and demographic characteristics.
+#' @param data_diag A data frame containing pre-processed and pre-validated diagnostic data.
+#' @param data_demo_inv A data frame containing validated time-invariant demographic data.
+#' @param data_demo_var A data frame containing validated time-variant demographic data.
+#' @param id_col A character string. Name of ID (unique personal identifier) column in all of the provided datasets. Default is "id".
+#' @param date_col A character string. Name  of the date column in time-variant data and diagnostic data.
+#' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
+#' * If `NULL`, a new directory `/log` and file is created in the current working directory.
+#' @returns Linked dataset including relevant diagnostic and demographic variables.
+#' @examples
+#' # Link diagnostic and time invariant datasets
+#' log_file <- tempfile()
+#' cat("Example log file", file = log_file)
+#'
+#' linked_diag_inv <- link_diag_demo(data_diag = diag_df,
+#'                                   data_demo_inv = invar_df,
+#'                                   id_col = "id",
+#'                                   log_path = log_file)
+#'
+#' # Link diagnostic and time variant datasets
+#' names(var_df)[names(var_df) == 'year_varying'] <- 'year'
+#' names(diag_df)[names(diag_df) == 'diag_year'] <- 'year'
+#'
+#' linked_diag_var <- link_diag_demo(data_diag = diag_df,
+#'                                   data_demo_var = var_df,
+#'                                   id_col = "id",
+#'                                   date_col = "year",
+#'                                   log_path = log_file)
+#'
+#' # Link diagnostic, time invariant and variant datasets
+#' linked_diag_inv_var <- link_diag_demo(data_diag = diag_df,
+#'                                       data_demo_var = var_df,
+#'                                       data_demo_inv = invar_df,
+#'                                       id_col = "id",
+#'                                       date_col = "year",
+#'                                       log_path = log_file)
+#'
 #' @export
 #' @import logger
 #'
@@ -50,7 +79,7 @@ link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL
   if(!is.null(data_demo_inv)){
     if(!id_col %in% names(data_demo_inv)){
       log_error("{data_demo_inv} must contain specified 'id' column")
-      stop(glue::glue("{data_demo_inv} must contain specified 'id' column"))
+      stop(glue::glue("data_demo_inv must contain specified 'id' column"))
     }
     message("Joining diagnostic data with time-invariant demographic data...")
     linked_df <- linked_df |>
@@ -64,10 +93,6 @@ link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL
   ##add check for 'date' column in last linked_df or directly from diag data
 
   if(!is.null(data_demo_var)){
-    if(!id_col %in% names(data_demo_var)){
-      log_error("{data_demo_var} must contain specified 'id' column")
-      stop(glue::glue("{data_demo_var} must contain specified 'id' column"))
-    }
     message("Joining with time-variant demographic data...")
     linked_df <- linked_df |>
       dplyr::inner_join(data_demo_var, by = c(id_col, date_col))
