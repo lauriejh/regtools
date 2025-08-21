@@ -91,7 +91,7 @@ plot_rates <- function(data,
 
   # Input validation   ---------------------------------------------------------
 
-  type <- match.arg(plot_type, several.ok = TRUE)
+  type <- match.arg(plot_type, several.ok = FALSE)
 
   palette_type <- match.arg(palette, several.ok = FALSE)
 
@@ -126,11 +126,11 @@ plot_rates <- function(data,
 
   plot <- switch(type,
 
-                 line = base_plot + geom_line(size = 1.2) + geom_point(size = 1.5),
+                 line = base_plot + geom_line(linewidth = 1.2) + geom_point(size = 1.5),
 
                  bar_chart = ggplot(data, aes(x = !!rlang::sym(date_col), y = !!rlang::sym(rate_col), fill = !!rlang::sym(grouping_var)))+ geom_bar(position = "dodge", stat = "identity"),
 
-                 lollipop = base_plot + geom_segment(aes(y = 0, yend = !!rlang::sym(rate_col)),size = 1) + geom_point(size = 3),
+                 lollipop = base_plot + geom_segment(aes(y = 0, yend = !!rlang::sym(rate_col)),linewidth = 1) + geom_point(size = 3),
 
                  jitter = base_plot + geom_jitter(width = .1, height = 0, alpha = .6),
 
@@ -144,11 +144,11 @@ plot_rates <- function(data,
 
     plot <- switch(type,
 
-                   line = base_plot + geom_line(size = 1.2, color = single_color) + geom_point(size = 1.5),
+                   line = base_plot + geom_line(linewidth = 1.2, color = single_color) + geom_point(size = 1.5),
 
                    bar_chart = ggplot(data, aes(x = !!rlang::sym(date_col), y = !!rlang::sym(rate_col)))+ geom_bar(color = single_color, fill = single_color, position = "dodge", stat = "identity"),
 
-                   lollipop = base_plot + geom_segment(aes(y = 0, yend = !!rlang::sym(rate_col)),size = 1) + geom_point(size = 3),
+                   lollipop = base_plot + geom_segment(aes(y = 0, yend = !!rlang::sym(rate_col)),linewidth = 1) + geom_point(size = 3),
 
                    jitter = base_plot + geom_jitter(width = .1, height = 0, alpha = .6),
 
@@ -214,7 +214,7 @@ plot_rates <- function(data,
   }
 
   if(!is.null(annotated_line)){
-    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotated_line)), linetype="dashed", size = 0.6)
+    plot <- plot + ggplot2::geom_vline(aes(xintercept = as.character(annotated_line)), linetype="dashed", linewidth = 0.6)
   }
 
   if(start_end_points){

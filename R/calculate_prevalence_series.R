@@ -7,8 +7,8 @@
 #'
 #' @param linked_data A data frame containing linked relevant diagnostic and demographic information.
 #' @param time_points A list containing either individual time points or time period (range).
-#' * For time points,
-#' * For time periods,
+#' * For time points, each element of the list should be an individual year. For example, `time_points = list(2012, 2013, 2014)`
+#' * For time periods, each element of the list should have two years representing the range of years in the desired period. For example, `time_points <- list(c(2012,2014), c(2014,2016), c(2016,2018))`
 #' @param id_col A character string. Name of ID (unique personal identifier) column in `linked_data`. Default is "id".
 #' @param date_col A character string. Name  of the date column in `linked_data`. Default is "date".
 #' @param pop_data A data frame containing corresponding population count information.
@@ -35,7 +35,7 @@
 #' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
 #'
 #' prevalence_df <- calculate_prevalence_series(linked_df,
-#'   time_points = c(2012:2020),
+#'   time_points = list(2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020),
 #'   id_col = "id",
 #'   date_col = "year",
 #'   pop_data = pop_df,

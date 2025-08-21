@@ -47,10 +47,6 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
 
   ##### Data type and extension #####
 
-  if(missing(data_type)) {
-    log_error("Data type not specified.")
-    stop("Data type not specified.")
-  }
 
   if(!data_type %in% c("t_variant", "t_invariant")){
     log_error("{data_type} not supported.")
@@ -96,10 +92,10 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
     stop(glue::glue("The dataset must contain a column named {id_col}"))
   }
 
-  if (!is.character(data[[id_column]])) {
-    log_error("The {id_column} column must be of type character.")
-    stop("The 'ID' or 'id' column must be of type character.")
-  }
+  # if (!is.character(data[[id_column]])) {
+  #   log_error("The {id_column} column must be of type character.")
+  #   stop("The 'ID' or 'id' column must be of type character.")
+  # }
 
   cli::cli_alert_success("ID column")
   log_info("ID column \u2713")
@@ -113,10 +109,10 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
       log_error("The dataset must contain a column named: {date_col}")
       stop(glue::glue("The dataset must contain a column named: {date_col}"))
     }
-    if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
-      log_error("The 'date' column must be of type date or numeric")
-      stop("The 'date' column must be of type date or numeric")
-    }
+    # if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
+    #   log_error("The 'date' column must be of type date or numeric")
+    #   stop("The 'date' column must be of type date or numeric")
+    # }
   }
   cli::cli_alert_success("Date column")
   cat("\n")
@@ -127,8 +123,8 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
     log_info("Specified data type: t_invariant")
     message("Data type: time invariant. Checking requirements...")
     if (any(duplicated(data[[id_column]]))) {
-      stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
       log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+      stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
     }
     log_info("No duplicate IDs \u2713")
     cli::cli_alert_success("No duplicate IDs")

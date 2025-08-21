@@ -20,6 +20,45 @@ test_that("error when unsupported regions", {
 })
 
 
+
+test_that("Correct region output", {
+  norway_pop <- get_population_ssb(regions = "norway",
+                                   years = c(2020:2022),
+                                   ages = c(10:15),
+                                   aggregate_age = TRUE,
+                                   by_sex = TRUE,
+                                   save_xslx = FALSE)
+
+  expect_equal(unique(norway_pop$region_code), "0")
+
+
+  fylke_pop <- get_population_ssb(regions = "fylker",
+                                  years = c(2020:2022),
+                                  ages = c(10:15),
+                                  aggregate_age = TRUE,
+                                  by_sex = TRUE,
+                                  save_xslx = FALSE)
+
+  expect_equal(unique(stringr::str_length(fylke_pop$region_code)), 2)
+
+
+  komm_pop <- get_population_ssb(regions = "kommuner",
+                                 years = c(2020:2022),
+                                 ages = c(10:15),
+                                 aggregate_age = TRUE,
+                                 by_sex = TRUE,
+                                 save_xslx = FALSE)
+
+  expect_equal(unique(stringr::str_length(komm_pop$region_code)), 4)
+
+  # Need to deal with Svalvard Jan Mayer and Kontinentalsokkelen
+
+
+
+})
+
+
+
 # Age
 
 test_that("correct age (dis)aggregation", {

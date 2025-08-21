@@ -4,7 +4,7 @@
 #' @param regions Character string. Supported regions:
 #' * "norway" for the country-wise population counts
 #' * "fylker" for county population counts
-#' * "kommuner" for municipality population counts. Due to region reforms in Norway, the results are shown using SSB's harmonized county codes (2024)
+#' * "kommuner" for municipality population counts (excluding Svalbard and Jan Mayen). Due to region reforms in Norway, the results are shown using SSB's harmonized county codes (2024)
 #' @param years Numerical vector. Year(s) of population counts.
 #' @param ages Numerical vector. Age(s) in whole years.
 #' @param aggregate_age Logical. Default is `TRUE`.
@@ -81,11 +81,9 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
                                             "K-1867", "K-1868", "K-1870", "K-1871", "K-1874", "K-1875", "K-5501", "K-5503", "K-5510", "K-5512", "K-5514", "K-5516", "K-5518",
                                             "K-5520", "K-5522", "K-5524", "K-5526", "K-5528", "K-5530", "K-5532", "K-5534", "K-5536", "K-5538", "K-5540", "K-5542", "K-5544",
                                             "K-5546", "K-5601", "K-5603", "K-5605", "K-5607", "K-5610", "K-5612", "K-5614", "K-5616", "K-5618", "K-5620", "K-5622", "K-5624",
-                                            "K-5626", "K-5628", "K-5630", "K-5632", "K-5634", "K-5636", "K-21-22", "K-23", "K-Rest"))
+                                            "K-5626", "K-5628", "K-5630", "K-5632", "K-5634", "K-5636", "K-Rest"))
+    # Does not include K-21-22 and K-23 (Svalbard, Jan Mayen and Kontinentalsokkelen)
     region_substring <- 3
-  }
-  else {
-    cli::cli_abort("Region not supported")
   }
 
   #Main call

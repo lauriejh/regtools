@@ -41,7 +41,7 @@ test_that("Error when missing required columns", {
   td <- withr::local_tempdir()
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
 
-  # create and save wrong CSV
+  # create and save wrong CSV (no id)
   wrong_csv <- var_df
   wrong_csv$id <- NULL
   wrong_path <- file.path(td, "wrong.csv")
@@ -49,7 +49,28 @@ test_that("Error when missing required columns", {
   utils::write.csv(wrong_csv, wrong_path, row.names = FALSE)
 
   expect_error(
-    read_demo_data(wrong_path, data_type = "t_variant", id_col = "id", date_col = "year_varying", log_path = l_path), "The dataset must contain a column named id")
+    read_demo_data(wrong_path,
+                   data_type = "t_variant",
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "The dataset must contain a column named id")
+
+  # create and save wrong CSV (no date and variant)
+  wrong_csv <- var_df
+  wrong_csv$year_varying <- NULL
+  wrong_path <- file.path(td, "wrong.csv")
+
+  utils::write.csv(wrong_csv, wrong_path, row.names = FALSE)
+
+  expect_error(
+    read_demo_data(wrong_path,
+                   data_type = "t_variant",
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "The dataset must contain a column named: year_varying")
+
 })
 
 test_that("Error when unsupported file extensions and nonexistent files", {
@@ -61,14 +82,46 @@ test_that("Error when unsupported file extensions and nonexistent files", {
   file.create(tp)
 
   expect_error(
-    read_demo_data(tp, data_type = "t_invariant", id_col = "id", date_col = "year_varying", log_path = l_path), "File type not supported. Please provide a .csv, .rds, or .sav file.")
+    read_demo_data(tp,
+                   data_type = "t_invariant",
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "File type not supported. Please provide a .csv, .rds, or .sav file.")
+
+  tp_empty <- file.path(td, "empty.csv")
+
+  expect_error(
+    read_demo_data(tp_empty,
+                   data_type = "t_invariant",
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "File does not exist in the specified path.")
 
 })
 
 test_that("Error when not valid data type given", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log") # Temporal log path, should delete itself at the end
+  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools") #Read example csv
+
   expect_error(
-    read_demo_data(invar_df, data_type = "demographic", id_col = "id", date_col = "year_varying", log_path = l_path), "demographic not supported.")
+    read_demo_data(test_csv,
+                   data_type = "demographic",
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "demographic not supported.")
+
+  expect_error(
+    read_demo_data(test_csv,
+                   data_type,
+                   id_col = "id",
+                   date_col = "year_varying",
+                   log_path = l_path),
+    "object 'data_type' not found")
+
 
 })
 
