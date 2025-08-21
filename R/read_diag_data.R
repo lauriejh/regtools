@@ -11,6 +11,7 @@
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #' @param ... Additional arguments passed to methods or underlying functions.
+#' @param remove_extra Logical. If `TRUE`, removes any extra columns beside id, date and diagnostic code. Default is `FALSE`.
 #'
 #' @return A data frame with the validated minimum requirements for diagnostic data
 #' @examples
@@ -30,7 +31,7 @@
 #'
 #'
 
-read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col = "code", log_path = NULL, ...) {
+read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col = "code", log_path = NULL, remove_extra = FALSE, ...) {
   file_extension <- tolower(tools::file_ext(file_path))
   supported_types <- c("csv", "rds", "rda", "sav")
 
@@ -87,10 +88,10 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     stop(glue::glue("The dataset must contain a column named {id_col}"))
   }
 
-  if (!is.character(data[[id_column]])) {
-    log_error("The {id_column} column must be of type character.")
-    stop("The 'ID' or 'id' column must be of type character.")
-  }
+  # if (!is.character(data[[id_column]])) {
+  #   log_error("The {id_column} column must be of type character.")
+  #   stop("The 'ID' or 'id' column must be of type character.")
+  # }
 
   cli::cli_alert_success("ID column")
   log_info("ID column \u2713")
@@ -102,10 +103,10 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     log_error("The dataset must contain a column named: {code_col}")
     stop(glue::glue("The dataset must contain a column named: {code_col}"))
   }
-  if (!is.character(data[[code_column]])) {
-    log_error("The {code_column} column must be of type character.")
-    stop("The 'code' column must be of type character.")
-  }
+  # if (!is.character(data[[code_column]])) {
+  #   log_error("The {code_column} column must be of type character.")
+  #   stop("The 'code' column must be of type character.")
+  # }
 
   cli::cli_alert_success("Code column")
   log_info("Code column \u2713")
@@ -116,10 +117,10 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     log_error("The dataset must contain a column named: {date_col}")
     stop(glue::glue("The dataset must contain a column named: {date_col}"))
   }
-  if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
-    log_error("The {date_column} must be of type date or numeric.")
-    stop("The 'date' column must be of type date or numeric.")
-  }
+  # if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
+  #   log_error("The {date_column} must be of type date or numeric.")
+  #   stop("The 'date' column must be of type date or numeric.")
+  # }
 
   cli::cli_alert_success("Date column")
   log_info("Date column \u2713")
@@ -133,9 +134,8 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   if (length(extra_columns) > 0) {
     cat("The dataset contains additional columns: ", paste(extra_columns, collapse = ", "), "\n")
     log_warn("The dataset contains additional columns")
-    remove_extra <- readline(prompt = "Do you want to remove these extra columns? (yes/no): ")
 
-    if (tolower(remove_extra) == "yes") {
+    if (remove_extra == TRUE) {
       data <- data[, required_columns, drop = FALSE]
       message("Extra columns removed.")
       log_info("User decided to remove extra columns.")

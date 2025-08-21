@@ -1,40 +1,50 @@
-test_that("reads a supported format into the same reference .rds and log file", {
 
-  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log") # Temporal log path, should delete itself at the end
-  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools") #Read example csv
+# Logger ------------------------------------------------------------------
 
-  # Test CSV reading and validation
-  output_csv <- read_demo_data(file_path = test_csv,
-                               data_type = "t_invariant",
-                               id_col = "id",
-                               date_col = "diag_year",
-                               log_path = l_path)
 
-  output_csv$sex <- as.factor(output_csv$sex)
-  expect_equal(output_csv, invar_df)
+test_that("reads a supported format into the same reference .rds and log file",{
+            l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+            test_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
 
-  # Test that logging works
-  expect_true(file.exists(l_path))
-  expect_gt(file.info(l_path)$size, 0)
+            # Test CSV reading and validation
+            output_csv <- read_demo_data(
+              file_path = test_csv,
+              data_type = "t_invariant",
+              id_col = "id",
+              date_col = "diag_year",
+              log_path = l_path
+            )
 
-})
+            output_csv$sex <- as.factor(output_csv$sex)
+            expect_equal(output_csv, invar_df)
+
+            # Test that logging works
+            expect_true(file.exists(l_path))
+            expect_gt(file.info(l_path)$size, 0)
+
+          })
 
 test_that("creates dir and file log", {
   td <- withr::local_tempdir()
   withr::local_dir(td)
-  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools") #Read example csv
+  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
 
   # Test CSV reading and validation
-  output_csv <- read_demo_data(file_path = test_csv,
-                               data_type = "t_invariant",
-                               id_col = "id",
-                               date_col = "diag_year",
-                               log_path = NULL)
+  output_csv <- read_demo_data(
+    file_path = test_csv,
+    data_type = "t_invariant",
+    id_col = "id",
+    date_col = "diag_year",
+    log_path = NULL
+  )
 
   expect_true("log" %in% list.files(td))
   expect_length(list.files(file.path(td, "log")), 1)
 })
 
+
+
+# Columns -----------------------------------------------------------------
 
 
 test_that("Error when missing required columns", {
@@ -49,12 +59,15 @@ test_that("Error when missing required columns", {
   utils::write.csv(wrong_csv, wrong_path, row.names = FALSE)
 
   expect_error(
-    read_demo_data(wrong_path,
-                   data_type = "t_variant",
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "The dataset must contain a column named id")
+    read_demo_data(
+      wrong_path,
+      data_type = "t_variant",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "The dataset must contain a column named id"
+  )
 
   # create and save wrong CSV (no date and variant)
   wrong_csv <- var_df
@@ -64,14 +77,21 @@ test_that("Error when missing required columns", {
   utils::write.csv(wrong_csv, wrong_path, row.names = FALSE)
 
   expect_error(
-    read_demo_data(wrong_path,
-                   data_type = "t_variant",
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "The dataset must contain a column named: year_varying")
+    read_demo_data(
+      wrong_path,
+      data_type = "t_variant",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "The dataset must contain a column named: year_varying"
+  )
 
 })
+
+# Unsupported files -------------------------------------------------------
+
+
 
 test_that("Error when unsupported file extensions and nonexistent files", {
   td <- withr::local_tempdir()
@@ -82,24 +102,34 @@ test_that("Error when unsupported file extensions and nonexistent files", {
   file.create(tp)
 
   expect_error(
-    read_demo_data(tp,
-                   data_type = "t_invariant",
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "File type not supported. Please provide a .csv, .rds, or .sav file.")
+    read_demo_data(
+      tp,
+      data_type = "t_invariant",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "File type not supported. Please provide a .csv, .rds, or .sav file."
+  )
 
   tp_empty <- file.path(td, "empty.csv")
 
   expect_error(
-    read_demo_data(tp_empty,
-                   data_type = "t_invariant",
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "File does not exist in the specified path.")
+    read_demo_data(
+      tp_empty,
+      data_type = "t_invariant",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "File does not exist in the specified path."
+  )
 
 })
+
+
+# Data type ---------------------------------------------------------------
+
 
 test_that("Error when not valid data type given", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
@@ -107,20 +137,26 @@ test_that("Error when not valid data type given", {
   test_csv <- system.file("extdata", "invar_data.csv", package = "regtools") #Read example csv
 
   expect_error(
-    read_demo_data(test_csv,
-                   data_type = "demographic",
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "demographic not supported.")
+    read_demo_data(
+      test_csv,
+      data_type = "demographic",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "demographic not supported."
+  )
 
   expect_error(
-    read_demo_data(test_csv,
-                   data_type,
-                   id_col = "id",
-                   date_col = "year_varying",
-                   log_path = l_path),
-    "object 'data_type' not found")
+    read_demo_data(
+      test_csv,
+      data_type,
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "object 'data_type' not found"
+  )
 
 
 })
@@ -133,17 +169,34 @@ test_that("Error duplicated ids when invariant type", {
   utils::write.csv(sample_var_df, t_path, row.names = FALSE)
 
   expect_error(
-    read_demo_data(t_path, data_type = "t_invariant", id_col = "id", date_col = "year_varying", log_path = l_path), "The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+    read_demo_data(
+      t_path,
+      data_type = "t_invariant",
+      id_col = "id",
+      date_col = "year_varying",
+      log_path = l_path
+    ),
+    "The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics."
+  )
 })
+
+
+# CLI ---------------------------------------------------------------------
+
+
 
 test_that("CLI stable for sample CSV", {
   log_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   test_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
   expect_snapshot({
-    invisible(read_demo_data(file_path = test_csv,
-                             data_type = "t_invariant",
-                             id_col = "id",
-                             date_col = "diag_year",
-                             log = log_path))
+    invisible(
+      read_demo_data(
+        file_path = test_csv,
+        data_type = "t_invariant",
+        id_col = "id",
+        date_col = "diag_year",
+        log = log_path
+      )
+    )
   }, transform = snap_redact_paths)
 })

@@ -9,7 +9,6 @@
       ! To correctly calculate incidence rates, the provided dataset should only contain new/first time diagnoses.
       v Suppressed counts using 10 threshold
       i Removed 0 cells out of 1
-      Joining with `by = join_by(year)`
     Output
       
     Message

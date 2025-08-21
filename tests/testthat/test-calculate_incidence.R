@@ -1,7 +1,13 @@
+
+# Logger ------------------------------------------------------------------
+
+
+
 test_that("writes to log", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |>
+    dplyr::rename("year"= "diag_year")
 
   incidence_df <- calculate_incidence(linked_df,
                                       type = "cumulative",
@@ -26,7 +32,8 @@ test_that("creates dir and file log", {
   td <- withr::local_tempdir()
   withr::local_dir(td)
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |>
+    dplyr::rename("year"= "diag_year")
 
   incidence_df <- calculate_incidence(linked_df,
                                       type = "cumulative",
@@ -46,7 +53,10 @@ test_that("creates dir and file log", {
 })
 
 
-# Input validation
+
+# Input validation --------------------------------------------------------
+
+
 
 test_that("input validation works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
@@ -110,7 +120,7 @@ test_that("input validation works", {
 })
 
 
-# Rate vs cumulative
+#  Rate vs cumulative -----------------------------------------------------
 
 
 test_that("Rate vs cumulative specific requirements", {
@@ -145,7 +155,9 @@ test_that("Rate vs cumulative specific requirements", {
 })
 
 
-# Only counts
+
+# Only counts -------------------------------------------------------------
+
 
 test_that("only gives out counts", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
@@ -171,7 +183,10 @@ test_that("only gives out counts", {
 
 })
 
-# Suppression
+
+# Suppression -------------------------------------------------------------
+
+
 
 test_that("Suppression works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
@@ -209,7 +224,31 @@ test_that("Suppression works", {
 
 })
 
-# Confidence interval
+
+
+test_that("Warning when suppression FALSE", {
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
+  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+  expect_message(calculate_incidence(linked_df,
+                                     type = "cumulative",
+                                     id_col = "id",
+                                     date_col = "year",
+                                     pop_data = pop_df,
+                                     pop_col = "population",
+                                     time_p = c(2012,2013),
+                                     only_counts = FALSE,
+                                     suppression = FALSE,
+                                     suppression_threshold = 10,
+                                     log_path = l_path), "No suppression. Confidentiality cannot be assured.")
+
+})
+
+
+# Confidence interval -----------------------------------------------------
+
+
 
 
 test_that("calculates CI when it should", {
@@ -239,7 +278,88 @@ test_that("calculates CI when it should", {
 
 
 
-# Stable CLI
+# Grouping vars -----------------------------------------------------------
+
+test_that("Grouping vars", {
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  pop_df <- tibble::tibble(year = rep(c("2012-2013"), 2), population = floor(runif(2, min=3000, max=4000)), sex = as.factor(c(0,1)))
+
+  incidence_sex <- calculate_incidence(linked_df,
+                                       type = "cumulative",
+                                       id_col = "id",
+                                       date_col = "year",
+                                       pop_data = pop_df,
+                                       grouping_vars = "sex",
+                                       pop_col = "population",
+                                       time_p = c(2012,2013),
+                                       only_counts = FALSE,
+                                       suppression = TRUE,
+                                       suppression_threshold = 10,
+                                       CI = TRUE,
+                                       CI_level = 0.95,
+                                       log_path = l_path)
+
+  expect_contains(names(incidence_sex), "sex")
+
+
+})
+
+
+# Population mapping ------------------------------------------------------
+
+
+
+
+test_that("Population mapping", {
+
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
+  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+
+
+  expect_error(calculate_incidence(linked_df,
+                                   type = "cumulative",
+                                   id_col = "id",
+                                   date_col = "year",
+                                   grouping_vars = "sex",
+                                   pop_data = pop_df,
+                                   pop_col = "population",
+                                   time_p = c(2012,2013),
+                                   only_counts = TRUE,
+                                   suppression = TRUE,
+                                   suppression_threshold = 10,
+                                   CI = FALSE,
+                                   CI_level = 0.95,
+                                   log_path = l_path),
+               "The population dataset must contain the specified 'grouping variables': sex"
+    )
+
+  pop_df <- tibble::tibble(year = "2012-2013", population = 4500, sex = as.factor(1))
+  expect_message(calculate_incidence(linked_df,
+                                     type = "cumulative",
+                                     id_col = "id",
+                                     date_col = "year",
+                                     grouping_vars = "sex",
+                                     pop_data = pop_df,
+                                     pop_col = "population",
+                                     time_p = c(2012,2013),
+                                     only_counts = FALSE,
+                                     suppression = TRUE,
+                                     suppression_threshold = 10,
+                                     CI = FALSE,
+                                     CI_level = 0.95,
+                                     log_path = l_path),
+                 "Warning: there are 1 cells missing from pop_data. Join with population dataset doesn't have a 'one-to-one' relationship")
+
+
+})
+
+
+
+# CLI ---------------------------------------------------------------------
+
+
 test_that("stable CI output for sample incidence", {
 
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
@@ -262,5 +382,4 @@ test_that("stable CI output for sample incidence", {
                                        log_path = l_path)
   })
 })
-
 

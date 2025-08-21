@@ -9,7 +9,8 @@ test_that("Correct type of plot in layers ggplot object", {
                                innvandringsgrunn = c("ARB", "UKJ", "NRD")) |>
     dplyr::mutate(population = floor(runif(dplyr::n(), min = 3000, max = 4000)))
 
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |>
+    dplyr::rename("year"= "diag_year")
 
   prev_series <- regtools::calculate_prevalence_series(linked_df,
                                                        time_points = c(2012:2020),

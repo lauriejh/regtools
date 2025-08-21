@@ -99,6 +99,11 @@ calculate_incidence <- function(linked_data,
     cli::cli_abort("The linked dataset must contain the specified 'grouping variables': {grouping_vars}")
   }
 
+  if(!all(grouping_vars %in% names(pop_data))) {
+    log_error("The population dataset must contain the specified 'grouping variables': {paste(grouping_vars, collapse = ', ')}")
+    cli::cli_abort("The population dataset must contain the specified 'grouping variables': {grouping_vars}")
+  }
+
   if(!id_col %in% names(linked_data)) {
     log_error("The linked dataset must contain the specified 'id' column: {id_col}")
     cli::cli_abort("The linked dataset must contain the specified 'id' column: {id_col}")
@@ -138,8 +143,8 @@ calculate_incidence <- function(linked_data,
         dplyr::filter(.data[[date_col]] >= time_p[1],
                       .data[[date_col]] <= time_p[2])
       } else {
-        cli::cli_abort("No time-period has been provided.")
         log_error("No time-period has been provided.")
+        cli::cli_abort("No time-period has been provided.")
       }
   }
 
@@ -210,8 +215,8 @@ calculate_incidence <- function(linked_data,
     count_data_suppressed <- suppress_values(data = count_data, columns = c("incidence_cases"), threshold = suppression_threshold)
   } else {
     count_data_suppressed <- count_data
-    cli::cli_alert_warning("No suppression. Confidentiality cannot be assured.")
     log_warn("No suppression. Confidentiality cannot be assured.")
+    cli::cli_alert_warning("No suppression. Confidentiality cannot be assured.")
   }
 
   ## Intermediate results: only diagnostic counts ####
@@ -227,9 +232,12 @@ calculate_incidence <- function(linked_data,
     missing_in_df2 <- dplyr::anti_join(df1, df2, by =  by_cols)
     if(nrow(missing_in_df2) > 0) {
       cat("\n")
+      log_warn("here are {nrow(missing_in_df2)} cells missing from {substitute(df2)}")
       cli::cli_alert_warning("Warning: there are {nrow(missing_in_df2)} cells missing from {substitute(df2)}. Join with population dataset doesn't have a 'one-to-one' relationship")
-      log_warn("here are {nrow(missing_in_df2)} cells missing from {substitute(df2)}")}
+      }
   }
+
+
 
 
   #For cumulative incidence:####
@@ -241,7 +249,7 @@ calculate_incidence <- function(linked_data,
   if(type == "cumulative"){
     check_mapping(count_data_suppressed, pop_data, by_cols = c(grouping_vars, date_col))
     incidence <- count_data_suppressed |>
-      dplyr::left_join(pop_data, by = grouping_vars) |>
+      dplyr::left_join(pop_data, by = c(grouping_vars, date_col)) |>
       dplyr::mutate(cum_incidence = incidence_cases/.data[[pop_col]])
     if(CI == TRUE){
       incidence <- incidence |>
@@ -256,7 +264,7 @@ calculate_incidence <- function(linked_data,
   } else if (type == "rate"){
     check_mapping(count_data_suppressed, person_time_data, by_cols = c(grouping_vars, date_col))
     incidence <- count_data_suppressed |>
-      dplyr::left_join(person_time_data, by = grouping_vars) |>
+      dplyr::left_join(person_time_data, by = c(grouping_vars, date_col)) |>
       dplyr::mutate(incidence_rate = incidence_cases/.data[[person_time_col]])
     if(CI == TRUE){
       incidence <- incidence |>
