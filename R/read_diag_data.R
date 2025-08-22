@@ -27,7 +27,6 @@
 #'   log_path = log_file)
 #'
 #' @export
-#' @import logger
 #'
 #'
 
@@ -36,32 +35,32 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   supported_types <- c("csv", "rds", "rda", "sav")
 
   ##### Set up logging #####
-  log_threshold(DEBUG)
-  log_formatter(formatter_glue)
+  logger::log_threshold(DEBUG)
+  logger::log_formatter(formatter_glue)
 
   if (is.null(log_path) || !file.exists(log_path)){
     if(!dir.exists("log")){
       dir.create("log")
     }
     formatted_date <- format(Sys.Date(), "%d_%m_%Y")
-    log_appender(appender_file(glue::glue("log/read_diag_data_{formatted_date}.log")))
-    log_info("Log file does not exist in specified path: {log_path}. Created file in new log directory")
+    logger::log_appender(logger::appender_file(glue::glue("log/read_diag_data_{formatted_date}.log")))
+    logger::log_info("Log file does not exist in specified path: {log_path}. Created file in new log directory")
     cli::cli_alert_warning("Log file does not exist in specified path. Creating .log file in log directory")
     cat("\n")
   } else {
-    log_appender(appender_file(log_path))
+    logger::log_appender(appender_file(log_path))
   }
 
 
   ###### Check file existence and type #####
   if(!file.exists(file_path)){
-    log_error("Diagnositc file does not exist in the specified path: {file_path}")
+    logger::log_error("Diagnositc file does not exist in the specified path: {file_path}")
     stop("File does not exist in the specified path.")
   }
 
 
   if(!file_extension %in% supported_types){
-    log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, or .sav file.")
+    logger::log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, or .sav file.")
     stop("File type not supported. Please provide a .csv, .rds, or .sav file.")
   }
 
@@ -79,12 +78,12 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
   ###### Check columns id #####
   message("Checking column requirements:")
-  log_info("Checking column requirements:")
+  logger::log_info("Checking column requirements:")
 
   id_column <- which(names(data) == id_col)
 
   if (length(id_column) == 0) {
-    log_error("The dataset must contain a column named {id_col}")
+    logger::log_error("The dataset must contain a column named {id_col}")
     stop(glue::glue("The dataset must contain a column named {id_col}"))
   }
 
@@ -94,13 +93,13 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   # }
 
   cli::cli_alert_success("ID column")
-  log_info("ID column \u2713")
+  logger::log_info("ID column \u2713")
 
 
   ###### Check columns code #####
   code_column <- which(names(data) == code_col)
   if (length(code_column) == 0) {
-    log_error("The dataset must contain a column named: {code_col}")
+    logger::log_error("The dataset must contain a column named: {code_col}")
     stop(glue::glue("The dataset must contain a column named: {code_col}"))
   }
   # if (!is.character(data[[code_column]])) {
@@ -109,12 +108,12 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   # }
 
   cli::cli_alert_success("Code column")
-  log_info("Code column \u2713")
+  logger::log_info("Code column \u2713")
 
   ###### Check date column #####
   date_column <- which(names(data) == date_col)
   if (length(date_column) == 0) {
-    log_error("The dataset must contain a column named: {date_col}")
+    logger::log_error("The dataset must contain a column named: {date_col}")
     stop(glue::glue("The dataset must contain a column named: {date_col}"))
   }
   # if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
@@ -123,7 +122,7 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   # }
 
   cli::cli_alert_success("Date column")
-  log_info("Date column \u2713")
+  logger::log_info("Date column \u2713")
   cat("\n")
 
 
@@ -133,21 +132,21 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
   if (length(extra_columns) > 0) {
     cat("The dataset contains additional columns: ", paste(extra_columns, collapse = ", "), "\n")
-    log_warn("The dataset contains additional columns")
+    logger::log_warn("The dataset contains additional columns")
 
     if (remove_extra == TRUE) {
       data <- data[, required_columns, drop = FALSE]
       message("Extra columns removed.")
-      log_info("User decided to remove extra columns.")
+      logger::log_info("User decided to remove extra columns.")
     } else {
       warning("The dataset contains extra columns that were not removed.")
-      log_warn("The dataset contains extra columns that were not removed by the user.")
+      logger::log_warn("The dataset contains extra columns that were not removed by the user.")
     }
   }
 
   ###### Summary data #####
 
-  log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
+  logger::log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
   cli::cli_h1("")
   cat(crayon::green$bold("Diagnostic dataset succesfully read and columns validated\n"))
   cli::cli_h1("Data Summary")
@@ -156,9 +155,9 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   cat("\n")
   cat("\n")
   cat(utils::str(data))
-  log_info("Data Summary: ")
-  log_info("Number of rows: {nrow(data)}")
-  log_info("Numner of columns: {ncol(data)}")
+  logger::log_info("Data Summary: ")
+  logger::log_info("Number of rows: {nrow(data)}")
+  logger::log_info("Numner of columns: {ncol(data)}")
   # log_formatter(formatter_pander)
   # log_info(sapply(data, class))
 
