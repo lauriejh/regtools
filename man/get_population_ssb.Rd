@@ -21,7 +21,7 @@ get_population_ssb(
 \itemize{
 \item "norway" for the country-wise population counts
 \item "fylker" for county population counts
-\item "kommuner" for municipality population counts. Due to region reforms in Norway, the results are shown using SSB's harmonized county codes (2024)
+\item "kommuner" for municipality population counts (excluding Svalbard and Jan Mayen). Due to region reforms in Norway, the results are shown using SSB's harmonized county codes (2024)
 }}
 
 \item{years}{Numerical vector. Year(s) of population counts.}

@@ -10,6 +10,7 @@ read_diag_data(
   date_col = "date",
   code_col = "code",
   log_path = NULL,
+  remove_extra = FALSE,
   ...
 )
 }
@@ -26,6 +27,8 @@ read_diag_data(
 \itemize{
 \item If \code{NULL}, a new directory \verb{/log} and file is created in the current working directory.
 }}
+
+\item{remove_extra}{Logical. If \code{TRUE}, removes any extra columns beside id, date and diagnostic code. Default is \code{FALSE}.}
 
 \item{...}{Additional arguments passed to methods or underlying functions.}
 }
