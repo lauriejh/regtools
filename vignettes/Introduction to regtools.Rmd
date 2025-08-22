@@ -85,10 +85,10 @@ The functions `read_demo_data()` and `read_diag_data()` check the dataset's mini
 ```{r read-diag, echo=TRUE}
 diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
 
-diag_data_validated <- read_diag_data(diag_csv,
-                                      id_col = "id",
-                                      date_col = "diag_year",
-                                      log_path = log_file)
+diag_data_validated <- regtools::read_diag_data(diag_csv,
+                                                 id_col = "id",
+                                                 date_col = "diag_year",
+                                                 log_path = log_file)
 ```
 
 ```{r read-demo, echo=TRUE}
@@ -178,6 +178,7 @@ linked_diag_inv <- link_diag_demo(data_diag = filtered_diag_pattern,
 The resulting dataset from `link_diag_demo()`is a minimal tidy dataset that you can then use to run other analytical functions. 
 
 ## Analysis
+
 
 ## Visualize 
 
