@@ -158,8 +158,8 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   logger::log_info("Data Summary: ")
   logger::log_info("Number of rows: {nrow(data)}")
   logger::log_info("Numner of columns: {ncol(data)}")
-  # log_formatter(formatter_pander)
-  # log_info(sapply(data, class))
+  logger::log_formatter(formatter_pander)
+  logger::log_info(sapply(data, class))
 
   return(dplyr::as_tibble(data))
 }
