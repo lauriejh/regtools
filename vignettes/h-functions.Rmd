@@ -1,0 +1,41 @@
+---
+title: "Other useful functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{h-functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(regtools)
+```
+
+This vignette includes other useful functions in regtools. These functions are particularly useful when preparing . It is important to mention that the `get_population_ssb()` function requires internet connection and therefore would only work outside of TSD (Services for sensitive data). In certain cases described in this vignette, the `simulate_data()` function also requires internet connection. 
+
+### Simulate dataset
+
+Write about advantage for open science and repro, etc (look at Moba paper). And to include in case you want to use it as part of public scripts, or as a basis that you can further modify. 
+
+Also in case you need to wait data access, preregistration, prepare analysis scripts. 
+
+### Harmonize municipality codes 
+
+One paragraph about he region reform, maybe an image? Reference to SSB klass page. Some of the challenges of working with registries. Also useful in case you want to make maps. 
+
+Harmonizes codes. 
+
+### Get population SSB 
+
+If you are working with population based microdata, might be useful to get population counts from SSB. Or could also give you an idea of how big your real dataset is going to be. 
+
+API SSB: not able to run inside of TSD
+
+
