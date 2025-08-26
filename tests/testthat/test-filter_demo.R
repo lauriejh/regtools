@@ -74,9 +74,10 @@ test_that("finds codes in data", {
   # We know that in sample data some codes exits/dont exist
 
   # Time variant data
+  municipality_code <- var_df$varying_code[1]
   expect_gt(nrow(filter_demo(data = var_df,
                              data_type = "t_variant",
-                             filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
+                             filter_param = list("year_varying" = c(2012:2015), "varying_code" = municipality_code),
                              log_path = l_path)), 0)
 
   expect_equal(nrow(filter_demo(data = var_df,
@@ -104,7 +105,7 @@ test_that("identify and remove NAs", {
 
   # Add NAs to sample var_df
   var_df_nas<- var_df
-  var_df_nas$varying_code[var_df_nas$varying_code == "1146"] <- NA
+  var_df_nas$varying_code[var_df_nas$varying_code == var_df_nas$varying_code[1]] <- NA
 
   expect_message(filter_demo(data = var_df_nas,
                              data_type = "t_variant",

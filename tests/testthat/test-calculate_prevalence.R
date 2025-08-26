@@ -1,7 +1,7 @@
 test_that("writes to log", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   prevalence_df <- calculate_prevalence(linked_df,
                                         id_col = "id",
@@ -26,7 +26,7 @@ test_that("creates dir and file log", {
   td <- withr::local_tempdir()
   withr::local_dir(td)
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
   prevalence_df <- calculate_prevalence(linked_df,
                                         id_col = "id",
                                         date_col = "year",
@@ -50,7 +50,7 @@ test_that("creates dir and file log", {
 test_that("input validation works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   # Test id col
   expect_error(calculate_prevalence(linked_data = linked_df,
@@ -87,7 +87,7 @@ test_that("input validation works", {
 test_that("Suppression works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   expect_message(calculate_prevalence(linked_data = linked_df,
                                       id_col = "id",
@@ -127,7 +127,7 @@ test_that("Suppression works", {
 test_that("calculates CI when it should", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   prevalence_df <- calculate_prevalence(linked_df,
                                         id_col = "id",
@@ -157,7 +157,7 @@ test_that("calculates CI when it should", {
 test_that("only gives out counts", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   prevalence_df <- calculate_prevalence(linked_df,
                                         id_col = "id",
@@ -184,7 +184,7 @@ test_that("stable CI output for sample incidence", {
 
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2020", population = 30024)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
 
   expect_snapshot({calculate_prevalence(linked_df,

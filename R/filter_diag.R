@@ -2,7 +2,8 @@
 #'
 #' @param data A data frame containing pre-processed diagnostic data.
 #' @param codes A character vector. ICD-10 codes to validate and filter in `data`
-#' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.)
+#' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.
+#' @param classification A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".
 #' @param id_col A character string. Name of ID column in `data`, default is "id"
 #' @param code_col A character string. Name of column containing the ICD-10 codes in `data`, default is "icd_code"
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
@@ -28,7 +29,7 @@
 #' @import logger
 #' @importFrom rlang .data
 
-filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id", code_col = "icd_code", log_path = NULL){
+filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", log_path = NULL){
 
   ##### Set up logging #####
   log_threshold(DEBUG)
@@ -65,20 +66,34 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, id_col = "id",
     cli::cli_abort("Only one of 'pattern_codes' or 'codes' should be specified.")
   }
 
+  if(!classification %in% c("icd", "icpc")){
+    logger::log_error("Classification code {classification} not valid.")
+    cli::cli_abort("Classification code not valid")
+  }
+
   #### Check if desired code exists in ICD-10 ####
 
   message("Checking that code exists in ICD-10 code list...")
 
   if(!is.null(pattern_codes)){
     type_code <- "pattern"
-    codes_found <- purrr::map_lgl(pattern_codes, function(code) {
-      any(purrr::map_lgl(npr, ~ code %in% .x))
-    })
+    codes_found <- switch(classification,
+                          icd = purrr::map_lgl(pattern_codes, function(code) {
+                            any(purrr::map_lgl(npr[,1:4], ~ any(startsWith(as.character(.x), code))))
+                          }),
+                          icpc = purrr::map_lgl(pattern_codes, function(code) {
+                            any(purrr::map_lgl(icpc_2[,1], ~ any(startsWith(as.character(.x), code))))
+                          }),
+                          stop("unknown classification type")
+                          )
   } else if (is.null(pattern_codes)){
     type_code <- "exact"
-    codes_found <- purrr::map_lgl(codes, function(code){
-      any(purrr::map_lgl(npr, ~ code %in% .x))
-    })
+    codes_found <- switch(classification,
+                          icd = purrr::map_lgl(codes, function(code){
+                            any(purrr::map_lgl(npr[,1:4], ~ code %in% .x))}),
+                          icpc = purrr::map_lgl(codes, function(code){
+                            any(purrr::map_lgl(icpc_2[,1], ~ code %in% .x))}),
+                          stop("unknown classification type"))
   }
 
 

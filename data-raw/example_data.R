@@ -4,11 +4,7 @@
 log_file <- tempfile()
 cat("Temp log file", file = log_file)
 
-# Get approx population size for out population of interest
-
 #males and females, follow up year 2020. years of birth 2010-2018, diagnosis years 2012-2020. Period prevalence in population of 2.3%
-population_ssb <- get_population_ssb(regions = "fylker", years = c(2020), ages = c(2:10), by_sex = F,  aggregate_age = TRUE, log_path = log_file)
-
 set.seed(123)
 simulated_list <- simulate_data(population_size = 30024,
                                 prefix_ids = "P000",
@@ -28,7 +24,7 @@ simulated_list <- simulate_data(population_size = 30024,
 )
 
 
-invar_df <- simulated_list$unvar_df
+invar_df <- simulated_list$invar_df
 var_df <- simulated_list$var_df
 diag_df <- simulated_list$diag_df
 
@@ -53,11 +49,18 @@ filtered_diag <- filter_diag(diag_df,
                              code_col = "code",
                              log_path = log_file)
 
+curated_diag <- curate_diag(filtered_diag,
+                            min_diag = 1,
+                            first_diag = TRUE,
+                            id_col = "id",
+                            code_col = "code",
+                            date_col = "diag_year",
+                            log_path = log_file)
 
 
 # Link --------------------------------------------------------
 
-linked_df <- link_diag_demo(data_diag = filtered_diag,
+linked_df <- link_diag_demo(data_diag = curated_diag,
                             data_demo_inv = filtered_inv,
                             id_col = "id",
                             log_path = log_file)

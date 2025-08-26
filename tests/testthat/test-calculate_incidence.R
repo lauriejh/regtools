@@ -7,7 +7,7 @@ test_that("writes to log", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
   linked_df <- linked_df |>
-    dplyr::rename("year"= "diag_year")
+    dplyr::rename("year"= "y_diagnosis_first")
 
   incidence_df <- calculate_incidence(linked_df,
                                       type = "cumulative",
@@ -33,7 +33,7 @@ test_that("creates dir and file log", {
   withr::local_dir(td)
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
   linked_df <- linked_df |>
-    dplyr::rename("year"= "diag_year")
+    dplyr::rename("year"= "y_diagnosis_first")
 
   incidence_df <- calculate_incidence(linked_df,
                                       type = "cumulative",
@@ -61,7 +61,7 @@ test_that("creates dir and file log", {
 test_that("input validation works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   # Test grouping col
   expect_error(calculate_incidence(linked_df,
@@ -126,7 +126,7 @@ test_that("input validation works", {
 test_that("Rate vs cumulative specific requirements", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   # Rate and no person-time values
   expect_error(calculate_incidence(linked_df,
@@ -162,7 +162,7 @@ test_that("Rate vs cumulative specific requirements", {
 test_that("only gives out counts", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   incidence_df <- calculate_incidence(linked_df,
                                        type = "cumulative",
@@ -191,7 +191,7 @@ test_that("only gives out counts", {
 test_that("Suppression works", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   expect_message(calculate_incidence(linked_df,
                                      type = "cumulative",
@@ -205,7 +205,7 @@ test_that("Suppression works", {
                                      suppression_threshold = 10,
                                      log_path = l_path), "Suppressed counts using 10 threshold")
 
-  # Also know that total relevant diagnostic cases in linked_df is (for that period) is 64
+  # Also know that total relevant diagnostic cases in linked_df is (for that period) is less than 100
   suppressed <- calculate_incidence(linked_df,
                                     type = "cumulative",
                                     id_col = "id",
@@ -215,7 +215,7 @@ test_that("Suppression works", {
                                     time_p = c(2012,2013),
                                     only_counts = FALSE,
                                     suppression = TRUE,
-                                    suppression_threshold = 65,
+                                    suppression_threshold = 100,
                                     log_path = l_path)
 
   n_removed <- suppressed |> dplyr::filter(is.na(incidence_cases)) |> nrow()
@@ -229,7 +229,7 @@ test_that("Suppression works", {
 test_that("Warning when suppression FALSE", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   expect_message(calculate_incidence(linked_df,
                                      type = "cumulative",
@@ -254,7 +254,7 @@ test_that("Warning when suppression FALSE", {
 test_that("calculates CI when it should", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
   incidence_df <- calculate_incidence(linked_df,
                                       type = "cumulative",
@@ -282,7 +282,7 @@ test_that("calculates CI when it should", {
 
 test_that("Grouping vars", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
   pop_df <- tibble::tibble(year = rep(c("2012-2013"), 2), population = floor(runif(2, min=3000, max=4000)), sex = as.factor(c(0,1)))
 
   incidence_sex <- calculate_incidence(linked_df,
@@ -315,7 +315,7 @@ test_that("Population mapping", {
 
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
 
   expect_error(calculate_incidence(linked_df,
@@ -364,7 +364,7 @@ test_that("stable CI output for sample incidence", {
 
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
   pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-  linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+  linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
 
   expect_snapshot({calculate_incidence(linked_df,

@@ -53,6 +53,14 @@ test_that("input validation works", {
                            id_col = "id",
                            code_col = "code",
                            log_path = l_path), "Only one of 'pattern_codes' or 'codes' should be specified.")
+
+  # Test classification type
+  expect_error(filter_diag(data = diag_df,
+                           pattern_codes = c("F45", "F84"),
+                           id_col = "id",
+                           code_col = "code",
+                           classification = "npr",
+                           log_path = l_path), "Classification code not valid")
 })
 
 
@@ -94,5 +102,24 @@ test_that("warns when some codes are valid but not in data",{
                           code_col = "code",
                           log_path = l_path)
   expect_equal(nrow(empty_df), 0)
+})
+
+test_that("Pattern vs exact codes work", {
+  #There should be more codes that just start with F84, than exact F84 diagnosis
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  filtered_exact <- filter_diag(data = diag_df,
+                                codes = c("F84"),
+                                id_col = "id",
+                                code_col = "code",
+                                log_path = l_path)
+  filtered_pattern <- filter_diag(data = diag_df,
+                                  pattern_codes = c("F84"),
+                                  id_col = "id",
+                                  code_col = "code",
+                                  log_path = l_path)
+
+  expect_true(nrow(filtered_pattern) > nrow(filtered_exact))
+
+
 })
 

@@ -284,15 +284,18 @@ test_that("Year of birth", {
 
   expect_true(all(all_years %in% c(years_birth, filler_years_birth)))
 
-  filtered_df <- regtools::filter_diag(test$diag_df, pattern_codes = c("F45", "F84"), code_col = "code", id_col = "id")
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
 
-  curated_df <- regtools::curate_diag(filtered_df, min_diag = 1, first_diag = TRUE, code_col = "code", date_col = "diag_year")
+  filtered_df <- regtools::filter_diag(test$diag_df, pattern_codes = c("F45", "F84"), code_col = "code", id_col = "id", log_path = l_path)
+
+  curated_df <- regtools::curate_diag(filtered_df, min_diag = 1, first_diag = TRUE, code_col = "code", date_col = "diag_year", log_path = l_path)
 
   invar_test <- test$invar_df
 
-  filtered_df_2 <- regtools::filter_demo(invar_test, data_type = "t_invariant", filter_param = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")), id_col = "id", rm_na = FALSE)
+  filtered_df_2 <- regtools::filter_demo(invar_test, data_type = "t_invariant", filter_param = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")), id_col = "id", rm_na = FALSE, log_path = l_path)
 
-  linked_df <- regtools::link_diag_demo(curated_df, data_demo_inv = filtered_df_2, id_col = "id")
+  linked_df <- regtools::link_diag_demo(curated_df, data_demo_inv = filtered_df_2, id_col = "id", log_path = l_path)
+
   expect_true(all(linked_df$y_birth %in% years_birth))
 
 })

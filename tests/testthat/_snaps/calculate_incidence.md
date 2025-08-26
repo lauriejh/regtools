@@ -17,7 +17,7 @@
       # A tibble: 1 x 8
         year      incidence_cases population cum_incidence ci_results_method
         <chr>               <int>      <dbl>         <dbl> <chr>            
-      1 2012-2013              64       4500        0.0142 exact            
+      1 2012-2013              74       4500        0.0164 exact            
       # i 3 more variables: ci_results_mean <dbl>, ci_results_lower <dbl>,
       #   ci_results_upper <dbl>
 

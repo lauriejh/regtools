@@ -133,7 +133,7 @@ simulate_data <- function(
         x[grepl(pattern, x, ignore.case = TRUE)]
       })
     }
-    matching_codes <- unlist(matching_codes)
+    matching_codes <- purrr::list_c(matching_codes)
 
     if (length(matching_codes) == 0){
       cli::cli_abort("No diagnostic codes found matching: {family}")

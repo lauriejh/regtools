@@ -66,25 +66,24 @@ test_that("input validation works", {
 test_that("Keeps only cases with min diagnostic observations", {
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
 
-  # In the sample diag_df there are not repeated diagnostic events (min = 1)
-
+  #In the sample dataset, we know there are not individuals that have more than 10 rep diagnosis
   expect_error(curate_diag(data = diag_df,
-              min_diag = 2,
+              min_diag = 10,
               first_diag = TRUE,
               id_col = "id",
               code_col = "code",
               date_col = "diag_year",
-              log_path = l_path), "There were zero observations that had at least 2 diagnostic event")
+              log_path = l_path), "There were zero observations that had at least 10 diagnostic event")
 
-  repeated_diag <- rbind(head(diag_df, 50), diag_df)
 
-  expect_equal(nrow(curate_diag(data = repeated_diag,
+  # We know that there are at least 1 individual with reapeated diagnosis in sample dataset
+  expect_gt(nrow(curate_diag(data = diag_df,
                                 min_diag = 2,
                                 first_diag = TRUE,
                                 id_col = "id",
                                 code_col = "code",
                                 date_col = "diag_year",
-                                log_path = l_path)), 50)
+                                log_path = l_path)), 0)
 
 })
 
