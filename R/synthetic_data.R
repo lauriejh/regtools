@@ -1,12 +1,13 @@
-#' Create simulated diagnostic, time-varying and time-unvarying individual level data
+#' Create synthetic diagnostic, time-varying and time-unvarying individual level data
 #'
 #' #' @description
-#' The `simulate_data()` function creates individual-level data sets.
+#' The `synthetic_data()` function creates individual-level data sets.
 #' It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 #'
 #' @param population_size An integer. Number of total population size (individual).
 #' @param prefix_ids A character string. Prefix used to construct unique IDs. Default is "P000".
 #' @param length_ids An integer. Total character length of each ID. Default is 6.
+#' @param seed A numerical value. Seed used to ensure reproducible results. Default is `seed = 123`
 #' @param family_codes A character vector. Relevant diagnostic (either ICD-10 or ICPC-2 codes or family of codes. Example: `family_codes = c("F84", "G")`
 #' @param diag_code_type A character string. Desired code classification, options are "icd" or "icpc". Default is "icd"
 #' @param pattern A character string. Pattern of incidence or prevalence rates in simulated data. Possible options are "increase", "decrease" or "random".
@@ -27,9 +28,9 @@
 #' @param filler_varying_codes A character vector. Codes to be used as filler varying codes in dataset. Example: `filler_varying_codes = as.character(5:9)`
 #' @param date_classifications Date used to retrieve classification system from SSB. Format must be **"yyyy-mm-dd"**
 #'
-#' @return Named list containing data frames with individual level diagnostic and sociodemographic data.
+#' @return Named list containing two lists. The first list named 'datasets' includes the data frames with individual level diagnostic and sociodemographic data. The second list named 'metadata' includes the exact function call and arguments given by the user
 #' @examples
-#' simulated_list <- simulate_data(
+#' simulated_list <- synthetic_data(
 #'   population_size = 1000,
 #'   prefix_ids = "P000",
 #'   length_ids = 6,
@@ -48,10 +49,11 @@
 #' @importFrom rlang .data
 #' @export
 #'
-simulate_data <- function(
+synthetic_data <- function(
     population_size,
     prefix_ids,
     length_ids,
+    seed = "123",
     family_codes,
     diag_code_type = "icd",
     pattern = c("increase", "decrease", "random"),
@@ -70,10 +72,14 @@ simulate_data <- function(
     filler_varying_codes = NULL,
     date_classifications = NULL){
 
+
+  # Set seed only for funtion
+
+  withr::with_seed(seed, {
+
   ### Input validation --------------------------------------------------------
 
   pattern <- match.arg(pattern, several.ok = FALSE)
-  cli::cli_alert_info("Testing")
 
   if (is.null(prevalence) && is.null (incidence)){
     stop("Either prevalance or incidence has to be provided")
@@ -474,6 +480,11 @@ simulate_data <- function(
     cli::cli_alert_success("Succesfully generated diagnostic and time-invariant datasets!")
   }
 
-  return(all_cases_updated_list)
+# Add metadata ------------------------------------------------------------
 
+  matched <- rlang::call_match(sys.call(), synthetic_data)
+  arg_vals <- rlang::call_args(matched)
+  final_list <- list(datasets = all_cases_updated_list, metadata = list(call = matched, arguments = arg_vals))
+  return(final_list)
+}) # withr::with_seed parenthesis
 }

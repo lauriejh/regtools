@@ -1,7 +1,7 @@
 
 test_that("Input validation works", {
 
-  expect_error(simulate_data(
+  expect_error(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -20,7 +20,7 @@ test_that("Input validation works", {
   )
 
 
-  expect_error(simulate_data(
+  expect_error(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -37,7 +37,7 @@ test_that("Input validation works", {
     ), "Either prevalance or incidence has to be provided"
   )
 
-  expect_error(simulate_data(
+  expect_error(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -55,7 +55,7 @@ test_that("Input validation works", {
   ), "Prevalence rate is not expressed as a proportion between 0 and 1."
   )
 
-  expect_error(simulate_data(
+  expect_error(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -69,7 +69,7 @@ test_that("Input validation works", {
     filler_y_birth = c(2000:2009),
     varying_query = "fylke"), "Either unvarying queries for SSB's API, or unvarying codes need to be provided")
 
-  expect_error(simulate_data(
+  expect_error(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -87,7 +87,7 @@ test_that("Input validation works", {
     "You have provided varying codes. Filler varying codes also need to be provided."
     )
 
-  expect_message(simulate_data(
+  expect_message(synthetic_data(
     population_size = 1000,
     prefix_ids = "P000",
     length_ids = 6,
@@ -103,7 +103,7 @@ test_that("Input validation works", {
     unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   ), "Varying query and varying codes arguments are empty. The varying dataset will not be generated.")
 
-expect_error(simulate_data(
+expect_error(synthetic_data(
   population_size = 1000,
   prefix_ids = "P000",
   length_ids = 6,
@@ -121,7 +121,7 @@ expect_error(simulate_data(
   ), "Number of elements in incidence vector do not correspond with number of diagnosis years"
 )
 
-expect_error(simulate_data(
+expect_error(synthetic_data(
   population_size = 1000,
   prefix_ids = "P000",
   length_ids = 6,
@@ -137,7 +137,7 @@ expect_error(simulate_data(
   unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"))
 
-expect_error(simulate_data(
+expect_error(synthetic_data(
   population_size = 1000,
   prefix_ids = "P000",
   length_ids = 6,
@@ -153,7 +153,7 @@ expect_error(simulate_data(
   unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"), "Not all incidence rates are expressed as a proportion between 0 and 1.")
 
-expect_error(simulate_data(
+expect_error(synthetic_data(
   population_size = 100,
   prefix_ids = "P000",
   length_ids = 6,
@@ -182,7 +182,7 @@ expect_error(simulate_data(
 test_that("Correct population size", {
   n_pop <- 100
   diag_years <- c(2012:2020)
-  test_simulate <- simulate_data(
+  test_simulate <- synthetic_data(
     population_size = n_pop,
     prefix_ids = "P000",
     length_ids = 6,
@@ -198,16 +198,16 @@ test_that("Correct population size", {
     unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   )
-  expect_equal(nrow(test_simulate$invar_df), n_pop)
-  expect_equal(nrow(test_simulate$var_df), n_pop*length(diag_years))
-  expect_equal(test_simulate$diag_df |> dplyr::distinct(id) |> nrow(), n_pop)
+  expect_equal(nrow(test_simulate$datasets$invar_df), n_pop)
+  expect_equal(nrow(test_simulate$datasets$var_df), n_pop*length(diag_years))
+  expect_equal(test_simulate$datasets$diag_df |> dplyr::distinct(id) |> nrow(), n_pop)
 })
 
 
 # Test that diag codes match (use other functions in package)
 
 test_that("Diagnostic codes", {
-  icd_simulate <- simulate_data(
+  icd_simulate <- synthetic_data(
     population_size = 100,
     prefix_ids = "P000",
     length_ids = 6,
@@ -225,12 +225,12 @@ test_that("Diagnostic codes", {
     varying_query = "fylke"
   )
 
-  df <- icd_simulate$diag_df
+  df <- icd_simulate$datasets$diag_df
 
   expect_gt(length(stringr::str_starts(df$code, "F")), 0)
 
 
-  icpc_simulate <- simulate_data(
+  icpc_simulate <- synthetic_data(
     population_size = 100,
     prefix_ids = "P000",
     length_ids = 6,
@@ -248,7 +248,7 @@ test_that("Diagnostic codes", {
     varying_query = "fylke"
   )
 
-  df <- icpc_simulate$diag_df
+  df <- icpc_simulate$datasets$diag_df
 
   expect_gt(length(stringr::str_starts(df$code, "P")), 0)
 
@@ -262,7 +262,7 @@ test_that("Year of birth", {
   years_birth <-c(2010:2018)
   filler_years_birth <- c(2000:2009)
 
-  test <- simulate_data(
+  test <- synthetic_data(
     population_size = 100,
     prefix_ids = "P000",
     length_ids = 6,
@@ -286,11 +286,11 @@ test_that("Year of birth", {
 
   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
 
-  filtered_df <- regtools::filter_diag(test$diag_df, pattern_codes = c("F45", "F84"), code_col = "code", id_col = "id", log_path = l_path)
+  filtered_df <- regtools::filter_diag(test$datasets$diag_df, pattern_codes = c("F45", "F84"), code_col = "code", id_col = "id", log_path = l_path)
 
   curated_df <- regtools::curate_diag(filtered_df, min_diag = 1, first_diag = TRUE, code_col = "code", date_col = "diag_year", log_path = l_path)
 
-  invar_test <- test$invar_df
+  invar_test <- test$datasets$invar_df
 
   filtered_df_2 <- regtools::filter_demo(invar_test, data_type = "t_invariant", filter_param = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")), id_col = "id", rm_na = FALSE, log_path = l_path)
 

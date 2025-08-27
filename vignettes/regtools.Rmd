@@ -71,7 +71,7 @@ cat("Vignette log file", file = log_file)
 
 Generally, researchers working with individual level registry data (in Norway) will find their datasets divided (and delivered) in three different categories:
 
--   **Diagnostic data:** normally containing unique personal identifier (id), date of diagnostic even, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
+-   **Diagnostic data:** normally containing unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
 
 -   **Time-invariandata:** sociodemographic data such as date of birth, immigration background, etc.
 

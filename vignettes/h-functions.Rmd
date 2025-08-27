@@ -18,21 +18,61 @@ knitr::opts_chunk$set(
 library(regtools)
 ```
 
-This vignette includes other useful functions in regtools. These functions are particularly useful when preparing . It is important to mention that the `get_population_ssb()` function requires internet connection and therefore would only work outside of TSD (Services for sensitive data). In certain cases described in this vignette, the `simulate_data()` function also requires internet connection. 
+This vignette includes other useful functions in regtools. These functions are particularly useful ...
 
-### Simulate dataset
+It is important to note that the `get_population_ssb()` function requires an internet connection and therefore only works outside of TSD (Services for sensitive data). In certain cases described in this vignette, the `synthetic_data()` function also requires an internet connection. 
 
-Write about advantage for open science and repro, etc (look at Moba paper). And to include in case you want to use it as part of public scripts, or as a basis that you can further modify. 
+## Simulate dataset
 
-Also in case you need to wait data access, preregistration, prepare analysis scripts. 
+### Why? 
 
-### Harmonize municipality codes 
+In most research fields, individual-level data is regulated by strict confidentiality agreements. In Norway, sensitive health and sociodemographic individual-level data cannot be shared or used outside of secure platforms, such as TSD (Services for sensitive data). While this type of disclosure control protects the privacy of study participants, it can also pose a challenge to reproducibility and transparency practices in research. Although code sharing has gained popularity, code cannot be appropriately evaluated (and potentially reused) if the original analytic data is unavailable. 
 
-One paragraph about he region reform, maybe an image? Reference to SSB klass page. Some of the challenges of working with registries. Also useful in case you want to make maps. 
+One possible solution to the challenges associated with using confidential data is to create synthetic or simulated data that have similar structure and statistical characteristics as the original data. There are a number of excellent R packages dedicated to creating synthetic datasets from existing data, such as `synthpop`, `faux` and `simpop`. The resulting synthetic data are high-fidelity and aim to maintain the internal statistical characteristics and relationships between variables. However, many features of these packages rely on having full access to the original individual-based data. Additionally, it is crucial to remember that synthetic data based on existing datasets is not inherently private (source , Alan Turing Institute) and can be vulnerable to data leaks and attacks. 
 
-Harmonizes codes. 
+In line with the overarching objectives of `regtools`, the `synthetic_data()` function aims to help researchers navigate some of the challenges associated with working with confidential individual-level data in Norway by creating synthetic datasets without the need of pre-existing data. As this function does not require the use of pre-existing data, it also does not aim to capture the internal statistical characteristics and relationships between variables. However, `synthetic_data()` is still particularly useful for researchers working with Norwegian health and sociodemographic datasets, as it produces synthetic datasets with the same structure and semantics found in real individual-level data. 
 
-### Get population SSB 
+In broad strokes, the `synthetic_data()` function has the ability to create three different types of datasets: 
+
+-   **Diagnostic (health) data:**  Including at least a unique personal identifier (ID), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR (Norwegian Control and Payment of Health Reimbursements Database). 
+
+-   **Time-invariant data:** Including at least a unique personal identifier (ID) and sociodemographic variables such as date of birth, immigration background, etc. 
+
+-   **Time-varying data:** Including at least a unique personal identifier (ID), date, and sociodemographic variables such as place of residence or marital status. This type of information usually is updated quarterly or yearly in administrative registries.
+
+
+- Even if the final product is not completely "perfect", it can be a basis that you can further modify or add other characteristics. 
+
+Three main use cases: 
+
+
+1) easier to share analytical code. Let reviewers and other researchers (collaborators) execute your code, easier to evaluate what code does and potentially how to reuse it. Consider that it does not keep all statistical properties. 
+
+2) It can also be used for educational purposes, low barrier/low risk to explore and train/onboard new people in the team. 
+
+3) In case we dont have access to secure zone for any reason, we can still keep working on the code. Also useful in case data-access is delayed,  you can still prepare analytic scripts, or also it is possible to prepare scripts at the same time as pre-registration? 
+
+
+Data generation process is well documented in with output in CLI to the user. Additionally, after running the function in the same object you have the datasets and also the metadata, like the function call and the arguments used to generate the dataset. In this way, easier to keep track of datasets and how they were constructed. 
+
+### How? 
+
+Seeds to ensure reproducibility 
+
+
+- Explain the cases where it requires internet connection. 
+
+
+## Harmonize municipality codes 
+
+Explain geographical composition of Norway now (as of writing in 2025). Explain region reforms and what they do. Example as one of the challenges of working with registries. Consequences for data, and analysis. 
+
+What to do? Use recommendation from SSB to use harmonized regions (possible to use regiosn from xxxx-2024). The full list of geographical classifications can be found at klass SSB. 
+
+Give example of harmonize municipality codes. 
+
+
+## Get population SSB 
 
 If you are working with population based microdata, might be useful to get population counts from SSB. Or could also give you an idea of how big your real dataset is going to be. 
 

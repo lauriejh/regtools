@@ -15,10 +15,12 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/regtools.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Introduction%20to%20regtools.html">Introduction to regtools</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/h-functions.html">Other useful functions</a></li>
+    <li><a class="dropdown-item" href="../articles/Introduction%20to%20regtools.html">Introduction to regtools</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -101,9 +103,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Data Summary</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> After joining added <span style="color: #0000BB;">3</span> columns to 'diag_df': sex, y_birth, and innvandringsgrunn</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">120256</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'invar_df': <span style="color: #0000BB;">30024</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">120256</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Link diagnostic and time variant datasets</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">var_df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">var_df</span><span class="op">)</span> <span class="op">==</span> <span class="st">'year_varying'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'year'</span></span></span>
@@ -119,9 +121,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Data Summary</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> After joining added <span style="color: #0000BB;">1</span> columns to 'diag_df': varying_code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">120256</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'var_df': <span style="color: #0000BB;">270216</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">120256</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Link diagnostic, time invariant and variant datasets</span></span></span>
 <span class="r-in"><span><span class="va">linked_diag_inv_var</span> <span class="op">&lt;-</span> <span class="fu">link_diag_demo</span><span class="op">(</span>data_diag <span class="op">=</span> <span class="va">diag_df</span>,</span></span>
@@ -137,10 +139,10 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Data Summary</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> After joining added <span style="color: #0000BB;">4</span> columns to 'diag_df': sex, y_birth, innvandringsgrunn, and varying_code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'diag_df': <span style="color: #0000BB;">120256</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'var_df': <span style="color: #0000BB;">270216</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Rows in 'invar_df': <span style="color: #0000BB;">30024</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">30024</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Total matched rows: <span style="color: #0000BB;">120256</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

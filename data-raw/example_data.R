@@ -6,7 +6,7 @@ cat("Temp log file", file = log_file)
 
 #males and females, follow up year 2020. years of birth 2010-2018, diagnosis years 2012-2020. Period prevalence in population of 2.3%
 set.seed(123)
-simulated_list <- simulate_data(population_size = 30024,
+simulated_list <- synthetic_data(population_size = 30024,
                                 prefix_ids = "P000",
                                 length_ids = 6,
                                 family_codes = c("F45", "F84"),

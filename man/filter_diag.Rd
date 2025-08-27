@@ -8,6 +8,7 @@ filter_diag(
   data,
   codes = NULL,
   pattern_codes = NULL,
+  classification = "icd",
   id_col = "id",
   code_col = "icd_code",
   log_path = NULL
@@ -18,7 +19,9 @@ filter_diag(
 
 \item{codes}{A character vector. ICD-10 codes to validate and filter in \code{data}}
 
-\item{pattern_codes}{A character vector. Pattern of ICD-10 codes to validate and filter in \code{data}. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.)}
+\item{pattern_codes}{A character vector. Pattern of ICD-10 codes to validate and filter in \code{data}. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.}
+
+\item{classification}{A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".}
 
 \item{id_col}{A character string. Name of ID column in \code{data}, default is "id"}
 
