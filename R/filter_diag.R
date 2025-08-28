@@ -4,8 +4,10 @@
 #' @param codes A character vector. ICD-10 codes to validate and filter in `data`
 #' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.
 #' @param classification A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".
-#' @param id_col A character string. Name of ID column in `data`, default is "id"
-#' @param code_col A character string. Name of column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param id_col A character string. Name of the ID column in `data`, default is "id"
+#' @param code_col A character string. Name of the column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param date_col A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is `NULL`.
+#' @param diag_dates A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
@@ -29,9 +31,11 @@
 #' @import logger
 #' @importFrom rlang .data
 
-filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", log_path = NULL){
+filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", date_col = NULL, diag_dates = NULL, log_path = NULL){
 
-  ##### Set up logging #####
+# Set up logging ----------------------------------------------------------
+
+
   log_threshold(DEBUG)
   log_formatter(formatter_glue)
 
@@ -48,7 +52,9 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
     log_appender(appender_file(log_path))
   }
 
-  ##### Validate Input #####
+
+# Validate Input ----------------------------------------------------------
+
 
   if(!code_col %in% colnames(data)){
     log_error("The specified code column does not exist in the dataset")
@@ -60,7 +66,6 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
     cli::cli_abort("The specified id column does not exist in the dataset")
   }
 
-
   if(!is.null(pattern_codes) && !is.null(codes)){
     log_error("Only one of 'pattern_codes' or 'codes' should be specified.")
     cli::cli_abort("Only one of 'pattern_codes' or 'codes' should be specified.")
@@ -71,7 +76,9 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
     cli::cli_abort("Classification code not valid")
   }
 
-  #### Check if desired code exists in ICD-10 ####
+
+# Check if desired code exists in ICD-10 or ICPC-2 database ---------------
+
 
   message("Checking that code exists in ICD-10 code list...")
 
@@ -114,7 +121,10 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
       cat("\n")
     }
 
-  ####Check if desired code exists in data set and filter####
+
+# Check if desired code exists in data set and filter ---------------------
+
+
   message("Filtering data by selected ICD-10 codes...")
   if (!(all(codes %in% data[[code_col]]))){
     cli::cli_alert_warning("Warning: The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
@@ -140,7 +150,25 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
     }
   }
 
-  ###### Summary data #####
+
+
+# Filter by date of diagnosis ---------------------------------------------
+
+
+  if(!is.null(date_col)){
+    message("Filtering observations by date of diagnosis...")
+    if(!date_col %in% colnames(data)){
+      log_error("The specified date column does not exist in the dataset")
+      cli::cli_abort("The specified date column does not exist in the dataset")
+    }
+    filtered_data[[date_col]] <- as.character(filtered_data[[date_col]])
+    filtered_data <- filtered_data |>
+      dplyr::filter(.data[[date_col]] %in% diag_dates)
+  }
+
+# Summary data: CLI  -------------------------------------------------------
+
+
   cli::cli_h1("")
   cat(crayon::green$bold("Diagnostic dataset succesfully filtered\n"))
   cat("\n")

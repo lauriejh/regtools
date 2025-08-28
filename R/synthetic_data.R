@@ -1,8 +1,8 @@
-#' Create synthetic diagnostic, time-varying and time-unvarying individual level data
+#' Create synthetic diagnostic, time-varying and time-invariant individual level data
 #'
 #' #' @description
 #' The `synthetic_data()` function creates individual-level data sets.
-#' It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
+#' It simulates the structure of diagnostic, time-varying and time-invariant data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 #'
 #' @param population_size An integer. Number of total population size (individual).
 #' @param prefix_ids A character string. Prefix used to construct unique IDs. Default is "P000".
@@ -18,14 +18,14 @@
 #' @param y_birth A numeric vector. Years to be used as relevant years of birth.
 #' @param filler_codes A character vector. Diagnostic codes or family of codes used as fillers. Example: `filler_codes = c("R", "P20")`
 #' @param filler_y_birth A numeric vector. Years to be used as filler years of birth.
-#' @param unvarying_queries A character vector. Uses Statistics Norway API to retrieve desired unvarying variable classification(s). Example: `unvarying_queries = c("innvandringsgrunn")`
-#' @param unvarying_codes Data frame or named list. Codes to be used as relevant unvarying codes in dataset.
-#' * If a data frame is provided, column names will be considered as the names of the unvarying variables.
-#' * If a named list is provided, the name of each element will be consider as the unvarying variable name. Example: `unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))`
-#' @param unvarying_codes_filler Data frame or named list. Codes to be used as filler unvarying codes in dataset.
+#' @param invariant_queries A character vector. Uses Statistics Norway API to retrieve desired invariant variable classification(s). Example: `invariant_queries = c("innvandringsgrunn")`
+#' @param invariant_codes Data frame or named list. Codes to be used as relevant invariant codes in dataset.
+#' * If a data frame is provided, column names will be considered as the names of the invariant variables.
+#' * If a named list is provided, the name of each element will be consider as the invariant variable name. Example: `invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))`
+#' @param invariant_codes_filler Data frame or named list. Codes to be used as filler invariant codes in dataset.
 #' @param varying_query A character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: `varying_query = c("sivilstand")`
 #' @param varying_codes A character vector. Codes to be used as relevant varying codes in dataset. Example: `varying_codes = as.character(0:4)`
-#' @param filler_varying_codes A character vector. Codes to be used as filler varying codes in dataset. Example: `filler_varying_codes = as.character(5:9)`
+#' @param varying_codes_filler A character vector. Codes to be used as filler varying codes in dataset. Example: `varying_codes_filler = as.character(5:9)`
 #' @param date_classifications Date used to retrieve classification system from SSB. Format must be **"yyyy-mm-dd"**
 #'
 #' @return Named list containing two lists. The first list named 'datasets' includes the data frames with individual level diagnostic and sociodemographic data. The second list named 'metadata' includes the exact function call and arguments given by the user
@@ -42,8 +42,8 @@
 #'   y_birth = c(2010:2018),
 #'   filler_codes = "F",
 #'   filler_y_birth = c(2000:2009),
-#'  unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-#'   unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+#'  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+#'   invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
 #'   varying_query = "fylke"
 #' )
 #' @importFrom rlang .data
@@ -64,12 +64,12 @@ synthetic_data <- function(
     y_birth,
     filler_codes,
     filler_y_birth,
-    unvarying_queries = NULL,
-    unvarying_codes = NULL,
-    unvarying_codes_filler,
+    invariant_queries = NULL,
+    invariant_codes = NULL,
+    invariant_codes_filler,
     varying_query = NULL,
     varying_codes = NULL,
-    filler_varying_codes = NULL,
+    varying_codes_filler = NULL,
     date_classifications = NULL){
 
 
@@ -87,11 +87,11 @@ synthetic_data <- function(
     stop("Both prevalence and incidence are provided. Only one of those arguments needs to be provided.")
   }
 
-  if (is.null(unvarying_queries) && is.null(unvarying_codes)){
-    cli::cli_abort("Either unvarying queries for SSB's API, or unvarying codes need to be provided")
+  if (is.null(invariant_queries) && is.null(invariant_codes)){
+    cli::cli_abort("Either invariant queries for SSB's API, or invariant codes need to be provided")
   }
 
-  if (!is.null(varying_codes) && is.null(filler_varying_codes)){
+  if (!is.null(varying_codes) && is.null(varying_codes_filler)){
     stop("You have provided varying codes. Filler varying codes also need to be provided.")
   }
 
@@ -258,8 +258,8 @@ synthetic_data <- function(
     return(result_list)
   }
 
-  # Adds unvarying SSB codes/classifications to individual level data
-  add_unvarying_ssb <- function(data, new_info, user_codes) {
+  # Adds invariant SSB codes/classifications to individual level data
+  add_invariant_ssb <- function(data, new_info, user_codes) {
 
     size <- nrow(data)
     if (is.data.frame(new_info)) {
@@ -341,7 +341,7 @@ synthetic_data <- function(
 
   ### Main function call -------------------------------------------------------
 
-  # Generate relevant individual-level diagnostic cases and some of the time unvarying information (sex, years of birth)
+  # Generate relevant individual-level diagnostic cases and some of the time invariant information (sex, years of birth)
   unique_id_vector <- unique_ids(population_size, prefix = prefix_ids, length_id = length_ids)
   icd10_vector <- diag_codes(family = family_codes, code_type = diag_code_type)
   list_cases <- number_cases(population_size = population_size, pattern = pattern, prevalence = prevalence, diag_years = diag_years, incidence = incidence)
@@ -377,14 +377,14 @@ synthetic_data <- function(
 
 
 
-  # Include relevant time-unvarying data. Uses SSB API, unless the user provides their own unvarying_codes
+  # Include relevant time-invariant data. Uses SSB API, unless the user provides their own invariant_codes
 
-  if (is.null(unvarying_codes)){
-    unvarying_codes <- get_classifications(queries = unvarying_queries)
-    relevant_cases_unvar <- add_unvarying_ssb(diagnostic_df[c(1,4,5)], unvarying_codes, user_codes = F)
+  if (is.null(invariant_codes)){
+    invariant_codes <- get_classifications(queries = invariant_queries)
+    relevant_cases_unvar <- add_invariant_ssb(diagnostic_df[c(1,4,5)], invariant_codes, user_codes = F)
     relevant_cases_unvar <- diagnostic_df_noise |> dplyr::left_join(relevant_cases_unvar, by = c("id"))
-  } else if (!is.null(unvarying_codes)){
-    relevant_cases_unvar <- add_unvarying_ssb(diagnostic_df[c(1,4,5)], unvarying_codes, user_codes = T)
+  } else if (!is.null(invariant_codes)){
+    relevant_cases_unvar <- add_invariant_ssb(diagnostic_df[c(1,4,5)], invariant_codes, user_codes = T)
     relevant_cases_unvar <- diagnostic_df_noise |> dplyr::left_join(relevant_cases_unvar, by = c("id"))
   }
 
@@ -393,7 +393,7 @@ synthetic_data <- function(
 
   if(is.null(varying_codes) & is.null(varying_query)){ # if both are NULL, then we dont need to add any varying codes.
     relevant_cases_unvar_region <- relevant_cases_unvar
-  } else if (is.null(varying_codes) && !is.null(varying_query)){ # if varying_codes NULL and varying_query provided then use varying_query as query for unvarying
+  } else if (is.null(varying_codes) && !is.null(varying_query)){ # if varying_codes NULL and varying_query provided then use varying_query as query for invariant
     varying_codes_api <- get_classifications(queries = varying_query, date = date_classifications)
     varying_codes_api_relevant <- sample(varying_codes_api$code, size = (length(varying_codes_api$code)*.6))
     relevant_cases_unvar_region <- diagnostic_df |> dplyr::mutate(varying_code = sample(varying_codes_api_relevant, nrow(diagnostic_df), replace = TRUE),
@@ -429,9 +429,9 @@ synthetic_data <- function(
   filler_diagnostic_df_noise <- add_diag_noise(data = filler_diagnostic_df[1:3], filler_codes = filler_codes, diag_years = list_cases$diag_years, diag_code_type = diag_code_type)
 
 
-  # Add filler unvarying codes
+  # Add filler invariant codes
 
-  filler_diagnostic_unvar <- add_unvarying_ssb(filler_diagnostic_df[c(1, 4, 5)], unvarying_codes_filler, user_codes = T)
+  filler_diagnostic_unvar <- add_invariant_ssb(filler_diagnostic_df[c(1, 4, 5)], invariant_codes_filler, user_codes = T)
 
   filler_diagnostic_df <- filler_diagnostic_df_noise |> dplyr::left_join(filler_diagnostic_unvar, by = c("id"))
 
@@ -442,25 +442,25 @@ synthetic_data <- function(
 
   # Add filler varying codes
 
-  # If filler_varying_codes NULL, then varying_query need to be given and then use setdiff with varying_codes
+  # If varying_codes_filler NULL, then varying_query need to be given and then use setdiff with varying_codes
 
   if (is.null(varying_codes) && is.null(varying_query)){
     all_cases_updated <- all_cases
-  } else if (is.null(filler_varying_codes) && !is.null(varying_query)) {
+  } else if (is.null(varying_codes_filler) && !is.null(varying_query)) {
     all_cases_var <- all_cases[c(1, 4:6)] |> dplyr::distinct() |> # no noise, only distinct ids
       construct_yearly(years_expand = diag_years)
-    filler_varying_codes <- get_classifications(queries = varying_query, date = date_classifications) |> dplyr::select("code")
-    filler_varying_codes_unique <- setdiff(unique(filler_varying_codes$code), unique(relevant_cases_unvar_region$varying_code))
-    if (length(filler_varying_codes_unique)==0){
-      stop("Filler varying codes are not unique, try providing your own filler codes in 'filler_varying_codes'")
+    varying_codes_filler <- get_classifications(queries = varying_query, date = date_classifications) |> dplyr::select("code")
+    varying_codes_filler_unique <- setdiff(unique(varying_codes_filler$code), unique(relevant_cases_unvar_region$varying_code))
+    if (length(varying_codes_filler_unique)==0){
+      stop("Filler varying codes are not unique, try providing your own filler codes in 'varying_codes_filler'")
     }
-    all_cases_var <- assign_regions(all_cases_var, filler_varying_codes_unique)
+    all_cases_var <- assign_regions(all_cases_var, varying_codes_filler_unique)
     all_cases_updated <-dplyr::rows_update(all_cases_var, relevant_cases_unvar_region[c(1, 4:7)], by = c("id", "year_varying"), unmatched = "ignore")
   }
-  else if (!is.null(filler_varying_codes)){
+  else if (!is.null(varying_codes_filler)){
     all_cases_var <- all_cases[c(1, 4:6)] |> dplyr::distinct() |>
       construct_yearly(years_expand = diag_years)
-    all_cases_var <- assign_regions(all_cases_var, filler_varying_codes)
+    all_cases_var <- assign_regions(all_cases_var, varying_codes_filler)
     all_cases_updated <-dplyr::rows_update(all_cases_var, relevant_cases_unvar_region[c(1, 4:7)], by = c("id", "year_varying"), unmatched = "ignore")
   }
   # Update with relevant codes for diagnostic cases

@@ -17,16 +17,16 @@ simulated_list <- synthetic_data(population_size = 30024,
                                 y_birth = c(2010:2018),
                                 filler_codes = "F",
                                 filler_y_birth = c(2000:2009),
-                                unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-                                unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+                                invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+                                invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
                                 varying_query = "kommuner",
                                 date_classifications = "2016-01-01"
 )
 
 
-invar_df <- simulated_list$invar_df
-var_df <- simulated_list$var_df
-diag_df <- simulated_list$diag_df
+invar_df <- simulated_list$datasets$invar_df
+var_df <- simulated_list$datasets$var_df
+diag_df <- simulated_list$datasets$diag_df
 
 
 usethis::use_data(invar_df, overwrite = TRUE)

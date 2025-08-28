@@ -13,8 +13,8 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
     )
   )
@@ -31,8 +31,8 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
     ), "Either prevalance or incidence has to be provided"
   )
@@ -49,8 +49,8 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   ), "Prevalence rate is not expressed as a proportion between 0 and 1."
   )
@@ -67,7 +67,7 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    varying_query = "fylke"), "Either unvarying queries for SSB's API, or unvarying codes need to be provided")
+    varying_query = "fylke"), "Either invariant queries for SSB's API, or invariant codes need to be provided")
 
   expect_error(synthetic_data(
     population_size = 1000,
@@ -81,8 +81,8 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_codes = c("01", "03")),
     "You have provided varying codes. Filler varying codes also need to be provided."
     )
@@ -99,8 +99,8 @@ test_that("Input validation works", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   ), "Varying query and varying codes arguments are empty. The varying dataset will not be generated.")
 
 expect_error(synthetic_data(
@@ -115,8 +115,8 @@ expect_error(synthetic_data(
   y_birth = c(2010:2018),
   filler_codes = "F",
   filler_y_birth = c(2000:2009),
-  unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"
   ), "Number of elements in incidence vector do not correspond with number of diagnosis years"
 )
@@ -133,8 +133,8 @@ expect_error(synthetic_data(
   y_birth = c(2010:2018),
   filler_codes = "F",
   filler_y_birth = c(2000:2009),
-  unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"))
 
 expect_error(synthetic_data(
@@ -149,8 +149,8 @@ expect_error(synthetic_data(
   y_birth = c(2010:2018),
   filler_codes = "F",
   filler_y_birth = c(2000:2009),
-  unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"), "Not all incidence rates are expressed as a proportion between 0 and 1.")
 
 expect_error(synthetic_data(
@@ -166,8 +166,8 @@ expect_error(synthetic_data(
   y_birth = c(2010:2018),
   filler_codes = "F",
   filler_y_birth = c(2000:2009),
-  unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"
   ), "diag_code_type not valid. Must be either 'icd' or 'icpc'.")
 
@@ -194,8 +194,8 @@ test_that("Correct population size", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   )
   expect_equal(nrow(test_simulate$datasets$invar_df), n_pop)
@@ -220,8 +220,8 @@ test_that("Diagnostic codes", {
     y_birth = c(2010:2018),
     filler_codes = "F",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   )
 
@@ -243,8 +243,8 @@ test_that("Diagnostic codes", {
     y_birth = c(2010:2018),
     filler_codes = "A",
     filler_y_birth = c(2000:2009),
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   )
 
@@ -275,8 +275,8 @@ test_that("Year of birth", {
     y_birth = years_birth,
     filler_codes = "F",
     filler_y_birth = filler_years_birth,
-    unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-    unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+    invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+    invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
     varying_query = "fylke"
   )
 
@@ -301,7 +301,7 @@ test_that("Year of birth", {
 })
 
 
-#Test that unvarying codes are ok (and queries)
+#Test that invariant codes are ok (and queries)
 
 #Test that varying codes are ok (and queries)
 

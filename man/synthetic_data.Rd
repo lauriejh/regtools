@@ -2,7 +2,7 @@
 % Please edit documentation in R/synthetic_data.R
 \name{synthetic_data}
 \alias{synthetic_data}
-\title{Create synthetic diagnostic, time-varying and time-unvarying individual level data}
+\title{Create synthetic diagnostic, time-varying and time-invariant individual level data}
 \usage{
 synthetic_data(
   population_size,
@@ -19,12 +19,12 @@ synthetic_data(
   y_birth,
   filler_codes,
   filler_y_birth,
-  unvarying_queries = NULL,
-  unvarying_codes = NULL,
-  unvarying_codes_filler,
+  invariant_queries = NULL,
+  invariant_codes = NULL,
+  invariant_codes_filler,
   varying_query = NULL,
   varying_codes = NULL,
-  filler_varying_codes = NULL,
+  varying_codes_filler = NULL,
   date_classifications = NULL
 )
 }
@@ -57,21 +57,21 @@ synthetic_data(
 
 \item{filler_y_birth}{A numeric vector. Years to be used as filler years of birth.}
 
-\item{unvarying_queries}{A character vector. Uses Statistics Norway API to retrieve desired unvarying variable classification(s). Example: \code{unvarying_queries = c("innvandringsgrunn")}}
+\item{invariant_queries}{A character vector. Uses Statistics Norway API to retrieve desired invariant variable classification(s). Example: \code{invariant_queries = c("innvandringsgrunn")}}
 
-\item{unvarying_codes}{Data frame or named list. Codes to be used as relevant unvarying codes in dataset.
+\item{invariant_codes}{Data frame or named list. Codes to be used as relevant invariant codes in dataset.
 \itemize{
-\item If a data frame is provided, column names will be considered as the names of the unvarying variables.
-\item If a named list is provided, the name of each element will be consider as the unvarying variable name. Example: \code{unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))}
+\item If a data frame is provided, column names will be considered as the names of the invariant variables.
+\item If a named list is provided, the name of each element will be consider as the invariant variable name. Example: \code{invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ"), "blodtype" = c("A", "B", "AB", "O"))}
 }}
 
-\item{unvarying_codes_filler}{Data frame or named list. Codes to be used as filler unvarying codes in dataset.}
+\item{invariant_codes_filler}{Data frame or named list. Codes to be used as filler invariant codes in dataset.}
 
 \item{varying_query}{A character string. Uses Statistics Norway API to retrieve desired varying variable classification(s). Example: \code{varying_query = c("sivilstand")}}
 
 \item{varying_codes}{A character vector. Codes to be used as relevant varying codes in dataset. Example: \code{varying_codes = as.character(0:4)}}
 
-\item{filler_varying_codes}{A character vector. Codes to be used as filler varying codes in dataset. Example: \code{filler_varying_codes = as.character(5:9)}}
+\item{varying_codes_filler}{A character vector. Codes to be used as filler varying codes in dataset. Example: \code{varying_codes_filler = as.character(5:9)}}
 
 \item{date_classifications}{Date used to retrieve classification system from SSB. Format must be \strong{"yyyy-mm-dd"}}
 }
@@ -81,7 +81,7 @@ Named list containing two lists. The first list named 'datasets' includes the da
 \description{
 #' @description
 The \code{synthetic_data()} function creates individual-level data sets.
-It simulates the structure of diagnostic, time-varying and time-unvarying data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
+It simulates the structure of diagnostic, time-varying and time-invariant data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 }
 \examples{
 simulated_list <- synthetic_data(
@@ -96,8 +96,8 @@ simulated_list <- synthetic_data(
   y_birth = c(2010:2018),
   filler_codes = "F",
   filler_y_birth = c(2000:2009),
- unvarying_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
-  unvarying_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+ invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
   varying_query = "fylke"
 )
 }

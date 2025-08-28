@@ -100,18 +100,18 @@ plot_rates <- function(data,
   regtools_theme <- ggthemes::theme_hc() +
     theme(
       strip.background = element_blank(),
-      strip.text = element_text(color = "black", face = "bold", size = 18),
-      axis.text.x = element_text(size = 14),
-      axis.title.x = element_text(size = 18),
-      axis.title.y = element_text(size = 18),
-      axis.text.y = element_text(size = 16),
+      strip.text = element_text(color = "black", face = "bold", size = 12),
+      axis.text.x = element_text(size = 12),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
       axis.ticks.x = element_blank(),
-      legend.text = element_text(size = 16),
-      legend.title = element_text(size = 18),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
       panel.spacing = unit(2, "lines"),
       legend.position = "right",
-      plot.title = element_text(size = 22, hjust = 0.5),
-      plot.subtitle = element_text(size = 16, hjust = 0.5),
+      plot.title = element_text(size = 16, hjust = 0.5),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
     )
 
 

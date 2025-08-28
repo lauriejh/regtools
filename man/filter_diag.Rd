@@ -11,6 +11,8 @@ filter_diag(
   classification = "icd",
   id_col = "id",
   code_col = "icd_code",
+  date_col = NULL,
+  diag_dates = NULL,
   log_path = NULL
 )
 }
@@ -23,9 +25,13 @@ filter_diag(
 
 \item{classification}{A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".}
 
-\item{id_col}{A character string. Name of ID column in \code{data}, default is "id"}
+\item{id_col}{A character string. Name of the ID column in \code{data}, default is "id"}
 
-\item{code_col}{A character string. Name of column containing the ICD-10 codes in \code{data}, default is "icd_code"}
+\item{code_col}{A character string. Name of the column containing the ICD-10 codes in \code{data}, default is "icd_code"}
+
+\item{date_col}{A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is \code{NULL}.}
+
+\item{diag_dates}{A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.}
 
 \item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
 \itemize{

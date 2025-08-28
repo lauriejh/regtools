@@ -2,7 +2,7 @@
 title: "Introduction to regtools"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{regtools}
+  %\VignetteIndexEntry{Introduction to regtools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
