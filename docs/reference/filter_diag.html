@@ -3,7 +3,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">regtools</a>
 
@@ -19,8 +19,8 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/h-functions.html">Other useful functions</a></li>
-    <li><a class="dropdown-item" href="../articles/Introduction%20to%20regtools.html">Introduction to regtools</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/h-functions.html">Simulate individual-level data</a></li>
+    <li><a class="dropdown-item" href="../articles/other-useful-fun.html">Other useful functions</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -51,6 +51,8 @@
 <span>  classification <span class="op">=</span> <span class="st">"icd"</span>,</span>
 <span>  id_col <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  code_col <span class="op">=</span> <span class="st">"icd_code"</span>,</span>
+<span>  date_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  diag_dates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  log_path <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -76,11 +78,19 @@
 
 
 <dt id="arg-id-col">id_col<a class="anchor" aria-label="anchor" href="#arg-id-col"></a></dt>
-<dd><p>A character string. Name of ID column in <code>data</code>, default is "id"</p></dd>
+<dd><p>A character string. Name of the ID column in <code>data</code>, default is "id"</p></dd>
 
 
 <dt id="arg-code-col">code_col<a class="anchor" aria-label="anchor" href="#arg-code-col"></a></dt>
-<dd><p>A character string. Name of column containing the ICD-10 codes in <code>data</code>, default is "icd_code"</p></dd>
+<dd><p>A character string. Name of the column containing the ICD-10 codes in <code>data</code>, default is "icd_code"</p></dd>
+
+
+<dt id="arg-date-col">date_col<a class="anchor" aria-label="anchor" href="#arg-date-col"></a></dt>
+<dd><p>A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-diag-dates">diag_dates<a class="anchor" aria-label="anchor" href="#arg-diag-dates"></a></dt>
+<dd><p>A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.</p></dd>
 
 
 <dt id="arg-log-path">log_path<a class="anchor" aria-label="anchor" href="#arg-log-path"></a></dt>

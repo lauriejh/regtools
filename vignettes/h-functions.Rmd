@@ -1,8 +1,8 @@
 ---
-title: "Other useful functions"
+title: "Simulate individual-level data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Other useful functions}
+  %\VignetteIndexEntry{Simulate individual-level data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,9 +20,7 @@ l_file <- tempfile()
 cat("Vignette log file", file = l_file)
 ```
 
-This vignette includes additional functions in `regtools` that can be helpful when working with individual-level data in Norway. It is important to note that the `get_population_ssb()` function requires an internet connection and therefore only works outside of TSD (Services for sensitive data). In certain cases described in this vignette, the `synthetic_data()` function also requires an internet connection. 
-
-## Simulate dataset
+This vignette describes the aim and potential use cases of the function `synthetic_data()`. In certain cases described in this vignette, the `synthetic_data()` also requires an internet connection. 
 
 ### Why? 
 
@@ -66,8 +64,6 @@ The arguments `family_codes`, `pattern`, `diag_years`, `sex_vector`, `y_birth`, 
 
 In most cases you will want to specify your own column names and codes for the invariant and time-varying variables (`invariant_codes`, `invariant_codes_filler`, `varying_codes`, `varying_codes_filler`), however the function also supports looking for classification codes in SSB's Statistical Classifications and Codelists (Klass). Both `varying_query` and `invariant_queries` options require an internet connection to retrieve the specified classifications and codelists from SSB. 
 
-With the purpose of facilitating transparency and reproducibility, the `synthetic_data()` function outputs a list with two named lists: "datasets" and "metadata". Within the first list ("datasets"), you will find the diagnostic, time-invariant and time-varying data as separate data frames.
-
 ```{r synthetic-data}
 
 dummy_data <- regtools::synthetic_data(
@@ -87,15 +83,19 @@ dummy_data <- regtools::synthetic_data(
   varying_query = "fylke",
   seed = 123) 
 
-dummy_diag_df <- dummy_data$datasets$diag_df 
+```
 
+With the purpose of facilitating transparency and reproducibility, the `synthetic_data()` function outputs a list with two named lists: "datasets" and "metadata". Within the first list ("datasets"), you will find the diagnostic, time-invariant and time-varying data as separate data frames.
+
+```{r synthetic-datasets}
+str(dummy_data$datasets)
+dummy_diag_df <- dummy_data$datasets$diag_df 
 ```
 
 The second list ("metadata") includes useful metadata like the exact call used to generate the datasets, as well as the values of each argument used in the function call. 
 
 ```{r synthetic-metadata}
 str(dummy_data$metadata)
-
 ```
 
 Let's say you are researcher looking into the co-occurrence of two particular family codes (ICD-10 F8 and F7) in your population of interest. However, there has been a delay in data access. However, using the diagnostic dataset generated in the previous step and some of the functions from `regtools`, it is possible to prepare some analytic scripts before you have access to the actual data in your project. 
@@ -156,22 +156,3 @@ regtools::plot_rates(
   ggplot2::theme(legend.position = "none")
 
 ```
-
-
-
-## Harmonize municipality codes 
-
-Explain geographical composition of Norway now (as of writing in 2025). Explain region reforms and what they do. Example as one of the challenges of working with registries. Consequences for data, and analysis. 
-
-What to do? Use recommendation from SSB to use harmonized regions (possible to use regiosn from xxxx-2024). The full list of geographical classifications can be found at klass SSB. 
-
-Give example of harmonize municipality codes. 
-
-
-## Get population SSB 
-
-If you are working with population based microdata, might be useful to get population counts from SSB. Or could also give you an idea of how big your real dataset is going to be. 
-
-API SSB: not able to run inside of TSD
-
-
