@@ -4,7 +4,7 @@
 \name{regtools-package}
 \alias{regtools}
 \alias{regtools-package}
-\title{regtools: An R package to aid the analysis of Norwegian individual-level health and sociodemographic data.}
+\title{regtools: regtools: Trend/prevalence analysis and visualization tool for mental health diagnoses in Norwegian health registers}
 \description{
 R package to support research activities utilizing Norwegian health records for prevalence and trend analysis of mental health diagnoses in Norway.
 }
@@ -14,18 +14,6 @@ Useful links:
   \item \url{https://github.com/amslala/regtools}
   \item \url{https://amslala.github.io/regtools/}
   \item Report bugs at \url{https://github.com/amslala/regtools/issues}
-}
-
-}
-\author{
-\strong{Maintainer}: Alejandra Martinez Sanchez
-
-Other contributors:
-\itemize{
-  \item Johanne Pettersen
-  \item Helga Ask
-  \item Alexandra Havdahl
-  \item Laurie Hannigan
 }
 
 }

@@ -2,12 +2,8 @@ url: https://amslala.github.io/regtools/
 template:
   bootstrap: 5
   bootswatch: yeti
-
-repo:
-  url:
-    home: https://github.com/amslala/regtools/
-    source: https://github.com/amslala/regtools/blob/HEAD/
-    issue: https://github.com/amslala/regtools/issues/
-    user: https://github.com/
-
+  bslib:
+    base_font: {google: "Atkinson Hyperlegible"}
+    heading_font: {google: "Atkinson Hyperlegible"}
+    code_font: {google: "JetBrains Mono"}
 

@@ -7,7 +7,7 @@
 #' \describe{
 #'   \item{id}{Unique personal identifier}
 #'   \item{code}{ICD-10 codes}
-#'   \item{diag_year}{Year of diagnosis}
+#'   \item{y_diagnosis_first }{Year of first diagnosis}
 #'   \item{sex}{Sex (code)}
 #'   \item{y_birth}{Year of birth}
 #'   \item{innvandringsgrunn}{Reason for immigration (https://www.ssb.no/klass/klassifikasjoner/355)}

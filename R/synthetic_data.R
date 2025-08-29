@@ -1,6 +1,6 @@
 #' Create synthetic diagnostic, time-varying and time-invariant individual level data
 #'
-#' #' @description
+#' @description
 #' The `synthetic_data()` function creates individual-level data sets.
 #' It simulates the structure of diagnostic, time-varying and time-invariant data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 #'

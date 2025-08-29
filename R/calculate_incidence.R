@@ -35,7 +35,7 @@
 #' cat("Example log file", file = log_file)
 #'
 #' pop_df <- tibble::tibble(year = "2012-2013", population = 4500)
-#' linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+#' linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 #'
 #' incidence_df <- calculate_incidence(linked_df,
 #'   type = "cumulative",

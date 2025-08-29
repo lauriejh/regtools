@@ -76,7 +76,7 @@ log_file <- tempfile()
 cat("Example log file", file = log_file)
 
 pop_df <- tibble::tibble(year = c(2012:2020), population = floor(runif(9, min=3000, max=4000)))
-linked_df <- linked_df |> dplyr::rename("year"= "diag_year")
+linked_df <- linked_df |> dplyr::rename("year"= "y_diagnosis_first")
 
 prevalence_df <- calculate_prevalence_series(linked_df,
   time_points = list(2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020),
