@@ -4,7 +4,7 @@
 #' @description
 #'`read_demo_data()` validates the general structure and minimum column requirements for demographic individual-level data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
-#' @param file_path A character string. File path to the demographic data to read. Supports CSV, RDS, RDA and .SAV files.
+#' @param file_path A character string. File path to the demographic data to read. Supports CSV, RDS, RDA, SAV and parquet (dataset) files.
 #' @param data_type A character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.
 #' @param id_col A character string. Name of ID column in data set. Default is "id".
 #' @param date_col A character string. Name of date column in data set, default is "date".
@@ -28,7 +28,7 @@
 
 read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"), id_col = "id", date_col = "date", log_path = NULL, ...) {
 
-  ##### Set up logging #####
+# Logging -----------------------------------------------------------------
   log_threshold(DEBUG)
   log_formatter(formatter_glue)
 
@@ -45,7 +45,9 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   }
 
 
-  ##### Data type and extension #####
+
+# Data type and extension -------------------------------------------------
+
 
 
   if(!data_type %in% c("t_variant", "t_invariant")){
@@ -54,9 +56,10 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   }
 
   file_extension <- tolower(tools::file_ext(file_path))
-  supported_types <- c("csv", "rds", "rda", "sav")
+  supported_types <- c("csv", "rds", "rda", "sav", "parquet")
 
-  ###### Check file existence and type #####
+# Check file existence and type -------------------------------------------
+
   if(!file.exists(file_path)){
     log_error("Diagnositc file does not exist in the specified path: {file_path}")
     stop("File does not exist in the specified path.")
@@ -64,11 +67,20 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
 
 
   if(!file_extension %in% supported_types){
-    log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, or .sav file.")
-    stop("File type not supported. Please provide a .csv, .rds, or .sav file.")
+    log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, .parquet or .sav file.")
+    stop("File type not supported. Please provide a .csv, .rds, .parquet or .sav file.")
   }
 
-  ###### Read files #####
+
+  # Parquet warning ---------------------------------------------------------
+
+  if (file_extension == "parquet"){
+    cli::cli_alert_info("You have provided a parquet file or database. Due to the characteristics of these data objects, the console output and logging will provide minimal information.")
+    cat("\n")
+    logger::log_warn("You have provided a parquet file or database. Due to the characteristics of these data objects, the console output and logging will provide minimal information.")
+  }
+
+  # Read files  -------------------------------------------------------------
   cat("\n")
   message(glue::glue("Reading {file_path} file..."))
   data <- switch(file_extension,
@@ -76,12 +88,14 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
                  rds = readRDS(file_path),
                  rda = load(file_path),
                  sav = haven::read_sav(file_path, ...),
+                 parquet = arrow::open_dataset(file_path),
                  stop("Unsupported file type"))
 
   cli::cli_alert_success("Succesfully read file: {file_path}")
   log_info("Succesfully read file: {file_path}")
 
-  ###### Check columns id #####
+  # Check columns id  -------------------------------------------------------
+
   message("Checking column requirements:")
   log_info("Checking column requirements:")
 
@@ -100,8 +114,12 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   cli::cli_alert_success("ID column")
   log_info("ID column \u2713")
 
-  ###### Time variant: Check date column #####
-  if (data_type == "t_variant"){
+
+
+# Time variant: Check date column  ----------------------------------------
+
+
+    if (file_extension == "t_variant"){
     log_info("Specified data type: t_variant")
     message("Data type: time variant. Checking requirements...")
     date_column <- which(names(data) == date_col)
@@ -118,34 +136,66 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   cat("\n")
   log_info("Date column \u2713")
 
-  ###### Time invariant: check ID duplicates #####
+
+
+# Time invariant: check ID duplicates -------------------------------------
+
   if (data_type == "t_invariant"){
     log_info("Specified data type: t_invariant")
     message("Data type: time invariant. Checking requirements...")
-    if (any(duplicated(data[[id_column]]))) {
-      log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
-      stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+
+    if (file_extension == "parquet"){
+      dupes <- data  |>
+        dplyr::group_by(!!rlang::sym(id_col)) |>
+        dplyr::summarise(count = dplyr::n()) |>
+        dplyr::filter(count > 1) |>
+        dplyr::collect()
+
+      if (nrow(dupes) > 0) {
+        stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+      }
+
+    } else {
+      if (any(duplicated(data[[id_column]]))) {
+        log_error("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+        stop("The dataset contains duplicate IDs. Verify that this dataset only containts persistent characteristics.")
+      }
     }
     log_info("No duplicate IDs \u2713")
     cli::cli_alert_success("No duplicate IDs")
     cat("\n")
   }
 
-  ###### Summary data #####
+
+
+# Summary data ------------------------------------------------------------
+
+  if (file_extension != "parquet"){
+    data <- dplyr::as_tibble(data)
+  }
+
   log_with_separator(glue::glue("Demographic dataset '{file_path}' succesfully read and columns validated"))
   cli::cli_h1("")
   cat(crayon::green$bold("Demographic dataset succesfully read and columns validated\n"))
   cli::cli_h1("Data Summary")
   cat("\n")
   cli::cli_alert_info("Number of rows: {.val {nrow(data)}}. Number of columns: {.val {ncol(data)}}.")
-  cli::cli_alert_info("Unique IDs in dataset: {.val {dplyr::n_distinct(data[[id_col]])}}.")
+
+  unique_ids <- data |>
+    dplyr::summarise(n = dplyr::n_distinct(!!rlang::sym(id_col))) |>
+    dplyr::collect() |>
+    dplyr::pull(n)
+
+  cli::cli_alert_info("Unique IDs in dataset: {.val {unique_ids}}.")
+
   cat("\n")
-  cat(utils::str(data))
+  cat("\n")
+  dplyr::glimpse(data)
   log_info("Data Summary: ")
   log_info("Number of rows: {nrow(data)}")
   log_info("Numner of columns: {ncol(data)}")
   log_formatter(formatter_pander)
   log_info(sapply(data, class))
 
-  return(dplyr::as_tibble(data))
+  return(data)
 }

@@ -14,7 +14,7 @@ read_demo_data(
 )
 }
 \arguments{
-\item{file_path}{A character string. File path to the demographic data to read. Supports CSV, RDS, RDA and .SAV files.}
+\item{file_path}{A character string. File path to the demographic data to read. Supports CSV, RDS, RDA, SAV and parquet (dataset) files.}
 
 \item{data_type}{A character string. Demographic data can either be of type "t_variant" or "t_invariant", necessary to check correct data structure characteristics.}
 

@@ -7,7 +7,7 @@
 #' * Optional, necessary only when `any = TRUE`
 #' @param rm_na Logical. Should rows with NA in the non-filtered columns be removed? Default is `FALSE`
 #' * If `TRUE`, removes observations that have NA in any of the non-filtered columns.
-#' @param any Logical. Filtering option, any year. Default is `FALSE`
+#' @param any Logical. Filtering option, keeps individuals that have ever fulfilled any of the filtering parameters. \bold{Not supported in parquet datasets.} Default is `FALSE`
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
@@ -35,7 +35,7 @@
 
 filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_param, id_col = NULL, any = FALSE, rm_na = TRUE, log_path = NULL){
 
-  ##### Set up logging #####
+# Set up logging ----------------------------------------------------------
   log_threshold(DEBUG)
   log_formatter(formatter_glue)
 
@@ -52,14 +52,27 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
     log_appender(appender_file(log_path))
   }
 
-  ###Validate input ####
+# Validate Input ----------------------------------------------------------
 
   if(any(!names(filter_param) %in% colnames(data))){
     log_error("Not all the specified variables exist in the dataset")
     stop("Not all the specified variables exist in the dataset")
   }
 
-  ###Helper functions####
+
+
+  # Parquet check -----------------------------------------------------------
+
+  if (inherits(data, what = c("ArrowObject"))){
+    cli::cli_alert_info("Your data is a Arrow dataset, due to nature of this data object the output in the console and log will be minimal.")
+    if(any == TRUE){
+      cli::cli_abort("Filtering option 'any' not supported yet for parquet datasets \U2639")
+    }
+  }
+
+# Helper functions --------------------------------------------------------
+
+
   remove_na <- function(data){
     n_missing <- data |>
       dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na)) |>
@@ -92,10 +105,13 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
         df |>  dplyr::filter(!!rlang::sym(col) %in% filter_param[[col]])
       }
     }, .init = data)
-    }
+  }
 
 
-  ####Main filtering####
+
+
+# Main filtering ----------------------------------------------------------
+
   if(data_type == "t_invariant"){
     filtered_data <- do_filter(data, filter_param)
     message("Filtering time-invariant dataset...")
@@ -115,12 +131,19 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
 
 
 
-  ####NA filtering####
+# NA filtering ------------------------------------------------------------
+
+
   if(rm_na) {
     filtered_data <- remove_na(filtered_data)
   }
 
-  #### Data summary ####
+  if(inherits(filtered_data, what = "arrow_dplyr_query")){
+    filtered_data<- filtered_data |> dplyr::collect()
+  }
+
+# Data summary  -----------------------------------------------------------
+
   cli::cli_h1("")
   cat(crayon::green$bold("Demographic dataset succesfully filtered\n"))
   cat("\n")
@@ -129,7 +152,7 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
   cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data)}}")
   cli::cli_alert_info("Remaining number of columns: {.val {ncol(filtered_data)}}")
   cat("\n")
-  cat(utils::str(filtered_data))
+  dplyr::glimpse(filtered_data)
 
   # Logs
   log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
@@ -137,6 +160,8 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
   log_info("Remaining number of columns: {ncol(filtered_data)}")
   log_formatter(formatter_pander)
   log_info(sapply(filtered_data, class))
+
+
 
   return(filtered_data)
 }
