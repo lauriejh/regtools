@@ -77,10 +77,17 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
   }
 
 
+
+# Parquet check -----------------------------------------------------------
+
+if (inherits(data, what = c("ArrowObject"))){
+  cli::cli_alert_info("Your data is a Arrow dataset, due to nature of this data object the output in the console and log will be minimal.")
+}
+
 # Check if desired code exists in ICD-10 or ICPC-2 database ---------------
 
 
-  message("Checking that code exists in ICD-10 code list...")
+  message("Checking that code exists in ICD-10 or ICPC-2 code list...")
 
   if(!is.null(pattern_codes)){
     type_code <- "pattern"
@@ -116,8 +123,8 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
         type_code,
         "pattern" = pattern_codes,
         "exact"   = codes)
-      cli::cli_alert_success("Selected ICD-10 codes are valid: {paste(valid_codes, collapse = ', ')}")
-      log_info("Selected ICD-10 codes ({paste(valid_codes, collapse = ', ')}) are valid")
+      cli::cli_alert_success("Selected codes are valid: {paste(valid_codes, collapse = ', ')}")
+      log_info("Selected codes ({paste(valid_codes, collapse = ', ')}) are valid")
       cat("\n")
     }
 
@@ -125,7 +132,7 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
 # Check if desired code exists in data set and filter ---------------------
 
 
-  message("Filtering data by selected ICD-10 codes...")
+  message("Filtering data by selected codes...")
   if (!(all(codes %in% data[[code_col]]))){
     cli::cli_alert_warning("Warning: The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
     log_warn("The following codes are not found in the dataset: {paste(codes[!codes %in% data[[code_col]]], collapse = ', ')}")
@@ -177,10 +184,25 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
   cli::cli_h3("After filtering:")
   cli::cli_alert_info("Remaining number of rows: {.val {nrow(filtered_data)}}")
   cli::cli_alert_info("Remaining number of columns: {.val {ncol(filtered_data)}}")
-  cli::cli_alert_info("Unique IDs in dataset: {.val {dplyr::n_distinct(filtered_data[[id_col]])}}")
-  cli::cli_alert_info("ICD-10 codes in dataset: {.pkg {unique(filtered_data$code, fromLast = T)}}")
+
+  unique_ids <- filtered_data |>
+    dplyr::summarise(n = dplyr::n_distinct(!!rlang::sym(id_col))) |>
+    dplyr::collect() |>
+    dplyr::pull(n)
+
+  cli::cli_alert_info("Unique IDs in dataset: {.val {unique_ids}}.")
+
+  unique_codes <- filtered_data |>
+    dplyr::summarise(n = dplyr::n_distinct(!!rlang::sym(code_col))) |>
+    dplyr::collect() |>
+    dplyr::pull(n)
+
+  cli::cli_alert_info("ICD-10 codes in dataset: {.val {unique_codes}}")
+
+
+
   cat("\n")
-  cat(utils::str(filtered_data))
+  dplyr::glimpse(filtered_data)
 
   # Logs
   log_with_separator("Diagnostic dataset '{substitute(data)}' succesfully filtered")

@@ -15,7 +15,7 @@ read_diag_data(
 )
 }
 \arguments{
-\item{file_path}{A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA and .SAV files.}
+\item{file_path}{A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA, SAV and parquet (database) files.}
 
 \item{id_col}{A character string. Name of ID column in data set, default is "id".}
 

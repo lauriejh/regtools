@@ -26,7 +26,7 @@ filter_demo(
 \item Optional, necessary only when \code{any = TRUE}
 }}
 
-\item{any}{Logical. Filtering option, any year. Default is \code{FALSE}}
+\item{any}{Logical. Filtering option, keeps individuals that have ever fulfilled any of the filtering parameters. \bold{Not supported in parquet datasets.} Default is \code{FALSE}}
 
 \item{rm_na}{Logical. Should rows with NA in the non-filtered columns be removed? Default is \code{FALSE}
 \itemize{
