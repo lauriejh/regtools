@@ -22,7 +22,7 @@ The goal of regtools is to aid researchers working with individual-level data in
 
 ## Installation
 
-You can install the development version of regtools from [GitHub](https://github.com/) with:
+You can install the development version of regtools from [GitHub](https://github.com/) with: 
 
 ``` r
 # install.packages("pak")

@@ -1,7 +1,6 @@
 url: https://amslala.github.io/regtools/
 template:
   bootstrap: 5
-  bootswatch: yeti
   bslib:
     base_font: {google: "Atkinson Hyperlegible"}
     heading_font: {google: "Atkinson Hyperlegible"}
