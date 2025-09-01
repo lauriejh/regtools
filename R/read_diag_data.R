@@ -4,7 +4,7 @@
 #'`read_diag_data()` validates the general structure and minimum column requirements for diagnostic data.
 #' The input data sets must be CSV, RDS, RDA or .SAV files.
 #'
-#' @param file_path A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA and .SAV files.
+#' @param file_path A character string. File path to the diagnostic data to read. Supports CSV, RDS, RDA, SAV and parquet (database) files.
 #' @param id_col A character string. Name of ID column in data set, default is "id".
 #' @param date_col A character string. Name of date column in data set, default is "date".
 #' @param code_col A character string. Name of diagnostic codes column in data set, default is "code".
@@ -31,10 +31,11 @@
 #'
 
 read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col = "code", log_path = NULL, remove_extra = FALSE, ...) {
-  file_extension <- tolower(tools::file_ext(file_path))
-  supported_types <- c("csv", "rds", "rda", "sav")
 
-  ##### Set up logging #####
+
+# Logging -----------------------------------------------------------------
+
+
   logger::log_threshold(DEBUG)
   logger::log_formatter(formatter_glue)
 
@@ -52,7 +53,11 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   }
 
 
-  ###### Check file existence and type #####
+# Check file existence and type -------------------------------------------
+
+  file_extension <- tolower(tools::file_ext(file_path))
+  supported_types <- c("csv", "rds", "rda", "sav", "parquet")
+
   if(!file.exists(file_path)){
     logger::log_error("Diagnositc file does not exist in the specified path: {file_path}")
     stop("File does not exist in the specified path.")
@@ -60,24 +65,40 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
 
 
   if(!file_extension %in% supported_types){
-    logger::log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, or .sav file.")
-    stop("File type not supported. Please provide a .csv, .rds, or .sav file.")
+    logger::log_error("{file_extension}. File type not supported. Please provide a .csv, .rds, .parquet or .sav file.")
+    stop("File type not supported. Please provide a .csv, .rds, .parquet or .sav file.")
   }
 
 
-  ###### Read files #####
+
+# Parquet warning ---------------------------------------------------------
+
+  if (file_extension == "parquet"){
+    cli::cli_alert_info("You have provided a parquet file or database. Due to the characteristics of these data objects, the console output and logging will provide minimal information.")
+    cat("\n")
+    logger::log_warn("You have provided a parquet file or database. Due to the characteristics of these data objects, the console output and logging will provide minimal information.")
+  }
+
+# Read files  -------------------------------------------------------------
+
   message(glue::glue("Reading {file_path} file..."))
   data <- switch(file_extension,
                  csv = utils::read.csv(file_path, ...),
                  rds = readRDS(file_path),
                  rda = load(file_path),
                  sav = haven::read_sav(file_path, ...),
+                 parquet = arrow::open_dataset(file_path),
                  stop("Unsupported file type"))
 
   cli::cli_alert_success("Succesfully read file: {file_path}")
+  cat("\n")
 
-  ###### Check columns id #####
+
+
+# Check columns id  -------------------------------------------------------
+
   message("Checking column requirements:")
+  cat("\n")
   logger::log_info("Checking column requirements:")
 
   id_column <- which(names(data) == id_col)
@@ -87,16 +108,13 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     stop(glue::glue("The dataset must contain a column named {id_col}"))
   }
 
-  # if (!is.character(data[[id_column]])) {
-  #   log_error("The {id_column} column must be of type character.")
-  #   stop("The 'ID' or 'id' column must be of type character.")
-  # }
-
   cli::cli_alert_success("ID column")
   logger::log_info("ID column \u2713")
 
 
-  ###### Check columns code #####
+# Check columns code ------------------------------------------------------
+
+
   code_column <- which(names(data) == code_col)
   if (length(code_column) == 0) {
     logger::log_error("The dataset must contain a column named: {code_col}")
@@ -110,7 +128,10 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   cli::cli_alert_success("Code column")
   logger::log_info("Code column \u2713")
 
-  ###### Check date column #####
+
+# Check date column -------------------------------------------------------
+
+
   date_column <- which(names(data) == date_col)
   if (length(date_column) == 0) {
     logger::log_error("The dataset must contain a column named: {date_col}")
@@ -126,7 +147,10 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   cat("\n")
 
 
-  ###### Extra columns #####
+
+# Extra columns -----------------------------------------------------------
+
+
   required_columns <- c(date_col, id_col, code_col)
   extra_columns <- setdiff(names(data), required_columns)
 
@@ -144,7 +168,14 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
     }
   }
 
-  ###### Summary data #####
+
+
+# Summary data ------------------------------------------------------------
+
+
+  if (file_extension != "parquet"){
+    data <- dplyr::as_tibble(data)
+  }
 
   logger::log_with_separator(glue::glue("Diagnostic dataset '{file_path}' succesfully read and columns validated"))
   cli::cli_h1("")
@@ -154,14 +185,13 @@ read_diag_data <- function(file_path, id_col = "id", date_col = "date", code_col
   cli::cli_alert_info("Number of rows: {.val {nrow(data)}}. Number of columns: {.val {ncol(data)}}.")
   cat("\n")
   cat("\n")
-  cat(utils::str(data))
+  dplyr::glimpse(data)
   logger::log_info("Data Summary: ")
   logger::log_info("Number of rows: {nrow(data)}")
   logger::log_info("Numner of columns: {ncol(data)}")
   logger::log_formatter(formatter_pander)
   logger::log_info(sapply(data, class))
-
-  return(dplyr::as_tibble(data))
+  return(data)
 }
 
 
