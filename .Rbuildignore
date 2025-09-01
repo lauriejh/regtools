@@ -9,5 +9,5 @@
 ^pkgdown$
 ^\.github$
 ^data-raw$
-^docs$
+^log$
 ^README\.Rmd$

@@ -79,7 +79,6 @@ synthetic_data(
 Named list containing two lists. The first list named 'datasets' includes the data frames with individual level diagnostic and sociodemographic data. The second list named 'metadata' includes the exact function call and arguments given by the user
 }
 \description{
-#' @description
 The \code{synthetic_data()} function creates individual-level data sets.
 It simulates the structure of diagnostic, time-varying and time-invariant data you might commonly encounter when working with Norwegian medical and sociodemographic data (e.g. NPR and SSB)
 }
