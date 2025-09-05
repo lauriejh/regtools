@@ -6,7 +6,13 @@
     Message
       Reading <PATH> file...
       v Succesfully read file: <PATH>
+    Output
+      
+    Message
       Checking column requirements:
+    Output
+      
+    Message
       v ID column
       v Code column
       v Date column
@@ -27,8 +33,9 @@
     Output
       
       
-      'data.frame':	120256 obs. of  3 variables:
-       $ id       : chr  "P000000704" "P000000704" "P000000704" "P000000704" ...
-       $ code     : chr  "F4522" "F305" "F65" "F840" ...
-       $ diag_year: int  2016 2020 2014 2017 2014 2017 2018 2020 2016 2013 ...
+      Rows: 120,256
+      Columns: 3
+      $ id        <chr> "P000000704", "P000000704", "P000000704", "P000000704", "P00~
+      $ code      <chr> "F4522", "F305", "F65", "F840", "F728", "F450", "F187", "F73~
+      $ diag_year <int> 2016, 2020, 2014, 2017, 2014, 2017, 2018, 2020, 2016, 2013, ~
 

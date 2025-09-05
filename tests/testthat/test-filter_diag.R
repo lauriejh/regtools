@@ -123,3 +123,53 @@ test_that("Pattern vs exact codes work", {
 
 })
 
+
+
+# NAs  --------------------------------------------------------------------
+
+
+
+test_that("Remove NAs correctly in both dataframes and parquet datasets", {
+  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+  test_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
+
+  na_diag <- diag_df
+  na_diag$diag_year[na_diag$diag_year == 2016] <- NA
+
+  tp <- file.path(withr::local_tempdir(), "dataset_diag.parquet")
+  arrow::write_dataset(na_diag, tp)
+
+  df_nas <- read_diag_data(
+    tp,
+    id_col = "id",
+    date_col = "diag_year",
+    code_col = "code",
+    log_path = l_path,
+    remove_extra = FALSE
+  )
+
+  df_filtered <- filter_diag(
+    data = df_nas,
+    pattern_codes = c("F45", "F84"),
+    id_col = "id",
+    code_col = "code",
+    log_path = l_path,
+    rm_na = TRUE
+  )
+
+  df_filtered_nas <- filter_diag(
+    data = df_nas,
+    pattern_codes = c("F45", "F84"),
+    id_col = "id",
+    code_col = "code",
+    log_path = l_path,
+    rm_na = FALSE
+  )
+
+  expect_lt(nrow(df_filtered), nrow(df_filtered_nas))
+
+
+  })
+
+
+

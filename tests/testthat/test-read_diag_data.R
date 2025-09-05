@@ -173,7 +173,7 @@ test_that("Error when unsupported file extensions and nonexistent files", {
       code_col = "code",
       log_path = l_path
     ),
-    "File type not supported. Please provide a .csv, .rds, or .sav file."
+    "File type not supported. Please provide a .csv, .rds, .parquet or .sav file."
   )
 
   tp_empty <- file.path(td, "empty.csv")

@@ -70,15 +70,15 @@ test_that("Error when missing required columns", {
   )
 
   # create and save wrong CSV (no date and variant)
-  wrong_csv <- var_df
-  wrong_csv$year_varying <- NULL
-  wrong_path <- file.path(td, "wrong.csv")
+  wrong_csv_date <- var_df
+  wrong_csv_date $year_varying <- NULL
+  wrong_path_date <- file.path(td, "wrong.csv")
 
-  utils::write.csv(wrong_csv, wrong_path, row.names = FALSE)
+  utils::write.csv(wrong_csv_date, wrong_path_date, row.names = FALSE)
 
   expect_error(
     read_demo_data(
-      wrong_path,
+      wrong_path_date,
       data_type = "t_variant",
       id_col = "id",
       date_col = "year_varying",
@@ -109,7 +109,7 @@ test_that("Error when unsupported file extensions and nonexistent files", {
       date_col = "year_varying",
       log_path = l_path
     ),
-    "File type not supported. Please provide a .csv, .rds, or .sav file."
+    "File type not supported. Please provide a .csv, .rds, .parquet or .sav file."
   )
 
   tp_empty <- file.path(td, "empty.csv")
@@ -194,7 +194,6 @@ test_that("CLI stable for sample CSV", {
         file_path = test_csv,
         data_type = "t_invariant",
         id_col = "id",
-        date_col = "diag_year",
         log = log_path
       )
     )
