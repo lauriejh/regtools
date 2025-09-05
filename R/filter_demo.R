@@ -74,9 +74,7 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
 
 
   remove_na <- function(data){
-    n_missing <- data |>
-      dplyr::filter(dplyr::if_any(tidyselect::everything(), is.na)) |>
-      nrow()
+    n_missing <- length(which(complete.cases(data)))
 
     if(sum(n_missing) > 0){
       cat("\n")
@@ -133,13 +131,12 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
 
 # NA filtering ------------------------------------------------------------
 
+  if(inherits(filtered_data, what = "arrow_dplyr_query")){
+    filtered_data<- filtered_data |> dplyr::collect()
+  }
 
   if(rm_na) {
     filtered_data <- remove_na(filtered_data)
-  }
-
-  if(inherits(filtered_data, what = "arrow_dplyr_query")){
-    filtered_data<- filtered_data |> dplyr::collect()
   }
 
 # Data summary  -----------------------------------------------------------

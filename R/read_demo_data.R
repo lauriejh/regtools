@@ -118,25 +118,20 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
 
 # Time variant: Check date column  ----------------------------------------
 
-
-    if (file_extension == "t_variant"){
+  if (data_type == "t_variant"){
     log_info("Specified data type: t_variant")
     message("Data type: time variant. Checking requirements...")
+
     date_column <- which(names(data) == date_col)
+
     if (length(date_column) == 0) {
       log_error("The dataset must contain a column named: {date_col}")
       stop(glue::glue("The dataset must contain a column named: {date_col}"))
     }
-    # if (!lubridate::is.Date(data[[date_column]]) && !is.numeric(data[[date_column]])) {
-    #   log_error("The 'date' column must be of type date or numeric")
-    #   stop("The 'date' column must be of type date or numeric")
-    # }
+    cli::cli_alert_success("Date column")
+    cat("\n")
+    log_info("Date column \u2713")
   }
-  cli::cli_alert_success("Date column")
-  cat("\n")
-  log_info("Date column \u2713")
-
-
 
 # Time invariant: check ID duplicates -------------------------------------
 

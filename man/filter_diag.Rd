@@ -13,6 +13,7 @@ filter_diag(
   code_col = "icd_code",
   date_col = NULL,
   diag_dates = NULL,
+  rm_na = TRUE,
   log_path = NULL
 )
 }
@@ -32,6 +33,11 @@ filter_diag(
 \item{date_col}{A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is \code{NULL}.}
 
 \item{diag_dates}{A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.}
+
+\item{rm_na}{Logical. Should rows with NA in the non-filtered columns be removed? Default is \code{FALSE}
+\itemize{
+\item If \code{TRUE}, removes observations that have NA in any of the non-filtered columns.
+}}
 
 \item{log_path}{A character string. Path to the log file to append function logs. Default is \code{NULL}.
 \itemize{
@@ -55,7 +61,8 @@ filtered_diag_df <-  filter_diag(data = diag_df,
                                  pattern_codes = c("F45", "F84"),
                                  id_col = "id",
                                  code_col = "code",
-                                 log_path = log_file
+                                 log_path = log_file,
+                                 rm_na = FALSE
                                  )
 
 }

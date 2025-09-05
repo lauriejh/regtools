@@ -8,6 +8,8 @@
 #' @param code_col A character string. Name of the column containing the ICD-10 codes in `data`, default is "icd_code"
 #' @param date_col A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is `NULL`.
 #' @param diag_dates A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.
+#' @param rm_na Logical. Should rows with NA in the non-filtered columns be removed? Default is `FALSE`
+#' * If `TRUE`, removes observations that have NA in any of the non-filtered columns.
 #' @param log_path A character string. Path to the log file to append function logs. Default is `NULL`.
 #' * If `NULL`, a new directory `/log` and file is created in the current working directory.
 #'
@@ -24,14 +26,15 @@
 #'                                  pattern_codes = c("F45", "F84"),
 #'                                  id_col = "id",
 #'                                  code_col = "code",
-#'                                  log_path = log_file
+#'                                  log_path = log_file,
+#'                                  rm_na = FALSE
 #'                                  )
 #'
 #' @export
 #' @import logger
 #' @importFrom rlang .data
 
-filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", date_col = NULL, diag_dates = NULL, log_path = NULL){
+filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", date_col = NULL, diag_dates = NULL, rm_na = TRUE, log_path = NULL){
 
 # Set up logging ----------------------------------------------------------
 
@@ -77,6 +80,26 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
   }
 
 
+# Remove NAs helper -------------------------------------------------------
+
+  remove_na <- function(data){
+    n_missing <- length(which(complete.cases(data)))
+
+    if(sum(n_missing) > 0){
+      cat("\n")
+      message(glue::glue("Removing observations containing NAs in any column... "))
+      data_no_na <- data |>
+        tidyr::drop_na()
+      cli::cli_alert_success("Removed {.val {sum(n_missing)}} rows with NAs.")
+      log_info("Removed {sum(n_missing)} rows with NAs.")
+    } else {
+      cat("\n")
+      cli::cli_alert_warning("The dataset has no NAs or they are coded in a different format.")
+      log_warn("The dataset has no NAs or they are coded in a different format.")
+      data_no_na <- data
+    }
+    return(data_no_na)
+  }
 
 # Parquet check -----------------------------------------------------------
 
@@ -171,6 +194,18 @@ if (inherits(data, what = c("ArrowObject"))){
     filtered_data[[date_col]] <- as.character(filtered_data[[date_col]])
     filtered_data <- filtered_data |>
       dplyr::filter(.data[[date_col]] %in% diag_dates)
+  }
+
+
+
+# Filter NAs --------------------------------------------------------------
+
+  if(inherits(filtered_data, what = "arrow_dplyr_query")){
+    filtered_data<- filtered_data |> dplyr::collect()
+  }
+
+  if(rm_na) {
+    filtered_data <- remove_na(filtered_data)
   }
 
 # Summary data: CLI  -------------------------------------------------------
