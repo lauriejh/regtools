@@ -1,8 +1,44 @@
 url: https://amslala.github.io/regtools/
 template:
   bootstrap: 5
+  theme: kate
   bslib:
     base_font: {google: "Atkinson Hyperlegible"}
     heading_font: {google: "Atkinson Hyperlegible"}
     code_font: {google: "JetBrains Mono"}
+    primary: "#393c61"
+navbar:
+  bg: primary
+footer:
+  structure:
+    left: developed_by
+    right: [built_with, legal]
+  components:
+    legal: Provided without **any warranty**.
+
+reference:
+- title: "Main functions"
+  contents:
+  - read_diag_data
+  - read_demo_data
+  - filter_diag
+  - filter_demo
+  - curate_diag
+  - link_diag_demo
+  - calculate_incidence
+  - calculate_prevalence
+  - calculate_prevalence_series
+  - plot_rates
+- title: "Helper functions"
+  contents:
+  - synthetic_data
+  - get_population_ssb
+  - harmonize_municipality_codes
+- title: "Example datasets"
+  contents:
+  - diag_df
+  - invar_df
+  - var_df
+  - linked_df
+  - kommuner_2016
 
