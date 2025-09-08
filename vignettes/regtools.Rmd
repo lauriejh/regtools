@@ -20,7 +20,7 @@ library(regtools)
 
 **regtools** aims to facilitate the manipulation, analysis and visualization of health and population registers and capitalize on their characteristics.
 
-Researchers with access to microdata from health and/or administrative registers in Norway can use {regtools} to streamline their initial analytical process. The package includes functions for data preprocessing, linkage, and the computation of relevant statistics and visualizations, such as stratified frequencies, incidence and prevalence rates.
+Researchers with access to microdata from health and/or administrative registers in Norway can use {regtools} to streamline their initial analytical process. The package includes functions for data pre-processing, linkage, and the computation of relevant statistics and visualizations, such as stratified frequencies, incidence and prevalence rates.
 
 This vignette introduces you to regtool's main functions and shows examples of how to use them with individual-level data.
 
@@ -71,7 +71,7 @@ cat("Vignette log file", file = log_file)
 
 Generally, researchers working with individual level registry data (in Norway) will find their datasets divided (and delivered) in three different categories:
 
--   **Diagnostic data:** normally including unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
+-   **Diagnostic data:** at least including unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
 
 -   **Time-invariandata:** sociodemographic data such as date of birth, immigration background, etc.
 
@@ -81,23 +81,27 @@ Assuming a researcher would want to compute sex-stratified prevalence rates for 
 
 The functions `read_demo_data()` and `read_diag_data()` check the dataset's minimum requirements, as well as giving a quick summary of the dataset's structure. You need to specify the column names corresponding to the id and date variables (see the function documentation for more info).
 
+<!-- Mention what type of files are supported, and refere to the parquet vignette for more information about it. It is recommended for performance, that large datasets stored as parquet files and then read/filtered -->
 
 ```{r read-diag, echo=TRUE}
 diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
 
-diag_data_validated <- regtools::read_diag_data(diag_csv,
-                                                 id_col = "id",
-                                                 date_col = "diag_year",
-                                                 log_path = log_file)
+diag_data_validated <- regtools::read_diag_data(
+  diag_csv,
+  id_col = "id",
+  date_col = "diag_year",
+  log_path = log_file)
 ```
 
 ```{r read-demo, echo=TRUE}
 demo_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
 
-demo_data_validated <- read_demo_data(demo_csv, 
-                                      data_type = "t_invariant",
-                                      id_col = "id", 
-                                      log_path = log_file)
+demo_data_validated <- read_demo_data(
+  demo_csv, 
+  data_type = "t_invariant",
+  id_col = "id", 
+  log_path = log_file)
+
 ```
 
 Note: the read functions only check for minimum requirements, your real datasets can contain additional variables/columns. For example, NPR sometimes includes sex and age information for each individual in the same diagnostic dataset. 
@@ -106,52 +110,61 @@ Note: the read functions only check for minimum requirements, your real datasets
 
 In most cases, the real microdata you will be working with is very large. Therefore, regtools encourages a filter first approach. The following functions are useful to keep only relevant cases to your analysis. 
 
+<!-- Mention again that parquet files are going to be more efficient when filtering data -->
+
 ### Filter diagnostic data 
 
 To filter the diagnostic dataset, you should use `filter_diag()`. This function validates that the ICD-10 codes you are indeed valid. If they are valid, it filters the given diagnostic dataset to keep only the observations with the relevant ICD-10 codes. 
 
+<!-- Include that also supports ICP-2 codes in the case of primary care data  -->
+
 For example, to keep only the observations that either have the ICD-10 code *F840* or *F841*: 
 
 ```{r filter-diag-codes, echo = TRUE}
-filtered_diag_codes <-  filter_diag(data = diag_df,
-                                    codes = c("F840", "F841"),
-                                    id_col = "id",
-                                    code_col = "code",
-                                    log_path = log_file
-                                    )
+filtered_diag_codes <-  filter_diag(
+  data = diag_df,
+  codes = c("F840", "F841"),
+  id_col = "id",
+  code_col = "code",
+  log_path = log_file)
 
 ```
 
 Alternatively, it is also possible to filter by pattern/family of codes. For example, to keep the observations with all codes starting with *F45* or *F84*: 
 
 ```{r filter-diag-pattern, echo = TRUE}
-filtered_diag_pattern <-  filter_diag(data = diag_df,
-                                      pattern_codes = c("F45", "F84"),
-                                      id_col = "id",
-                                      code_col = "code",
-                                      log_path = log_file
-                                      )
+filtered_diag_pattern <-  filter_diag(
+  data = diag_df,
+  pattern_codes = c("F45", "F84"),
+  id_col = "id",
+  code_col = "code",
+  log_path = log_file )
 
 ```
 
 To further refine the filter of a diagnostic dataset, the `curate_diag()` provides additional options. For example, you can keep only individuals (identified by an unique person identifier) with at least a minimum number of diagnostic events or only keep first-time diagnosis (when a date variable is available). Look at the specific function's documentation for more info.
 data frame
 
+<!-- Give concrete example of curate diag -->
+
 
 ### Filter time-varying and time-invariant data 
 
 To filter both the time-varying and time-invariant datasets, you should use `filter_demo()`. This function filters the given dataset to keep only the observations with the relevant characteristics. 
 
-For example, to only keep observations where the individuals have resided in the municiplality "1146" between the years 2012-2015: 
+For example, to only keep observations where the individuals have resided in the municipality "1146" between the years 2012-2015: 
+
+<!-- Need to change example, there are no observations with those codes  -->
 
 ```{r filter-var, echo = TRUE}
-filtered_var <- filter_demo(data = var_df,
-                            data_type = "t_variant",
-                            filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
-                            log_path = log_file)
+filtered_var <- filter_demo(
+  data = var_df,
+  data_type = "t_variant",
+  filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
+  log_path = log_file)
 
 ```
-
+ 
 
 In the case of time-invariant data, to keep only individuals with year of birth between 2006-2008 and reason of immigration "FAMM" or "UTD": 
 

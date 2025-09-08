@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Codecov test
+coverage](https://codecov.io/gh/amslala/regtools/graph/badge.svg)](https://app.codecov.io/gh/amslala/regtools)
 <!-- badges: end -->
 
 The goal of regtools is to aid researchers working with individual-level

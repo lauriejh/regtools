@@ -83,7 +83,7 @@ filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification
 # Remove NAs helper -------------------------------------------------------
 
   remove_na <- function(data){
-    n_missing <- length(which(complete.cases(data)))
+    n_missing <- length(which(stats::complete.cases(data)))
 
     if(sum(n_missing) > 0){
       cat("\n")
