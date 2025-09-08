@@ -13,6 +13,7 @@ BugReports: https://github.com/amslala/regtools/issues
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Imports: 
+    arrow,
     binom,
     cli,
     crayon,
