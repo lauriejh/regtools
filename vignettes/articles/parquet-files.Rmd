@@ -1,0 +1,173 @@
+---
+title: "Working with parquet datasets"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(regtools)
+```
+
+Apache Parquet is an open-source data storage format that efficiently handles large complex data. In contrast to CSV files, `.parquet` files are column-oriented, making them storage efficient. Additionally, the columnar storage of parquet files avoids having to read the full datasets in memory.  This last feature of parquet files makes them ideal to work in R with larger than memory datasets. 
+
+Efficiently storing and processing large individual-level data is one important challenge that researchers commonly face. Although parquet files (or other column-oriented tabular data) are becoming more popular in the data-analysis world, they are not as commonly used in research. For instance, it is still common for Norwegian register microdata (e.g. NPR) to be delivered as chunked CSVs. 
+
+To enable users to work with larger-than-memory data within `regtools`, the functions `read_diag_data()` `read_demo_data()` `filter_diag()` `filter_demo()` support parquet files. This is particularly helpful to speed-up the filtering steps in very large data sets. In the next example, it is shown how to write/read parquet datasets and use them as part of the `regtools` analytical pipeline. 
+
+### Writing parquet files 
+
+First, we generate a simulated diagnostic dataset with ~8.3 million rows:
+
+```{r}
+
+simulated_list <- synthetic_data(
+  population_size = 2100000,
+  prefix_ids = "P0",
+  length_ids = 8,
+  family_codes = c("F45", "F84"),
+  pattern = "increase",
+  prevalence = .023,
+  diag_years  = c(2012:2015),
+  sex_vector = c(0, 1),
+  y_birth = c(2010:2015),
+  filler_codes = "F",
+  filler_y_birth = c(2000:2009),
+  invariant_codes = list("innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  invariant_codes_filler = list("innvandringsgrunn" = c("FAMM", "UTD")),
+  seed = 12
+)
+
+new_df <- simulated_list$datasets$diag_df
+
+```
+
+We proceed to save the diagnostic dataset as both as .csv and .parquet files. In the case of parquet files, we will use the function `arrow::write_dataset()`: 
+
+```{r save-csv-parquet}
+
+# Save as csv 
+td <- withr::local_tempdir()
+tp_csv <- file.path(td, "new_df.csv")
+write.csv(new_df, tp_csv, row.names = FALSE)
+
+
+
+# Save as parquet 
+tp_parquet <- file.path(td, "new_df.parquet")
+arrow::write_dataset(new_df, path = tp_parquet, format = "parquet")
+
+```
+
+For very large datasets, it is also possible to partition the data and save it across different parquet files. There are no defined guidelines on how to partition data, as it is highly dependent on the type of data and structure you have. As a general rule, it is recommended to avoid creating very small (<20MB) and very large partitions (>2GB). Additionally, it is a good idea to try to partition by any variable you will use to filter by. 
+
+If we are planning to later use the `filter_diag()` function to filter only the diagnosis given in the years 2012 and 2013, we could partition by  grouping our data by the variable `diag_year`:  
+
+```{r save-parquet-partition, eval = FALSE}
+
+tp_parquet_part <- file.path(td, "new_df_partition.parquet")
+
+new_df |> 
+  dplyr::group_by(diag_year) |> 
+  arrow::write_dataset(path = tp_parquet_part, format = "parquet")
+
+```
+
+
+### Reading parquet files 
+
+To read a parquet dataset, it is possible to use the `read_diag_data()` as you would with a .csv or .sav files: 
+
+```{r read-parquet-diag}
+rm(new_df)
+l_path <- withr::local_tempfile(fileext = ".log", lines = "Parquet log")
+
+diag_parquet <- read_diag_data(
+  file_path = tp_parquet, 
+  id_col = "id", 
+  date_col = "diag_year",
+  code_col = "code",
+  log_path = l_path)
+
+```
+
+
+### Filtering 
+
+As an output from `read_diag_data()` will be ArrowObject (Dataset) that you can then pass to the function `filter_diag()` to efficiently filter any relevant observations: 
+
+
+```{r filter-parquet}
+
+filtered_parquet <- filter_diag(
+  diag_parquet, 
+  pattern_codes = c("F84", "F45"), 
+  classification = "icd", 
+  id_col = "id", 
+  code_col = "code", 
+  date_col = "diag_year", 
+  diag_dates = c(2012), 
+  rm_na = TRUE, 
+  log_path = l_path)
+```
+
+
+### Performance 
+
+
+As it is to be expected, the filtering done on the parquet dataset is in average double as fast than the regular filter done on a tibble or data frame object: 
+
+
+```{r bench-parquet-csv, echo=T, message=FALSE, results='hide'}
+
+diag_tibble <- read_diag_data(
+  file_path = tp_csv, 
+  id_col = "id", 
+  date_col = "diag_year",
+  code_col = "code",
+  log_path = l_path)
+
+
+
+mb_filter <- microbenchmark::microbenchmark(
+  parquet = 
+    filter_diag(
+      diag_parquet, 
+      pattern_codes = c("F84", "F45"), 
+      classification = "icd", 
+      id_col = "id", 
+      code_col = "code", 
+      date_col = "diag_year", 
+      diag_dates = c(2012), 
+      rm_na = TRUE, 
+      log_path = l_path), 
+  tibble = 
+    filter_diag(
+      diag_tibble, 
+      pattern_codes = c("F84", "F45"), 
+      classification = "icd", 
+      id_col = "id", 
+      code_col = "code", 
+      date_col = "diag_year", 
+      diag_dates = c(2012), 
+      rm_na = TRUE, 
+      log_path = l_path), 
+  check = NULL
+)
+
+```
+
+
+
+```{r bench-plot, echo = FALSE}
+
+mb_filter
+ggplot2::autoplot(mb_filter) + ggplot2::ggtitle("Parquet vs csv filtering")
+
+```
+
+

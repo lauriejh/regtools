@@ -11,3 +11,4 @@
 ^data-raw$
 ^log$
 ^README\.Rmd$
+^vignettes/articles$

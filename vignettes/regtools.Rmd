@@ -24,7 +24,7 @@ Researchers with access to microdata from health and/or administrative registers
 
 This vignette introduces you to regtool's main functions and shows examples of how to use them with individual-level data.
 
-## Package datasets
+## Example datasets
 
 To exemplify the main functions of the package, we have included a couple of illustrative simulated datasets. These datasets are also used in the examples specified in the functions' documentation.
 
@@ -48,13 +48,13 @@ The dataset `invar_df` is a tibble with simulated individual-level time-invarian
 str(invar_df)
 ```
 
-All the datasets above have been created using the `simulate_dataset()` function included in this package. The exact code used to create them can be found in the folder `/data-raw` in the package's source code.
+All the datasets above have been created using the `synthetic_dataset()` function included in this package. The exact code used to create them can be found in the folder `/data-raw` in the package's source code.
 
 Besides the main diagnostic and sociodemographic datasets included in the package, there are also two datasets included to facilitate running examples:
 
--    `kommuner_2016`: data.frame including all municipality codes in Norway valid in 2016.
+-    `kommuner_2016`: data frame including all municipality codes in Norway valid in 2016.
 
--   `linked_df`: tibble including linked diagnostic, time-invariant and time-varying data.
+-   `linked_df`: data frame including linked diagnostic, time-invariant and time-varying data.
 
 ## General features
 
@@ -71,7 +71,7 @@ cat("Vignette log file", file = log_file)
 
 Generally, researchers working with individual level registry data (in Norway) will find their datasets divided (and delivered) in three different categories:
 
--   **Diagnostic data:** normally containing unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
+-   **Diagnostic data:** normally including unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
 
 -   **Time-invariandata:** sociodemographic data such as date of birth, immigration background, etc.
 
@@ -135,12 +135,12 @@ filtered_diag_pattern <-  filter_diag(data = diag_df,
 ```
 
 To further refine the filter of a diagnostic dataset, the `curate_diag()` provides additional options. For example, you can keep only individuals (identified by an unique person identifier) with at least a minimum number of diagnostic events or only keep first-time diagnosis (when a date variable is available). Look at the specific function's documentation for more info.
-
+data frame
 
 
 ### Filter time-varying and time-invariant data 
 
-To filter both the time-varying and time-invariant datasets, you should use `filter_demo()`. This function filters the given dataset to keep only the observations with the relevant chracteristics. 
+To filter both the time-varying and time-invariant datasets, you should use `filter_demo()`. This function filters the given dataset to keep only the observations with the relevant characteristics. 
 
 For example, to only keep observations where the individuals have resided in the municiplality "1146" between the years 2012-2015: 
 
@@ -175,7 +175,7 @@ linked_diag_inv <- link_diag_demo(data_diag = filtered_diag_pattern,
 
 ```
 
-The resulting dataset from `link_diag_demo()`is a minimal tidy dataset that you can then use to run other analytical functions. 
+The resulting dataset from `link_diag_demo()`is a minimal tidy dataset that you can then use to run other functions. 
 
 ## Analysis
 
