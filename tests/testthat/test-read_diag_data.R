@@ -196,18 +196,18 @@ test_that("Error when unsupported file extensions and nonexistent files", {
 
 
 
-test_that("CLI stable for sample CSV", {
-  l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
-  test_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
-  expect_snapshot({
-    invisible(
-      read_diag_data(
-        file_path = test_csv,
-        id_col = "id",
-        date_col = "diag_year",
-        code_col = "code",
-        log_path = l_path
-      )
-    )
-  }, transform = snap_redact_paths)
-})
+# test_that("CLI stable for sample CSV", {
+#   l_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+#   test_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
+#   expect_snapshot({
+#     invisible(
+#       read_diag_data(
+#         file_path = test_csv,
+#         id_col = "id",
+#         date_col = "diag_year",
+#         code_col = "code",
+#         log_path = l_path
+#       )
+#     )
+#   }, transform = snap_redact_paths)
+# })

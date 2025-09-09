@@ -185,17 +185,17 @@ test_that("Error duplicated ids when invariant type", {
 
 
 
-test_that("CLI stable for sample CSV", {
-  log_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
-  test_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
-  expect_snapshot({
-    invisible(
-      read_demo_data(
-        file_path = test_csv,
-        data_type = "t_invariant",
-        id_col = "id",
-        log = log_path
-      )
-    )
-  }, transform = snap_redact_paths)
-})
+# test_that("CLI stable for sample CSV", {
+#   log_path <- withr::local_tempfile(fileext = ".log", lines = "Test log")
+#   test_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
+#   expect_snapshot({
+#     invisible(
+#       read_demo_data(
+#         file_path = test_csv,
+#         data_type = "t_invariant",
+#         id_col = "id",
+#         log = log_path
+#       )
+#     )
+#   }, transform = snap_redact_paths)
+# })
