@@ -245,8 +245,6 @@ if (inherits(data, what = c("ArrowObject"))){
   log_info("Remaining number of columns: {ncol(filtered_data)}")
   log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data[[id_col]])}")
   log_info("ICD-10 codes in dataset: {paste(unique(filtered_data$code, fromLast = T), collapse = ', ')}")
-  log_formatter(formatter_pander)
-  log_info(sapply(filtered_data, class))
 
   return(filtered_data)
 }

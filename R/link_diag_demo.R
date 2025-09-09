@@ -127,8 +127,5 @@ link_diag_demo <- function(data_diag, data_demo_inv = NULL, data_demo_var = NULL
   cli::cli_alert_success("Total matched rows: {.val {nrow(linked_df)}}")
   log_info("Total matched rows: {nrow(linked_df)}")
 
-  log_formatter(formatter_pander)
-  log_info(sapply(linked_df, class))
-
   return(linked_df)
 }

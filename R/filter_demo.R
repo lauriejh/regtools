@@ -155,10 +155,6 @@ filter_demo <- function(data, data_type = c("t_variant", "t_invariant"), filter_
   log_with_separator(glue::glue("Diagnostic dataset '{substitute(data)}' succesfully filtered"))
   log_info("Remaining number of rows: {nrow(filtered_data)}")
   log_info("Remaining number of columns: {ncol(filtered_data)}")
-  log_formatter(formatter_pander)
-  log_info(sapply(filtered_data, class))
-
-
 
   return(filtered_data)
 }

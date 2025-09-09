@@ -189,8 +189,6 @@ read_demo_data <- function(file_path, data_type = c("t_variant", "t_invariant"),
   log_info("Data Summary: ")
   log_info("Number of rows: {nrow(data)}")
   log_info("Numner of columns: {ncol(data)}")
-  log_formatter(formatter_pander)
-  log_info(sapply(data, class))
 
   return(data)
 }

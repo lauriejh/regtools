@@ -115,8 +115,6 @@ curate_diag <- function(data, min_diag = 1, first_diag = TRUE, id_col = "id", co
   log_info("Remaining number of columns: {ncol(filtered_data_min)}")
   log_info("Unique IDs in dataset: {dplyr::n_distinct(filtered_data_min[[id_col]])}")
   log_info("ICD-10 codes in dataset: {paste(unique(filtered_data_min$code, fromLast = T), collapse = ', ')}")
-  log_formatter(formatter_pander)
-  log_info(sapply(filtered_data_min, class))
 
   return(filtered_data_min)
 }
