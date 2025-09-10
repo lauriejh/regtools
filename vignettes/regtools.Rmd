@@ -20,47 +20,40 @@ library(regtools)
 
 **regtools** aims to facilitate the manipulation, analysis and visualization of health and population registers and capitalize on their characteristics.
 
-Researchers with access to microdata from health and/or administrative registers in Norway can use {regtools} to streamline their initial analytical process. The package includes functions for data pre-processing, linkage, and the computation of relevant statistics and visualizations, such as stratified frequencies, incidence and prevalence rates.
+Researchers with access to microdata from health and/or administrative registers in Norway can use regtools to streamline their initial analytical process. The package includes functions for data pre-processing, linkage, and the computation of relevant statistics and visualizations, such as stratified frequencies, incidence and prevalence rates.
 
 This vignette introduces you to regtool's main functions and shows examples of how to use them with individual-level data.
+
+<!-- Add information about the other functions, and link to them. Just one line -->
 
 ## Example datasets
 
 To exemplify the main functions of the package, we have included a couple of illustrative simulated datasets. These datasets are also used in the examples specified in the functions' documentation.
-
-*Note: the included datasets are large in size to parallel the size you would normally encounter when working with real microdata.*
 
 The dataset `diag_df` is a tibble with simulated individual-level diagnostic data. It is documented in `?diag_df`
 ```{r diagdf, echo=TRUE}
 str(diag_df)
 ```
 
-
 The dataset `var_df` is a tibble with simulated individual-level time-varying data. It is documented in `?var_df`
-
 ```{r vardf, echo=TRUE}
 str(var_df)
 ```
 
 The dataset `invar_df` is a tibble with simulated individual-level time-invariant data. It is documented in `?invar_df`
-
 ```{r invardf, echo=TRUE}
 str(invar_df)
 ```
 
 All the datasets above have been created using the `synthetic_dataset()` function included in this package. The exact code used to create them can be found in the folder `/data-raw` in the package's source code.
 
-Besides the main diagnostic and sociodemographic datasets included in the package, there are also two datasets included to facilitate running examples:
+## Logging 
 
--    `kommuner_2016`: data frame including all municipality codes in Norway valid in 2016.
+To facilitate reproducibility and transparency across research projects, the majority of functions in regtools create log files that document their internal data processing, warnings/errors and corresponding outputs. Similarly, each function provides clear console feedback after it executes important operations (filter, select, join, etc). 
 
--   `linked_df`: data frame including linked diagnostic, time-invariant and time-varying data.
+It is possible to either provide the path to an already existing .log file or set the argument `log_path = NULL` (default) to create a new /log directory and .log file for each function. For instance, the `read_diag_data()` with a `NULL` log_path will first check in the working directory for a `/log` directory. In case it does not already exist, the `/log` directory is created in the current wd and a <read_diag_data_dd_mm_yyyy.log> file is initialized. 
 
-## General features
-
-The majority of functions create log files to encourage reproducibility and consistency across research projects. Additionally, each function provides clear console feedback after it executes important operations (filter, select, join, etc)
-
-For the next examples, we can initialize a temporary log file: 
+For the next examples, a temporary log file is used: 
 
 ```{r log-setup, echo=TRUE}
 log_file <- tempfile()
@@ -69,20 +62,23 @@ cat("Vignette log file", file = log_file)
 
 ## Data reading and validation
 
-Generally, researchers working with individual level registry data (in Norway) will find their datasets divided (and delivered) in three different categories:
+Generally, researchers working with Norwegian individual-level registry data will find their datasets divided and delivered in three different categories:
 
--   **Diagnostic data:** at least including unique personal identifier (id), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
+-   **Diagnostic data:** at least including unique personal identifier (ID), date of diagnostic event, and diagnosis code (such as ICD-10 or ICP-2). For instance, datasets from NPR (Norwegian Patient Registry) or KUHR.
 
--   **Time-invariandata:** sociodemographic data such as date of birth, immigration background, etc.
+-   **Time-invariant:** sociodemographic data such as date of birth, immigration background, etc.
 
 -   **Time-varying data:** sociodemographic data such as place of residence or marital status. This type of information usually is updated quarterly or yearly in administrative registries.
 
 Assuming a researcher would want to compute sex-stratified prevalence rates for a certain diagnosis, at least they would need a diagnostic dataset and a time-invariant dataset (including sex).
 
-The functions `read_demo_data()` and `read_diag_data()` check the dataset's minimum requirements, as well as giving a quick summary of the dataset's structure. You need to specify the column names corresponding to the id and date variables (see the function documentation for more info).
+The functions `read_demo_data()` and `read_diag_data()` check the dataset's minimum requirements, as well as giving a quick summary of the dataset's structure. For example, in the case of *time-invariant* data, it is assumed that each row in the dataset corresponds to a individual identified by a unique personal identified. To check this type of minimum requirements, it is necessary to specify some of the column names corresponding to the id or date variables (see the function documentation for more info).
 
-<!-- Mention what type of files are supported, and refere to the parquet vignette for more information about it. It is recommended for performance, that large datasets stored as parquet files and then read/filtered -->
+**Note**: these functions only check for minimum requirements, your real datasets can contain additional variables/columns. For example, NPR sometimes includes sex and age information for each individual in the same diagnostic dataset. 
 
+These functions support common data file formats that researchers might realistically encounter in data deliveries, such as CSV, SAV and *parquet* files. Parquet files are specially useful when working with very large data, as the storage and data processing is more efficient than other types of file formats (e.g. CSV files). As explained in the `vignette("parquet-files")`, it is encouraged to use parquet files for large and larger-than-memory data within regtools. The vignette also includes general instructions on how to write/save parquet datasets. 
+
+To read and validate the minimum requirements of a CSV file containing diagnostic data: 
 ```{r read-diag, echo=TRUE}
 diag_csv <- system.file("extdata", "diag_data.csv", package = "regtools")
 
@@ -90,107 +86,126 @@ diag_data_validated <- regtools::read_diag_data(
   diag_csv,
   id_col = "id",
   date_col = "diag_year",
-  log_path = log_file)
+  log_path = log_file
+)
 ```
 
+Similarly, to read and validate the minimum requirements of time-invariant dataset stored as a CSV file: 
 ```{r read-demo, echo=TRUE}
 demo_csv <- system.file("extdata", "invar_data.csv", package = "regtools")
 
 demo_data_validated <- read_demo_data(
-  demo_csv, 
+  demo_csv,
   data_type = "t_invariant",
-  id_col = "id", 
-  log_path = log_file)
-
+  id_col = "id",
+  log_path = log_file
+)
 ```
 
-Note: the read functions only check for minimum requirements, your real datasets can contain additional variables/columns. For example, NPR sometimes includes sex and age information for each individual in the same diagnostic dataset. 
+In the case of CSV, RDS/RDA and SAV files, the resulting output is a tibble that can be further passed as input to other functions in the package. For parquet files/datasets, the output is an ArrowObject that can be used as input in the filtering functions described in the section below. For more information about ArrowObject, please consult the documentation from the package `arrow`.
 
 ## Data filtering
 
-In most cases, the real microdata you will be working with is very large. Therefore, regtools encourages a filter first approach. The following functions are useful to keep only relevant cases to your analysis. 
+Usually, individual-level registry data has a large number of observations which makes it cumbersome to manipulate and prepare for analysis. For that reason, it is advantageous to follow a filter first approach and filter out the non-relevant variables and observations. 
 
-<!-- Mention again that parquet files are going to be more efficient when filtering data -->
+As mentioned in the `vignette("parquet-files")`, parquet files are more efficient than other type of files at performing operations on large datasets. Therefore, both the `filter_diag()` and `filter_demo()` functions are more memory efficient when providing an ArrowObject as an input (see section above). 
+
+Regardless of the input's data type (ArrowObject or tibble), the output of these functions are tibbles. It is assumed that after the initial filtering of both diagnostic and sociodemographic data, the datasets will be smaller and easier for users to manipulate as in-memory tibbles. 
 
 ### Filter diagnostic data 
 
-To filter the diagnostic dataset, you should use `filter_diag()`. This function validates that the ICD-10 codes you are indeed valid. If they are valid, it filters the given diagnostic dataset to keep only the observations with the relevant ICD-10 codes. 
+Due to the distinct characteristics of diagnostic and time-varying/time-invariant datasets, there are two filtering functions: `filter_diag()` and `filter_demo()`. The former validates that the ICD-10 or ICPC-2 codes/family or codes are currently valid in the desired classification system. If they are valid, it filters the given diagnostic dataset to keep only the observations with the relevant ICD-10 or ICPC-2 codes. Additionally, it is possible to filter by date of the diagnostic event. 
 
-<!-- Include that also supports ICP-2 codes in the case of primary care data  -->
-
-For example, to keep only the observations that either have the ICD-10 code *F840* or *F841*: 
+For example, to keep only the observations that either have the ICD-10 code *F840* or *F841*, between the years of 2016 and 2017: 
 
 ```{r filter-diag-codes, echo = TRUE}
-filtered_diag_codes <-  filter_diag(
+filtered_diag_codes <- filter_diag(
   data = diag_df,
   codes = c("F840", "F841"),
+  classification = "icd",
   id_col = "id",
   code_col = "code",
-  log_path = log_file)
-
+  date_col = "diag_year",
+  diag_dates = c("2016", "2017"),
+  log_path = log_file
+)
 ```
 
-Alternatively, it is also possible to filter by pattern/family of codes. For example, to keep the observations with all codes starting with *F45* or *F84*: 
+Alternatively, it is also possible to filter by pattern/family of codes. For example, to keep the observations with all valid ICD-10 codes starting with *F45* or *F84*: 
 
 ```{r filter-diag-pattern, echo = TRUE}
-filtered_diag_pattern <-  filter_diag(
+filtered_diag_pattern <- filter_diag(
   data = diag_df,
   pattern_codes = c("F45", "F84"),
+  classification = "icd",
   id_col = "id",
   code_col = "code",
-  log_path = log_file )
-
+  log_path = log_file
+)
 ```
 
-To further refine the filter of a diagnostic dataset, the `curate_diag()` provides additional options. For example, you can keep only individuals (identified by an unique person identifier) with at least a minimum number of diagnostic events or only keep first-time diagnosis (when a date variable is available). Look at the specific function's documentation for more info.
-data frame
+To further refine the filter of a diagnostic dataset, the `curate_diag()` provides some additional options. It is important to highlight that this function only supports data frames (preferably tibbles) as input. 
 
-<!-- Give concrete example of curate diag -->
+To keep only cases (identified by an unique person identifier) with at least two diagnostic events, but summarizing information by their first-time diagnosis: 
+
+```{r curate-diag, echo = TRUE}
+curated_diag <- curate_diag(
+  data = filtered_diag_pattern,
+  min_diag = 2,
+  first_diag = TRUE,
+  id_col = "id",
+  code_col = "code",
+  date_col = "diag_year",
+  log_path = log_file
+)
+```
 
 
 ### Filter time-varying and time-invariant data 
 
-To filter both the time-varying and time-invariant datasets, you should use `filter_demo()`. This function filters the given dataset to keep only the observations with the relevant characteristics. 
+Similar to the filtering of diagnostic data, `filter_demo()` aids with the filtering of both time-varying and time-invariant datasets. As previously mentioned, this function also supports ArrowObject as input data. 
 
-For example, to only keep observations where the individuals have resided in the municipality "1146" between the years 2012-2015: 
-
-<!-- Need to change example, there are no observations with those codes  -->
+For example, to only keep observations where the individuals have resided in the municipality "0815" between the years 2012 and 2015: 
 
 ```{r filter-var, echo = TRUE}
 filtered_var <- filter_demo(
   data = var_df,
   data_type = "t_variant",
-  filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("1146")),
-  log_path = log_file)
-
+  filter_param = list("year_varying" = c(2012:2015), "varying_code" = c("0815")),
+  log_path = log_file
+)
 ```
  
-
-In the case of time-invariant data, to keep only individuals with year of birth between 2006-2008 and reason of immigration "FAMM" or "UTD": 
+ In the case of time-invariant data, to keep only individuals with year of birth between 2006-2008 and reason of immigration "ARB", "NRD" or "UKJ": 
 
 ```{r filter-invar, echo = TRUE}
-filtered_invar <- filter_demo(data = invar_df, data_type = "t_invariant",
-                              filter_param = list("y_birth" = c(2010:2018), "innvandringsgrunn" = c("ARB","NRD", "UKJ")),
-                              rm_na = FALSE,
-                              log_path = log_file)
-
+filtered_invar <- filter_demo(
+  data = invar_df, data_type = "t_invariant",
+  filter_param = list("y_birth" = c(2010:2018), "innvandringsgrunn" = c("ARB", "NRD", "UKJ")),
+  rm_na = FALSE,
+  log_path = log_file
+)
 ```
 
 ## Linkage
 
-After filtering the datasets, we can link them using the individuals unique personal identifier. Depending on the type of analysis and relevant variables, it might not be necessary to link any datasets. 
+Many of the analyses typically done with registry data require the linkage of different registers to access both health and sociodemographic information (e.g. stratified prevalence rates). After filtering the datasets to keep only relevant observations, it is easier to then link them using the individuals unique personal identifier present in each dataset. Depending on the type of analysis and relevant variables, it might not be necessary to link any datasets. 
+
+The `link_diag_demo()` function can aid with the linkage process conditioned that all datasets share the same IDs to uniquely idetify individuals. To link both the already filtered diagnostic and time-invariant datasets: 
 
 ```{r link-data, echo = TRUE}
-linked_diag_inv <- link_diag_demo(data_diag = filtered_diag_pattern,
-                                  data_demo_inv = filtered_invar,
-                                  id_col = "id",
-                                  log_path = log_file)
-
+linked_diag_inv <- link_diag_demo(
+  data_diag = filtered_diag_pattern,
+  data_demo_inv = filtered_invar,
+  id_col = "id",
+  log_path = log_file
+)
 ```
 
-The resulting dataset from `link_diag_demo()`is a minimal tidy dataset that you can then use to run other functions. 
+As part of the linking process, the function provides some useful information about the number of matched cases (individuals) and summary information of the new linked dataset. The resulting dataset from `link_diag_demo()` is a minimal dataset that contains all relevant observations to perform further analyses.
 
 ## Analysis
 
+Until this point, all the functions described are (can be used... Regardless of analysis, data preparation in general.) Considering a lot of this type of data is used for epidemiology and monitoring, package also includes some more directed function to aid with calculating prevalence and incidence. 
 
 ## Visualize 
