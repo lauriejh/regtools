@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_diag.R
 \name{filter_diag}
 \alias{filter_diag}
-\title{Validate and filter diagnostic data by selected ICD-10 codes}
+\title{Validate and filter diagnostic data by selected ICD-10 or ICPC-2 codes}
 \usage{
 filter_diag(
   data,
@@ -10,7 +10,7 @@ filter_diag(
   pattern_codes = NULL,
   classification = "icd",
   id_col = "id",
-  code_col = "icd_code",
+  code_col = "code",
   date_col = NULL,
   diag_dates = NULL,
   rm_na = TRUE,
@@ -20,15 +20,15 @@ filter_diag(
 \arguments{
 \item{data}{A data frame containing pre-processed diagnostic data.}
 
-\item{codes}{A character vector. ICD-10 codes to validate and filter in \code{data}}
+\item{codes}{A character vector. ICD-10 or ICPC-2 codes to validate and filter in \code{data}}
 
-\item{pattern_codes}{A character vector. Pattern of ICD-10 codes to validate and filter in \code{data}. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.}
+\item{pattern_codes}{A character vector. Pattern of ICD-10 or ICPC-2 codes to validate and filter in \code{data}. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc).}
 
 \item{classification}{A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".}
 
 \item{id_col}{A character string. Name of the ID column in \code{data}, default is "id"}
 
-\item{code_col}{A character string. Name of the column containing the ICD-10 codes in \code{data}, default is "icd_code"}
+\item{code_col}{A character string. Name of the column containing the ICD-10 or ICPC-2 codes in \code{data}, default is "code"}
 
 \item{date_col}{A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is \code{NULL}.}
 
@@ -48,7 +48,7 @@ filter_diag(
 Filtered and validated diagnostic data frame containing only relevant observations based on diagnostic codes of interest.
 }
 \description{
-Validate and filter diagnostic data by selected ICD-10 codes
+Validate and filter diagnostic data by selected ICD-10 or ICPC-2 codes
 }
 \examples{
 # Validate that F45 and F84 are real codes/family of codes in ICD-10.

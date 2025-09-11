@@ -1,11 +1,11 @@
-#' Validate and filter diagnostic data by selected ICD-10 codes
+#' Validate and filter diagnostic data by selected ICD-10 or ICPC-2 codes
 #'
 #' @param data A data frame containing pre-processed diagnostic data.
-#' @param codes A character vector. ICD-10 codes to validate and filter in `data`
-#' @param pattern_codes A character vector. Pattern of ICD-10 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc.
+#' @param codes A character vector. ICD-10 or ICPC-2 codes to validate and filter in `data`
+#' @param pattern_codes A character vector. Pattern of ICD-10 or ICPC-2 codes to validate and filter in `data`. For example, F84 will use all codes starting with F84 (F840, F841, F842, F844, etc).
 #' @param classification A character string. Classification used in diagnostic codes: ICD-10  or ICPC-2. Options are "icd" or "icpc". Default is "icd".
 #' @param id_col A character string. Name of the ID column in `data`, default is "id"
-#' @param code_col A character string. Name of the column containing the ICD-10 codes in `data`, default is "icd_code"
+#' @param code_col A character string. Name of the column containing the ICD-10 or ICPC-2 codes in `data`, default is "code"
 #' @param date_col A character string. Name of the column containing the date of the diagnostic event. Only needed i if you want to filter by diagnosis date. Default is `NULL`.
 #' @param diag_dates A character vector. Dates (years, months, etc) that you want to filter the diagnostic data by.
 #' @param rm_na Logical. Should rows with NA in the non-filtered columns be removed? Default is `FALSE`
@@ -34,7 +34,7 @@
 #' @import logger
 #' @importFrom rlang .data
 
-filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "icd_code", date_col = NULL, diag_dates = NULL, rm_na = TRUE, log_path = NULL){
+filter_diag <- function(data, codes = NULL, pattern_codes = NULL, classification = "icd", id_col = "id", code_col = "code", date_col = NULL, diag_dates = NULL, rm_na = TRUE, log_path = NULL){
 
 # Set up logging ----------------------------------------------------------
 
