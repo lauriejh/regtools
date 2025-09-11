@@ -223,7 +223,7 @@ plot_rates <- function(data,
 
   }
 
-  if(interactive == T){   # does not work in R 4.4.0, need to open in external window
+  if(interactive == TRUE){   # does not work in R 4.4.0, need to open in external window
     plot <- plot |> plotly::ggplotly()
   }
 

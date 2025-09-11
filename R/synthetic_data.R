@@ -160,7 +160,7 @@ synthetic_data <- function(
       }
       prevalence_cases <- round(population_size * prevalence)
       if (pattern == "random"){
-        prob_equal = rep.int(1 / periods, periods)
+        prob_equal <- rep.int(1 / periods, periods)
         incidence_cases <- as.vector(stats::rmultinom(1, size = prevalence_cases, prob = prob_equal))
       } else if (pattern == "increase"){
         prob_increasing <- 1:periods
@@ -267,7 +267,7 @@ synthetic_data <- function(
       data[["invariant_code"]] <- new_info$code[sampled_idx]
       data[["description"]] <- new_info$name[sampled_idx]
 
-    } else if (is.list(new_info) && user_codes == F) {
+    } else if (is.list(new_info) && user_codes == FALSE) {
       for (i in seq_along(new_info)) {
         curr_info <- new_info[[i]]
         prefix <- names(new_info)[i]
@@ -277,7 +277,7 @@ synthetic_data <- function(
         data[[new_code_col]] <- curr_info$code[sampled_idx]
         data[[new_desc_col]] <- curr_info$name[sampled_idx]
       }
-    } else if (is.list(new_info) && user_codes == T) {
+    } else if (is.list(new_info) && user_codes == TRUE) {
       new_cols <- purrr::imap(new_info, function(codes, var_name){
         sample(codes, size = nrow(data), replace = TRUE)
       })

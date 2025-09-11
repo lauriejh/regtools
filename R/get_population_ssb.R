@@ -116,7 +116,7 @@ get_population_ssb <- function(url_api = "https://data.ssb.no/api/v0/en/table/07
     }
   }
 
-  if (save_xslx == T){
+  if (save_xslx == TRUE){
     openxlsx::write.xlsx(population_api_df, glue::glue("population_ssb_{regions}.xlsx"), overwrite = T)
     cli::cli_alert_success("XLSX file saved as: population_ssb_{regions}.xlsx")
   } else {
