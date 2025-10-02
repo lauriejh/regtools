@@ -73,4 +73,10 @@ In addition to helping solve practical challenges associated with processing, ma
 
 <!-- Acknowledgment of any financial support, grant numbers? -->
 
-<!--# The CASCADES grant details, "LJH was supported by the South-Eastern Norway Regional Health Authority (#2922083)", any funding from othersTSD, Sigma2 if used (I think not?)I would also suggest thinking about whether Guido/others from the TSD project in which you were working need to be acknowledged here -->
+<!--# “This work was performed on the TSD (Tjeneste for Sensitive Data) facilities, owned by the University of Oslo, operated and developed by the TSD service group at the University of Oslo, IT Department (USIT). (tsd-drift@usit.uio.no).” 
+
+AMS was supported by the Research Council of Norway (#336085). LJH was supported by the South-Eastern Norway Regional Health Authority (#2922083). 
+
+Funding from other (Helga, Alex and Johanne). 
+
+I would also suggest thinking about whether Guido/others from the TSD project in which you were working need to be acknowledged here -->
